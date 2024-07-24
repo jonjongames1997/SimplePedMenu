@@ -4,6 +4,7 @@ using GTA;
 using NativeUI;
 using System.Windows.Forms;
 using System;
+using GTA.Native;
 
 public class SimplePedMenu : Script
 {
@@ -140,6 +141,56 @@ public class SimplePedMenu : Script
             {
                 Vehicle vehicle = World.CreateVehicle("Hustler", Game.Player.Character.Position);
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem bigRig = new UIMenuItem("Phantom", "");
+        uimenu.AddItem(bigRig);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bigRig;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Phantom", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem beachBuggy = new UIMenuItem("Bifta", "");
+        uimenu.AddItem(beachBuggy);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == beachBuggy;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Bifta", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+    }
+
+    public void WeaponeMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Weapon Menu");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem gunPistol = new UIMenuItem("Pistol", "");
+        uimenu.AddItem(gunPistol);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gunPistol;
+            if (flag)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
+            }
+        };
+        UIMenuItem gunCombatPistol = new UIMenuItem("Combat Pistol", "");
+        uimenu.AddItem(gunCombatPistol);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gunCombatPistol;
+            if (flag)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
             }
         };
     }
