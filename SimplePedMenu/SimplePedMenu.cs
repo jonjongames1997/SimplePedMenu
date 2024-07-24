@@ -3,14 +3,9 @@
 using GTA;
 using GTA.Native;
 using NativeUI;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
-public class SimplePedMenu : Script
+public class NativeUITemplate : Script
 {
     private Ped playerPed = Game.Player.Character;
     private Player player = Game.Player;
@@ -144,7 +139,7 @@ public class SimplePedMenu : Script
     }
 
     //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
-    public SimplePedMenu()
+    public NativeUITemplate()
     {
         _menuPool = new MenuPool();
         var mainMenu = new UIMenu("~o~Simple Ped Menu~w~", "~b~by Jon Jon Games Official. ~y~v0.1~w~.");
