@@ -6,6 +6,7 @@ Simple Ped Menu is a ped menu where you can change into any ped in the game besi
 
 * NativeUI (Latest)
 * ScriptHookV (Latest)
+* ScriptHookVDotNet3 (Nightly version recommended)
 
 # Install
 Drag and drop "scripts" folder into Main GTA Directory
