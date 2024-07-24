@@ -17,6 +17,7 @@ public class SimplePedMenu : Script
     private MenuPool _menuPool;
     private ScriptSettings config;
     private Keys OpenMenu;
+    private int amount;
 
     //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
     public void PlayerModelMenu(UIMenu menu)
@@ -102,6 +103,17 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("G_F_Y_VAGOS_01");
             }
         };
+        UIMenuItem ashleyCrackhead = new UIMenuItem("Ashley", "");
+        uimenu.AddItem(ashleyCrackhead);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == ashleyCrackhead;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_ASHLEY");
+            }
+        };
+
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -173,15 +185,61 @@ public class SimplePedMenu : Script
         var weapons = _menuPool.AddSubMenu(menu, "Weapon Menu");
         for (int i = 0; i < 1; i++) ;
 
-        var newweapons = new UIMenuItem("Issue Weapons", "");
-        weapons.AddItem(newweapons);
+        var shotgun = new UIMenuItem("Pump ShotGun", "");
+        weapons.AddItem(shotgun);
         weapons.OnItemSelect += (sender, item, index) =>
         {
-            if (item == newweapons)
+            if (item == shotgun)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
+            }
+        };
+
+        var pistol = new UIMenuItem("Pistol", "");
+        weapons.AddItem(pistol);
+        weapons.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == pistol)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
+            }
+        };
+
+        var carbinerifle = new UIMenuItem("Carbine Rifle", "");
+        weapons.AddItem(carbinerifle);
+        weapons.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == carbinerifle)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CARBINERIFLE"), 9999, false, true);
+            }
+        };
+
+        var tacticalrifle = new UIMenuItem("Tactical Rifle", "");
+        weapons.AddItem(tacticalrifle);
+        weapons.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == carbinerifle)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
+            }
+        };
+    }
+
+    public void MoneyMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Money Menu");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem oneThousandDollars = new UIMenuItem("$1,000", "");
+        uimenu.AddItem(oneThousandDollars);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == oneThousandDollars;
+            if (flag)
+            {
+                Game.Player.Money += this.amount;
             }
         };
     }
