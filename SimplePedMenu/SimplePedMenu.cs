@@ -51,14 +51,13 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_TONYA");
             }
         };
-        UIMenuItem sexyMolly = new UIMenuItem("Molly", "");
+        var sexyMolly = new UIMenuItem("Molly Shultz", "");
         uimenu.AddItem(sexyMolly);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        uimenu.OnItemSelect += (sender, item, index) =>
         {
-            bool flag = item == sexyMolly;
-            if (flag)
+            if (item == sexyMolly)
             {
-                Game.Player.ChangeModel("CS_MOLLY");
+                Game.Player.ChangeModel("IG_MOLLY");
             }
         };
         UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
@@ -71,12 +70,11 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_MICHELLE");
             }
         };
-        UIMenuItem traceyDeSanta = new UIMenuItem("Tracey DeSanta", "");
+        var traceyDeSanta = new UIMenuItem("Tracey DeSanta", "");
         uimenu.AddItem(traceyDeSanta);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        uimenu.OnItemSelect += (sender, item, index) =>
         {
-            bool flag = item == traceyDeSanta;
-            if (flag)
+            if (item == traceyDeSanta)
             {
                 Game.Player.ChangeModel("IG_TRACYDISANTO");
             }
