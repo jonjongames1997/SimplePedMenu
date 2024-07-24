@@ -134,9 +134,9 @@ public class SimplePedMenu : Script
         {
             if (item == newweapons)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FLASHLIGHT"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
                 UI.Notify("~g~You have been issued weapons!"); //This notification will appear with green text above the radar
                 UI.ShowSubtitle("~g~You have been issued weapons!"); //This notification will appear at the bottom of the screen with green text
             }
@@ -153,15 +153,9 @@ public class SimplePedMenu : Script
         VehicleMenu(mainMenu); //Here we add the Vehicle Spawning Sub Menu
         WeaponMenu(mainMenu); //Here we add the Weapon Sub Menu
         _menuPool.RefreshIndex();
-
-        //We will now call from the .INI file for our controls
         config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
-        OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9); //The F7 key will be set my default, but the user can change the key
-
-        //This code will run with every ms tick
+        OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
         Tick += (o, e) => _menuPool.ProcessMenus();
-
-        //This code will open the menu
         KeyDown += (o, e) =>
         {
             if (e.KeyCode == OpenMenu && !_menuPool.IsAnyMenuOpen()) // Our menu on/off switch
