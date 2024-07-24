@@ -218,6 +218,34 @@ public class SimplePedMenu : Script
         };
     }
 
+    public void WantedLevels(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Wanted Levels");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem wantedLevelNone = new UIMenuItem("No Wanted Level", "");
+        uimenu.AddItem(wantedLevelNone);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wantedLevelNone;
+            if (flag)
+            {
+                Game.Player.WantedLevel = 0;
+            }
+        };
+        UIMenuItem wantedLevelOneStar = new UIMenuItem("1 Star Wanted Level", "");
+        uimenu.AddItem(wantedLevelOneStar);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wantedLevelOneStar;
+            if (flag)
+            {
+                Game.Player.WantedLevel = 1;
+            }
+        };
+    }
+
     //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
     public SimplePedMenu()
     {
@@ -227,6 +255,7 @@ public class SimplePedMenu : Script
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
         WeaponMenu(mainMenu);
+        this.WantedLevels(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
