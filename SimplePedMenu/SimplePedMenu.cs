@@ -82,18 +82,41 @@ public class SimplePedMenu : Script
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
     public void VehicleMenu(UIMenu menu)
     {
-        var vehiclemenu = _menuPool.AddSubMenu(menu, "Vehicle Spawning");
-        for (int i = 0; i < 1; i++) ;
-
-        //For this example, we will be spawning the Adder
-        var adder = new UIMenuItem("Adder", "");
-        vehiclemenu.AddItem(adder);
-        vehiclemenu.OnItemSelect += (sender, item, index) =>
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Civilian Vehicles");
+        for (int i = 0; i < 1; i++)
         {
-            if (item == adder)
+        }
+        UIMenuItem tornado = new UIMenuItem("Tornado", "");
+        uimenu.AddItem(tornado);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == tornado;
+            if (flag)
             {
-                Vehicle car = World.CreateVehicle("ADDER", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(car, VehicleSeat.Driver);
+                Vehicle vehicle = World.CreateVehicle("Tornado", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem sovereign = new UIMenuItem("Sovereign", "");
+        uimenu.AddItem(sovereign);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sovereign;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Sovereign", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem hustler = new UIMenuItem("Hustler", "");
+        uimenu.AddItem(hustler);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == hustler;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Hustler", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
     }
