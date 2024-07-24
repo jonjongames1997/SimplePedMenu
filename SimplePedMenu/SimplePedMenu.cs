@@ -21,7 +21,7 @@ public class SimplePedMenu : Script
     //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
     public void PlayerModelMenu(UIMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Ped Menu");
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Peds");
         for (int i = 0; i < 1; i++)
         {
         }
@@ -35,15 +35,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_F_Y_TOPLESS_01");
             }
         };
-        var wadeCrackhead = new UIMenuItem("Wade", "");
-        uimenu.AddItem(wadeCrackhead);
-        uimenu.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == wadeCrackhead)
-            {
-                Game.Player.ChangeModel("cs_wade");
-            }
-        };
         UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
         uimenu.AddItem(tonyaHooker);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -54,15 +45,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_TONYA");
             }
         };
-        var sexyMolly = new UIMenuItem("Molly Shultz", "");
-        uimenu.AddItem(sexyMolly);
-        uimenu.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == sexyMolly)
-            {
-                Game.Player.ChangeModel("ig_molly");
-            }
-        };
         UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
         uimenu.AddItem(karenDaniels);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -71,15 +53,6 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("IG_MICHELLE");
-            }
-        };
-        var traceyDeSanta = new UIMenuItem("Tracey DeSanta", "");
-        uimenu.AddItem(traceyDeSanta);
-        uimenu.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == traceyDeSanta)
-            {
-                Game.Player.ChangeModel("cs_tracydisanto");
             }
         };
         UIMenuItem tourist = new UIMenuItem("Female Tourist 1", "");
@@ -112,16 +85,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_ASHLEY");
             }
         };
-        UIMenuItem nervousRon = new UIMenuItem("Nervous Ron", "");
-        uimenu.AddItem(nervousRon);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == nervousRon;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_nervousron");
-            }
-        };
         UIMenuItem grandpa = new UIMenuItem("Grandpa", "");
         uimenu.AddItem(grandpa);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -130,25 +93,6 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_M_O_GENSTREET_01");
-            }
-        };
-        UIMenuItem sexyAmanda = new UIMenuItem("Amanda DeSanta", "");
-        uimenu.AddItem(sexyAmanda);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == sexyAmanda;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_AMANDATOWNLEY");
-            }
-        };
-        var patriciaMadrazo = new UIMenuItem("Patricia Madrazo", "");
-        uimenu.AddItem(patriciaMadrazo);
-        uimenu.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == patriciaMadrazo)
-            {
-                Game.Player.ChangeModel("ig_patricia");
             }
         };
     }
@@ -230,7 +174,7 @@ public class SimplePedMenu : Script
 
     public void WeaponMenu(UIMenu menu)
     {
-        var weapons = _menuPool.AddSubMenu(menu, "Weapon Menu");
+        var weapons = _menuPool.AddSubMenu(menu, "Weapons");
         for (int i = 0; i < 1; i++) ;
         var newweapons = new UIMenuItem("Give Weapons", "");
         weapons.AddItem(newweapons);
@@ -248,7 +192,30 @@ public class SimplePedMenu : Script
 
     public void AnimalMenu(UIMenu menu)
     {
-
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Animals");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem pig = new UIMenuItem("Pig", "");
+        uimenu.AddItem(pig);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == pig;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_PIG");
+            }
+        };
+        UIMenuItem poodle = new UIMenuItem("Poodle", "");
+        uimenu.AddItem(poodle);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == poodle;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_POODLE");
+            }
+        };
     }
 
     //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
@@ -260,6 +227,7 @@ public class SimplePedMenu : Script
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
         WeaponMenu(mainMenu);
+        this.AnimalMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
