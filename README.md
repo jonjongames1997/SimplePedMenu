@@ -25,8 +25,8 @@ Drag and drop "scripts" folder into Main GTA Directory
 3) Select what you want and enjoy!
 
 # Mod Compatibility
-Hot Coffee by K-po Games - ❌
-(Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
+* Hot Coffee by K-po Games - ❌
+* (Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
 
 # Support
 
