@@ -17,7 +17,6 @@ public class SimplePedMenu : Script
     private MenuPool _menuPool;
     private ScriptSettings config;
     private Keys OpenMenu;
-    private int amount;
 
     //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
     public void PlayerModelMenu(UIMenu menu)
@@ -42,7 +41,7 @@ public class SimplePedMenu : Script
         {
             if (item == wadeCrackhead)
             {
-                Game.Player.ChangeModel("CS_WADE");
+                Game.Player.ChangeModel("cs_wade");
                 Game.Player.Character.IsVisible = true;
             }
         };
@@ -62,7 +61,7 @@ public class SimplePedMenu : Script
         {
             if (item == sexyMolly)
             {
-                Game.Player.ChangeModel("IG_MOLLY");
+                Game.Player.ChangeModel("ig_molly");
                 Game.Player.Character.IsVisible = true;
             }
         };
@@ -82,7 +81,7 @@ public class SimplePedMenu : Script
         {
             if (item == traceyDeSanta)
             {
-                Game.Player.ChangeModel("CS_TRACYDISANTO");
+                Game.Player.ChangeModel("cs_tracydisanto");
                 Game.Player.Character.IsVisible = true;
             }
         };
@@ -123,7 +122,7 @@ public class SimplePedMenu : Script
             bool flag = item == nervousRon;
             if (flag)
             {
-                Game.Player.ChangeModel("IG_NERVOUSRON");
+                Game.Player.ChangeModel("ig_nervousron");
             }
         };
         UIMenuItem grandpa = new UIMenuItem("Grandpa", "");
@@ -202,66 +201,19 @@ public class SimplePedMenu : Script
         };
     }
 
-    public void WeaponeMenu(UIMenu menu)
+    public void WeaponMenu(UIMenu menu)
     {
         var weapons = _menuPool.AddSubMenu(menu, "Weapon Menu");
         for (int i = 0; i < 1; i++) ;
-
-        var shotgun = new UIMenuItem("Pump ShotGun", "");
-        weapons.AddItem(shotgun);
+        var newweapons = new UIMenuItem("Give Weapons", "");
+        weapons.AddItem(newweapons);
         weapons.OnItemSelect += (sender, item, index) =>
         {
-            if (item == shotgun)
+            if (item == newweapons)
             {
-                Game.Player.Character.Weapons.Give("WEAPON_PUMPSHOTGUN", 9999, false, true);
-            }
-        };
-
-        var pistol = new UIMenuItem("Pistol", "");
-        weapons.AddItem(pistol);
-        weapons.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == pistol)
-            {
-                Game.Player.Character.Weapons.Give( "WEAPON_PISTOL", 9999, false, true);
-            }
-        };
-
-        var carbinerifle = new UIMenuItem("Carbine Rifle", "");
-        weapons.AddItem(carbinerifle);
-        weapons.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == carbinerifle)
-            {
-                Game.Player.Character.Weapons.Give("WEAPON_CARBINERIFLE", 9999, false, true);
-            }
-        };
-
-        var tacticalrifle = new UIMenuItem("Tactical Rifle", "");
-        weapons.AddItem(tacticalrifle);
-        weapons.OnItemSelect += (sender, item, index) =>
-        {
-            if (item == carbinerifle)
-            {
-                Game.Player.Character.Weapons.Give("WEAPON_TACTICALRIFLE", 9999, false, true);
-            }
-        };
-    }
-
-    public void MoneyMenu(UIMenu menu)
-    {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Money Menu");
-        for (int i = 0; i < 1; i++)
-        {
-        }
-        UIMenuItem oneThousandDollars = new UIMenuItem("$1,000", "");
-        uimenu.AddItem(oneThousandDollars);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == oneThousandDollars;
-            if (flag)
-            {
-                Game.Player.Money += this.amount;
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
             }
         };
     }
@@ -274,8 +226,7 @@ public class SimplePedMenu : Script
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
-        this.WeaponeMenu(mainMenu);
-        this.MoneyMenu(mainMenu);
+        WeaponMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
@@ -283,16 +234,13 @@ public class SimplePedMenu : Script
         {
             this._menuPool.ProcessMenus();
         };
-        base.Tick += delegate (object o, EventArgs e)
-        {
-            Game.Player.WantedLevel = 0;
-        };
         base.KeyDown += delegate (object o, KeyEventArgs e)
         {
             bool flag = e.KeyCode == this.OpenMenu && !this._menuPool.IsAnyMenuOpen();
             if (flag)
             {
                 mainMenu.Visible = !mainMenu.Visible;
+                Cursor.Hide();
             }
         };
     }
