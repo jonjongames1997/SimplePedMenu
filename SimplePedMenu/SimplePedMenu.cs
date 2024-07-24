@@ -23,17 +23,58 @@ public class SimplePedMenu : Script
     //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
     public void PlayerModelMenu(UIMenu menu)
     {
-        var playermodelmenu = _menuPool.AddSubMenu(menu, "Player Model Menu");
-        for (int i = 0; i < 1; i++) ;
-
-        //We will change our player model to the male LSPD officer
-        var malecop = new UIMenuItem("Male LSPD Officer", "");
-        playermodelmenu.AddItem(malecop);
-        playermodelmenu.OnItemSelect += (sender, item, index) =>
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Simple Ped Menu");
+        for (int i = 0; i < 1; i++)
         {
-            if (item == malecop)
+        }
+        UIMenuItem femaleTopless = new UIMenuItem("Female Topless 1", "");
+        uimenu.AddItem(femaleTopless);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == femaleTopless;
+            if (flag)
             {
-                Game.Player.ChangeModel("S_M_Y_COP_01");
+                Game.Player.ChangeModel("A_F_Y_TOPLESS_01");
+            }
+        };
+        UIMenuItem wadeCrackhead = new UIMenuItem("Wade", "");
+        uimenu.AddItem(wadeCrackhead);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wadeCrackhead;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_WADE");
+            }
+        };
+        UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
+        uimenu.AddItem(tonyaHooker);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == tonyaHooker;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_TONYA");
+            }
+        };
+        UIMenuItem sexyMolly = new UIMenuItem("Molly", "");
+        uimenu.AddItem(sexyMolly);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyMolly;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_MOLLY");
+            }
+        };
+        UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
+        uimenu.AddItem(karenDaniels);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == karenDaniels;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_KAREN_DANIELS");
             }
         };
     }
@@ -64,7 +105,7 @@ public class SimplePedMenu : Script
         for (int i = 0; i < 1; i++) ;
 
         //For this example, we will equipping a flashlight, combat pistol, and pump shotgun
-        var newweapons = new UIMenuItem("Issue Weapons", "");
+        var newweapons = new UIMenuItem("Give Weapons", "");
         weapons.AddItem(newweapons);
         weapons.OnItemSelect += (sender, item, index) =>
         {
@@ -83,7 +124,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         _menuPool = new MenuPool();
-        var mainMenu = new UIMenu("~r~Police~w~Menu ~b~V", "~b~Mod by Abel Gaming! ~r~V 1.9");
+        var mainMenu = new UIMenu("~o~Simple Ped Menu~w~", "~b~by Jon Jon Games Official. ~y~v0.1~w~.");
         _menuPool.Add(mainMenu);
         PlayerModelMenu(mainMenu); //Here we add the Player Model Sub Menu
         VehicleMenu(mainMenu); //Here we add the Vehicle Spawning Sub Menu
@@ -91,8 +132,8 @@ public class SimplePedMenu : Script
         _menuPool.RefreshIndex();
 
         //We will now call from the .INI file for our controls
-        config = ScriptSettings.Load("scripts\\settings.ini");
-        OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F7); //The F7 key will be set my default, but the user can change the key
+        config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
+        OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9); //The F7 key will be set my default, but the user can change the key
 
         //This code will run with every ms tick
         Tick += (o, e) => _menuPool.ProcessMenus();
