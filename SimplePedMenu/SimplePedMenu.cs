@@ -37,12 +37,11 @@ public class SimplePedMenu : Script
         };
         var wadeCrackhead = new UIMenuItem("Wade", "");
         uimenu.AddItem(wadeCrackhead);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        uimenu.OnItemSelect += (sender, item, index) =>
         {
             if (item == wadeCrackhead)
             {
                 Game.Player.ChangeModel("cs_wade");
-                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
@@ -62,7 +61,6 @@ public class SimplePedMenu : Script
             if (item == sexyMolly)
             {
                 Game.Player.ChangeModel("ig_molly");
-                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
@@ -82,7 +80,6 @@ public class SimplePedMenu : Script
             if (item == traceyDeSanta)
             {
                 Game.Player.ChangeModel("cs_tracydisanto");
-                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem tourist = new UIMenuItem("Female Tourist 1", "");
@@ -133,6 +130,25 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_M_O_GENSTREET_01");
+            }
+        };
+        UIMenuItem sexyAmanda = new UIMenuItem("Amanda DeSanta", "");
+        uimenu.AddItem(sexyAmanda);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyAmanda;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_AMANDATOWNLEY");
+            }
+        };
+        var patriciaMadrazo = new UIMenuItem("Patricia Madrazo", "");
+        uimenu.AddItem(patriciaMadrazo);
+        uimenu.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == patriciaMadrazo)
+            {
+                Game.Player.ChangeModel("ig_patricia");
             }
         };
     }
@@ -199,6 +215,17 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem punchBuggy = new UIMenuItem("Weevil", "");
+        uimenu.AddItem(punchBuggy);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == punchBuggy;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Weevil", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
@@ -214,36 +241,14 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
             }
         };
     }
 
-    public void WantedLevels(UIMenu menu)
+    public void AnimalMenu(UIMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Wanted Levels");
-        for (int i = 0; i < 1; i++)
-        {
-        }
-        UIMenuItem wantedLevelNone = new UIMenuItem("No Wanted Level", "");
-        uimenu.AddItem(wantedLevelNone);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == wantedLevelNone;
-            if (flag)
-            {
-                Game.Player.WantedLevel = 0;
-            }
-        };
-        UIMenuItem wantedLevelOneStar = new UIMenuItem("1 Star Wanted Level", "");
-        uimenu.AddItem(wantedLevelOneStar);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == wantedLevelOneStar;
-            if (flag)
-            {
-                Game.Player.WantedLevel = 1;
-            }
-        };
+
     }
 
     //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
@@ -255,7 +260,6 @@ public class SimplePedMenu : Script
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
         WeaponMenu(mainMenu);
-        this.WantedLevels(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
