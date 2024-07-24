@@ -2,6 +2,11 @@
 
 Simple Ped Menu is a ped menu where you can change into any ped in the game besides Michael, Franklin, and Trevor.
 
+# Features
+* Change your ped model easily
+* Spawn into a vehicle
+* Equip a weapon
+
 # Requirements
 
 * NativeUI (Latest)
