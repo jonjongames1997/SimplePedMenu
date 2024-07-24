@@ -25,8 +25,17 @@ Drag and drop "scripts" folder into Main GTA Directory
 3) Select what you want and enjoy!
 
 # Mod Compatibility
-Unknown at this time
+Hot Coffee by K-po Games - Incompatible
+
 
 # Support
 
 If you want to suggest, report bugs, or need help with this menu, join my personal Discord: https://discord.com/N9KgZx4KUn 
+
+# Legend
+
+| ❌ - Not Compatible
+
+| ✅ - Supported
+
+| ⚙️ - Working with other devs on compatibility
