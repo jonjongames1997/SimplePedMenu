@@ -16,7 +16,7 @@ public class SimplePedMenu : Script
     //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
     public void PlayerModelMenu(UIMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Simple Ped Menu");
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Ped Menu");
         for (int i = 0; i < 1; i++)
         {
         }
@@ -37,7 +37,7 @@ public class SimplePedMenu : Script
             bool flag = item == wadeCrackhead;
             if (flag)
             {
-                Game.Player.ChangeModel("IG_WADE");
+                Game.Player.ChangeModel("CS_WADE");
             }
         };
         UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
@@ -57,7 +57,7 @@ public class SimplePedMenu : Script
             bool flag = item == sexyMolly;
             if (flag)
             {
-                Game.Player.ChangeModel("IG_MOLLY");
+                Game.Player.ChangeModel("CS_MOLLY");
             }
         };
         UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
@@ -67,7 +67,37 @@ public class SimplePedMenu : Script
             bool flag = item == karenDaniels;
             if (flag)
             {
-                Game.Player.ChangeModel("IG_KAREN_DANIELS");
+                Game.Player.ChangeModel("IG_MICHELLE");
+            }
+        };
+        UIMenuItem traceyDeSanta = new UIMenuItem("Tracey DeSanta", "");
+        uimenu.AddItem(traceyDeSanta);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == traceyDeSanta;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_TRACYDISANTO");
+            }
+        };
+        UIMenuItem tourist = new UIMenuItem("Female Tourist 1", "");
+        uimenu.AddItem(tourist);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == tourist;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_Y_TOURIST_01");
+            }
+        };
+        UIMenuItem vagosGirl01 = new UIMenuItem("Female Vagos 1", "");
+        uimenu.AddItem(vagosGirl01);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == vagosGirl01;
+            if (flag)
+            {
+                Game.Player.ChangeModel("G_F_Y_VAGOS_01");
             }
         };
     }
