@@ -4,6 +4,10 @@ using GTA;
 using NativeUI;
 using System.Windows.Forms;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
 using GTA.Native;
 
 public class SimplePedMenu : Script
@@ -31,12 +35,11 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_F_Y_TOPLESS_01");
             }
         };
-        UIMenuItem wadeCrackhead = new UIMenuItem("Wade", "");
+        var wadeCrackhead = new UIMenuItem("Wade", "");
         uimenu.AddItem(wadeCrackhead);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            bool flag = item == wadeCrackhead;
-            if (flag)
+            if (item == wadeCrackhead)
             {
                 Game.Player.ChangeModel("CS_WADE");
             }
@@ -167,28 +170,18 @@ public class SimplePedMenu : Script
 
     public void WeaponeMenu(UIMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Weapon Menu");
-        for (int i = 0; i < 1; i++)
+        var weapons = _menuPool.AddSubMenu(menu, "Weapon Menu");
+        for (int i = 0; i < 1; i++) ;
+
+        var newweapons = new UIMenuItem("Issue Weapons", "");
+        weapons.AddItem(newweapons);
+        weapons.OnItemSelect += (sender, item, index) =>
         {
-        }
-        UIMenuItem gunPistol = new UIMenuItem("Pistol", "");
-        uimenu.AddItem(gunPistol);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == gunPistol;
-            if (flag)
+            if (item == newweapons)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
-            }
-        };
-        UIMenuItem gunCombatPistol = new UIMenuItem("Combat Pistol", "");
-        uimenu.AddItem(gunCombatPistol);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == gunCombatPistol;
-            if (flag)
-            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
             }
         };
     }
