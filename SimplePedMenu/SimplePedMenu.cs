@@ -43,6 +43,7 @@ public class SimplePedMenu : Script
             if (item == wadeCrackhead)
             {
                 Game.Player.ChangeModel("CS_WADE");
+                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
@@ -62,6 +63,7 @@ public class SimplePedMenu : Script
             if (item == sexyMolly)
             {
                 Game.Player.ChangeModel("IG_MOLLY");
+                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
@@ -80,7 +82,8 @@ public class SimplePedMenu : Script
         {
             if (item == traceyDeSanta)
             {
-                Game.Player.ChangeModel("IG_TRACYDISANTO");
+                Game.Player.ChangeModel("CS_TRACYDISANTO");
+                Game.Player.Character.IsVisible = true;
             }
         };
         UIMenuItem tourist = new UIMenuItem("Female Tourist 1", "");
@@ -113,7 +116,26 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_ASHLEY");
             }
         };
-
+        UIMenuItem nervousRon = new UIMenuItem("Nervous Ron", "");
+        uimenu.AddItem(nervousRon);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == nervousRon;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_NERVOUSRON");
+            }
+        };
+        UIMenuItem grandpa = new UIMenuItem("Grandpa", "");
+        uimenu.AddItem(grandpa);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == grandpa;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_M_O_GENSTREET_01");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -191,7 +213,7 @@ public class SimplePedMenu : Script
         {
             if (item == shotgun)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
+                Game.Player.Character.Weapons.Give("WEAPON_PUMPSHOTGUN", 9999, false, true);
             }
         };
 
@@ -201,7 +223,7 @@ public class SimplePedMenu : Script
         {
             if (item == pistol)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give( "WEAPON_PISTOL", 9999, false, true);
             }
         };
 
@@ -211,7 +233,7 @@ public class SimplePedMenu : Script
         {
             if (item == carbinerifle)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CARBINERIFLE"), 9999, false, true);
+                Game.Player.Character.Weapons.Give("WEAPON_CARBINERIFLE", 9999, false, true);
             }
         };
 
@@ -221,7 +243,7 @@ public class SimplePedMenu : Script
         {
             if (item == carbinerifle)
             {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
+                Game.Player.Character.Weapons.Give("WEAPON_TACTICALRIFLE", 9999, false, true);
             }
         };
     }
@@ -253,6 +275,7 @@ public class SimplePedMenu : Script
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
         this.WeaponeMenu(mainMenu);
+        this.MoneyMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
