@@ -425,16 +425,7 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.RemoveAll();
             }
         };
-        UIMenuItem randomWeather = new UIMenuItem("Random Weather", "");
-        uimenu.AddItem(randomWeather);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == randomWeather)
-            {
-                World.SetRandomWeather();
-            }
-        };
-        UIMenuItem blackOut = new UIMenuItem("Black out", "");
+        UIMenuItem blackOut = new UIMenuItem("Enable Black Out", "");
         uimenu.AddItem(blackOut);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -442,7 +433,12 @@ public class SimplePedMenu : Script
             {
                 World.Blackout = true;
             }
-            else
+        };
+        UIMenuItem blackOutDisable = new UIMenuItem("Disable Black Out", "");
+        uimenu.AddItem(blackOutDisable);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == blackOutDisable)
             {
                 World.Blackout = false;
             }
@@ -456,7 +452,33 @@ public class SimplePedMenu : Script
                 World.ClearAreaOfPeds(Game.Player.Character.Position, 100f);
             }
         };
-
+        UIMenuItem clearCops = new UIMenuItem("Clear Area of Cops", "");
+        uimenu.AddItem(clearCops);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == clearCops)
+            {
+                World.ClearAreaOfCops(Game.Player.Character.Position, 100f);
+            }
+        };
+        UIMenuItem removeWaypoint = new UIMenuItem("Remove Waypoint", "");
+        uimenu.AddItem(removeWaypoint);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == removeWaypoint)
+            {
+                World.RemoveWaypoint();
+            }
+        };
+        UIMenuItem lockRadioStation = new UIMenuItem("Lock Radio Station", "");
+        uimenu.AddItem(lockRadioStation);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == lockRadioStation)
+            {
+                Game.LockRadioStation(RadioStation.EastLosFM);
+            }
+        };
     }
 
     public void RadioStationMenu(UIMenu menu)
@@ -573,15 +595,6 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.KultFM;
             }
         };
-        UIMenuItem lossantosRock = new UIMenuItem("Los Santos Rock Radio", "");
-        uimenu.AddItem(lossantosRock);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == lossantosRock)
-            {
-                Game.RadioStation = RadioStation.LosSantosRockRadio;
-            }
-        };
         UIMenuItem infoWarsRadio = new UIMenuItem("Los Santos Underground Radio", "");
         uimenu.AddItem(infoWarsRadio);
         uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
@@ -618,7 +631,7 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.MusicLocker;
             }
         };
-        UIMenuItem nonstopRadio = new UIMenuItem("Motomami Los Santos", "");
+        UIMenuItem nonstopRadio = new UIMenuItem("NonStop Pop FM", "");
         uimenu.AddItem(nonstopRadio);
         uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
         {
@@ -643,6 +656,15 @@ public class SimplePedMenu : Script
             if (item == mirrorParkRadio)
             {
                 Game.RadioStation = RadioStation.RadioMirrorPark;
+            }
+        };
+        UIMenuItem unlockAllStations = new UIMenuItem("Unlock All Radio Stations", "");
+        uimenu.AddItem(unlockAllStations);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == unlockAllStations)
+            {
+                Game.UnlockAllRadioStations();
             }
         };
     }
@@ -745,11 +767,13 @@ public class SimplePedMenu : Script
         };
     }
 
+    
+
     //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~by JonJonGames ~y~v1.0");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~by~w~ JonJonGames ~y~v1.0");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
