@@ -155,6 +155,27 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_F_Y_HOOKER_03");
             }
         };
+        UIMenuItem abigail = new UIMenuItem("Abigail", "");
+        uimenu.AddItem(abigail);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == abigail;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_ABIGAIL");
+            }
+        };
+        UIMenuItem cultguy01 = new UIMenuItem("Male Cult 1", "");
+        uimenu.AddItem(cultguy01);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == cultguy01;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_M_M_ACULT_01");
+            }
+        };
+
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
