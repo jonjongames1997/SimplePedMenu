@@ -600,15 +600,25 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.MediaPlayer;
             }
         };
-        UIMenuItem xChannel = new UIMenuItem("Channel X", "");
-        uimenu.AddItem(xChannel);
+        UIMenuItem motoMamiRadio = new UIMenuItem("Motomami Los Santos", "");
+        uimenu.AddItem(motoMamiRadio);
         uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
         {
-            if (item == xChannel)
+            if (item == motoMamiRadio)
             {
-                Game.RadioStation = RadioStation.ChannelX;
+                Game.RadioStation = RadioStation.MotomamiLosSantos;
             }
         };
+        UIMenuItem motoMamiRadio = new UIMenuItem("Motomami Los Santos", "");
+        uimenu.AddItem(motoMamiRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == motoMamiRadio)
+            {
+                Game.RadioStation = RadioStation.MotomamiLosSantos;
+            }
+        };
+
     }
 
     public void AnimalMenu(UIMenu menu)
