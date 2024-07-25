@@ -24,6 +24,10 @@ Drag and drop "scripts" folder into Main GTA Directory
 
 3) Select what you want and enjoy!
 
+# Radio Options Use
+
+You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
+
 # Mod Compatibility
 * Hot Coffee by K-po Games - ❌
 * (Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
