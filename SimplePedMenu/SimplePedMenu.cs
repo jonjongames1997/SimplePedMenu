@@ -609,16 +609,42 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.MotomamiLosSantos;
             }
         };
-        UIMenuItem motoMamiRadio = new UIMenuItem("Motomami Los Santos", "");
-        uimenu.AddItem(motoMamiRadio);
+        UIMenuItem theMusicLocker = new UIMenuItem("Music Locker", "");
+        uimenu.AddItem(theMusicLocker);
         uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
         {
-            if (item == motoMamiRadio)
+            if (item == theMusicLocker)
             {
-                Game.RadioStation = RadioStation.MotomamiLosSantos;
+                Game.RadioStation = RadioStation.MusicLocker;
             }
         };
-
+        UIMenuItem nonstopRadio = new UIMenuItem("Motomami Los Santos", "");
+        uimenu.AddItem(nonstopRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == nonstopRadio)
+            {
+                Game.RadioStation = RadioStation.NonStopPopFM;
+            }
+        };
+        UIMenuItem lossantosRadio = new UIMenuItem("Los Santos Radio", "");
+        uimenu.AddItem(lossantosRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == lossantosRadio)
+            {
+                Game.RadioStation = RadioStation.RadioLosSantos;
+            }
+        };
+        UIMenuItem mirrorParkRadio = new UIMenuItem("Mirror Park Radio", "");
+        uimenu.AddItem(mirrorParkRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == mirrorParkRadio)
+            {
+                Game.RadioStation = RadioStation.RadioMirrorPark;
+            }
+        };
     }
 
     public void AnimalMenu(UIMenu menu)
@@ -697,14 +723,24 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_C_CHIMP");
             }
         };
-        UIMenuItem chopDog = new UIMenuItem("Chop", "");
-        uimenu.AddItem(chopDog);
+        UIMenuItem seagull = new UIMenuItem("Seagull", "");
+        uimenu.AddItem(seagull);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            bool flag = item == chopDog;
+            bool flag = item == seagull;
             if (flag)
             {
-                Game.Player.ChangeModel("A_C_CHOP");
+                Game.Player.ChangeModel("A_C_CORMORANT");
+            }
+        };
+        UIMenuItem cow = new UIMenuItem("Cow", "");
+        uimenu.AddItem(cow);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == cow;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_COW");
             }
         };
     }
@@ -719,8 +755,8 @@ public class SimplePedMenu : Script
         this.VehicleMenu(mainMenu);
         WeaponMenu(mainMenu);
         this.AnimalMenu(mainMenu);
-        this.OptionsMenu(mainMenu);
         this.RadioStationMenu(mainMenu);
+        this.OptionsMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
