@@ -221,16 +221,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("CSB_ANITA");
             }
         };
-
-        UIMenuItem randomPed = new UIMenuItem("Randomize Ped", "");
-        uimenu.AddItem(randomPed);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == randomPed)
-            {
-                World.CreateRandomPed(Game.Player.Character.Position);
-            }
-        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -435,6 +425,37 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.RemoveAll();
             }
         };
+        UIMenuItem randomWeather = new UIMenuItem("Random Weather", "");
+        uimenu.AddItem(randomWeather);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == randomWeather)
+            {
+                World.SetRandomWeather();
+            }
+        };
+        UIMenuItem blackOut = new UIMenuItem("Black out", "");
+        uimenu.AddItem(blackOut);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == blackOut)
+            {
+                World.Blackout = true;
+            }
+            else
+            {
+                World.Blackout = false;
+            }
+        };
+        UIMenuItem clearPeds = new UIMenuItem("Clear Area of Peds", "");
+        uimenu.AddItem(clearPeds);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == clearPeds)
+            {
+                World.ClearAreaOfPeds(Game.Player.Character.Position, 100f);
+            }
+        };
 
     }
 
@@ -507,6 +528,25 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.SelfRadio;
             }
         };
+        UIMenuItem losSantosBlonded = new UIMenuItem("Blonded Los Santos", "");
+        uimenu.AddItem(losSantosBlonded);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == losSantosBlonded)
+            {
+                Game.RadioStation = RadioStation.BlondedLosSantos;
+            }
+        };
+        UIMenuItem xChannel = new UIMenuItem("Channel X", "");
+        uimenu.AddItem(xChannel);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == xChannel)
+            {
+                Game.RadioStation = RadioStation.ChannelX;
+            }
+        };
+
     }
 
     public void AnimalMenu(UIMenu menu)
