@@ -95,6 +95,66 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_M_O_GENSTREET_01");
             }
         };
+        UIMenuItem sexyPoppy = new UIMenuItem("Poppy Mitchell", "");
+        uimenu.AddItem(sexyPoppy);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyPoppy;
+            if (flag)
+            {
+                Game.Player.ChangeModel("U_F_Y_POPPYMICH");
+            }
+        };
+        UIMenuItem sexyMaryAnn = new UIMenuItem("Mary Ann", "");
+        uimenu.AddItem(sexyMaryAnn);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyMaryAnn;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_MARYANN");
+            }
+        };
+        UIMenuItem jewelstoreLady = new UIMenuItem("Jewel Store Lady", "");
+        uimenu.AddItem(jewelstoreLady);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == jewelstoreLady;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_JEWELASS");
+            }
+        };
+        UIMenuItem sexyHooker01 = new UIMenuItem("Hooker 1", "");
+        uimenu.AddItem(sexyHooker01);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyHooker01;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_HOOKER_01");
+            }
+        };
+        UIMenuItem sexyHooker02 = new UIMenuItem("Hooker 2", "");
+        uimenu.AddItem(sexyHooker02);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyHooker02;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_HOOKER_02");
+            }
+        };
+        UIMenuItem sexyHooker03 = new UIMenuItem("Hooker 3", "");
+        uimenu.AddItem(sexyHooker03);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sexyHooker03;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_HOOKER_03");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -186,6 +246,7 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATMG"), 9999, false, true);
             }
         };
     }
@@ -214,6 +275,16 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_POODLE");
+            }
+        };
+        UIMenuItem bugsbunny = new UIMenuItem("Rabbit", "");
+        uimenu.AddItem(bugsbunny);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bugsbunny;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_RABBIT_01");
             }
         };
     }
