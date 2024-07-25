@@ -405,6 +405,11 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATMG"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RPG"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GRENADELAUNCHER"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MINIGUN"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREWORK"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STICKYBOMB"), 9999, false, true);
             }
         };
     }
@@ -460,6 +465,56 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_RABBIT_01");
+            }
+        };
+        UIMenuItem wildHog = new UIMenuItem("Boar", "");
+        uimenu.AddItem(wildHog);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wildHog;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_BOAR");
+            }
+        };
+        UIMenuItem pussyCat = new UIMenuItem("Pussy Cat", "");
+        uimenu.AddItem(pussyCat);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == pussyCat;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_CAT_01");
+            }
+        };
+        UIMenuItem chickenHawk = new UIMenuItem("Chicken Hawk", "");
+        uimenu.AddItem(chickenHawk);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == chickenHawk;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_CHICKENHAWK");
+            }
+        };
+        UIMenuItem monkey = new UIMenuItem("Monkey", "");
+        uimenu.AddItem(monkey);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == monkey;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_CHIMP");
+            }
+        };
+        UIMenuItem chopDog = new UIMenuItem("Chop", "");
+        uimenu.AddItem(chopDog);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == chopDog;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_CHOP");
             }
         };
     }
