@@ -546,7 +546,69 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.ChannelX;
             }
         };
-
+        UIMenuItem flyloFM = new UIMenuItem("FlyloFM", "");
+        uimenu.AddItem(flyloFM);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == flyloFM)
+            {
+                Game.RadioStation = RadioStation.FlyloFM;
+            }
+        };
+        UIMenuItem iFruitRadio = new UIMenuItem("iFruit Radio", "");
+        uimenu.AddItem(iFruitRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == iFruitRadio)
+            {
+                Game.RadioStation = RadioStation.iFruitRadio;
+            }
+        };
+        UIMenuItem cultFM = new UIMenuItem("KultFM", "");
+        uimenu.AddItem(cultFM);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == cultFM)
+            {
+                Game.RadioStation = RadioStation.KultFM;
+            }
+        };
+        UIMenuItem lossantosRock = new UIMenuItem("Los Santos Rock Radio", "");
+        uimenu.AddItem(lossantosRock);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == lossantosRock)
+            {
+                Game.RadioStation = RadioStation.LosSantosRockRadio;
+            }
+        };
+        UIMenuItem infoWarsRadio = new UIMenuItem("Los Santos Underground Radio", "");
+        uimenu.AddItem(infoWarsRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == infoWarsRadio)
+            {
+                Game.RadioStation = RadioStation.LosSantosUndergroundRadio;
+            }
+        };
+        UIMenuItem theMediaPlayer = new UIMenuItem("Media Player", "");
+        uimenu.AddItem(theMediaPlayer);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == theMediaPlayer)
+            {
+                Game.RadioStation = RadioStation.MediaPlayer;
+            }
+        };
+        UIMenuItem xChannel = new UIMenuItem("Channel X", "");
+        uimenu.AddItem(xChannel);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == xChannel)
+            {
+                Game.RadioStation = RadioStation.ChannelX;
+            }
+        };
     }
 
     public void AnimalMenu(UIMenu menu)
