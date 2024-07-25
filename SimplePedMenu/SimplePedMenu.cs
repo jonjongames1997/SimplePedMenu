@@ -444,7 +444,69 @@ public class SimplePedMenu : Script
         for (int i = 0; i < 1; i++)
         {
         }
-
+        UIMenuItem radioLosSantosRock = new UIMenuItem("Los Santos Rock", "");
+        uimenu.AddItem(radioLosSantosRock);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == radioLosSantosRock)
+            {
+                Game.RadioStation = RadioStation.LosSantosRockRadio;
+            }
+        };
+        UIMenuItem blaineCountyRadio = new UIMenuItem("Blaine County Radio", "");
+        uimenu.AddItem(blaineCountyRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == blaineCountyRadio)
+            {
+                Game.RadioStation = RadioStation.BlaineCountyRadio;
+            }
+        };
+        UIMenuItem rebelRadio = new UIMenuItem("Rebel Radio", "");
+        uimenu.AddItem(rebelRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == rebelRadio)
+            {
+                Game.RadioStation = RadioStation.RebelRadio;
+            }
+        };
+        UIMenuItem westCoastRadio = new UIMenuItem("West Coast Classics", "");
+        uimenu.AddItem(westCoastRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == westCoastRadio)
+            {
+                Game.RadioStation = RadioStation.WestCoastClassics;
+            }
+        };
+        UIMenuItem westCoastTalkRadio = new UIMenuItem("West Coast Talk Show", "");
+        uimenu.AddItem(westCoastTalkRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == westCoastTalkRadio)
+            {
+                Game.RadioStation = RadioStation.WestCoastTalkRadio;
+            }
+        };
+        UIMenuItem radioEastLosFM = new UIMenuItem("East Los FM", "");
+        uimenu.AddItem(radioEastLosFM);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == radioEastLosFM)
+            {
+                Game.RadioStation = RadioStation.EastLosFM;
+            }
+        };
+        UIMenuItem selfRadio = new UIMenuItem("Self Radio", "");
+        uimenu.AddItem(selfRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == selfRadio)
+            {
+                Game.RadioStation = RadioStation.SelfRadio;
+            }
+        };
     }
 
     public void AnimalMenu(UIMenu menu)
@@ -546,6 +608,7 @@ public class SimplePedMenu : Script
         WeaponMenu(mainMenu);
         this.AnimalMenu(mainMenu);
         this.OptionsMenu(mainMenu);
+        this.RadioStationMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
