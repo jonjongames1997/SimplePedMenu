@@ -4,10 +4,6 @@ using GTA;
 using NativeUI;
 using System.Windows.Forms;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using GTA.Native;
 
 public class SimplePedMenu : Script
@@ -225,6 +221,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("CSB_ANITA");
             }
         };
+
+        UIMenuItem randomPed = new UIMenuItem("Randomize Ped", "");
+        uimenu.AddItem(randomPed);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == randomPed)
+            {
+                World.CreateRandomPed(Game.Player.Character.Position);
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -429,6 +435,16 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.RemoveAll();
             }
         };
+
+    }
+
+    public void RadioStationMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Radio Options");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+
     }
 
     public void AnimalMenu(UIMenu menu)
