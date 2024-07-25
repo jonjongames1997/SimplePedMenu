@@ -300,7 +300,94 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
-
+        UIMenuItem bmxBike = new UIMenuItem("BMX (Bike)", "");
+        uimenu.AddItem(bmxBike);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bmxBike;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Bmx", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem beachCruiser = new UIMenuItem("Beach Cruiser (Bike)", "");
+        uimenu.AddItem(beachCruiser);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == beachCruiser;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Cruiser", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem fixter = new UIMenuItem("Fixter (Bike)", "");
+        uimenu.AddItem(fixter);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == fixter;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Fixter", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem scorcherBike = new UIMenuItem("Scorcher (Bike)", "");
+        uimenu.AddItem(scorcherBike);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == scorcherBike;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Scorcher", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem triBike = new UIMenuItem("Tribike", "");
+        uimenu.AddItem(triBike);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == triBike;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Tribike", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem triBike2 = new UIMenuItem("Tribike 2", "");
+        uimenu.AddItem(triBike2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == triBike2;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Tribike2", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem triBike3 = new UIMenuItem("Tribike 3", "");
+        uimenu.AddItem(triBike3);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == triBike3;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Tribike3", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem oppressor = new UIMenuItem("Oppressor", "");
+        uimenu.AddItem(oppressor);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == oppressor;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Oppressor2", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
@@ -318,6 +405,23 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATMG"), 9999, false, true);
+            }
+        };
+    }
+
+    public void OptionsMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Options");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem removeWeapons = new UIMenuItem("Remove Weapons", "");
+        uimenu.AddItem(removeWeapons);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == removeWeapons)
+            {
+                Game.Player.Character.Weapons.RemoveAll();
             }
         };
     }
@@ -370,6 +474,7 @@ public class SimplePedMenu : Script
         this.VehicleMenu(mainMenu);
         WeaponMenu(mainMenu);
         this.AnimalMenu(mainMenu);
+        this.OptionsMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
