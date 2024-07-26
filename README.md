@@ -26,7 +26,8 @@ Drag and drop "scripts" folder into Main GTA Directory
 
 # Radio Options Use
 
-You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
+* You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
+* 2 Radio Stations will not work (Blaine County Radio & West Coast Talk Show) when crossing the county line. RockstarGames hardcoded this. You just got to deal with it.
 
 # Mod Compatibility
 * Hot Coffee by K-po Games - ❌
