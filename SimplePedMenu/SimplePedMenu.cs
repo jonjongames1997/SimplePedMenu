@@ -231,6 +231,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_F_Y_BARTENDER_01");
             }
         };
+        UIMenuItem agentSanchez = new UIMenuItem("Agent Sanchez", "");
+        uimenu.AddItem(agentSanchez);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == agentSanchez;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_ANDREAS");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
