@@ -20,7 +20,7 @@ Drag and drop "scripts" folder into Main GTA Directory
 
 1) Go in game 
 
-2) Hit F9 (by default) to bring up the menu then you should have a section for peds, vehicles, and weapons
+2) Hit F9 (by default) to bring up the menu then you should have a section for peds, vehicles, weapons, and more.
 
 3) Select what you want and enjoy!
 
