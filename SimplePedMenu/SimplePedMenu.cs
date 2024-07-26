@@ -221,6 +221,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("CSB_ANITA");
             }
         };
+        UIMenuItem barTender = new UIMenuItem("Bartender", "");
+        uimenu.AddItem(barTender);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == barTender;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_BARTENDER_01");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -468,15 +478,6 @@ public class SimplePedMenu : Script
             if (item == removeWaypoint)
             {
                 World.RemoveWaypoint();
-            }
-        };
-        UIMenuItem lockRadioStation = new UIMenuItem("Lock Radio Station", "");
-        uimenu.AddItem(lockRadioStation);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == lockRadioStation)
-            {
-                Game.LockRadioStation(RadioStation.EastLosFM);
             }
         };
     }
