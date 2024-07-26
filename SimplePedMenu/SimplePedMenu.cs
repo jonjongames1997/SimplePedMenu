@@ -394,6 +394,28 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem bati = new UIMenuItem("Bati", "");
+        uimenu.AddItem(bati);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bati;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Bati", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem faggio = new UIMenuItem("Faggio", "");
+        uimenu.AddItem(faggio);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == faggio;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Faggio", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
@@ -414,8 +436,11 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RPG"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GRENADELAUNCHER"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MINIGUN"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREWORK"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAILGUN"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STICKYBOMB"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNIPERRIFLE"), 9999, false, true);
             }
         };
     }
@@ -659,6 +684,78 @@ public class SimplePedMenu : Script
                 Game.RadioStation = RadioStation.RadioMirrorPark;
             }
         };
+        UIMenuItem soulwaxFM = new UIMenuItem("Soulwax FM", "");
+        uimenu.AddItem(soulwaxFM);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if(item == soulwaxFM)
+            {
+                Game.RadioStation = RadioStation.SoulwaxFM;
+            }
+        };
+        UIMenuItem spaceRadio = new UIMenuItem("Space Radio", "");
+        uimenu.AddItem(spaceRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == spaceRadio)
+            {
+                Game.RadioStation = RadioStation.Space;
+            }
+        };
+        UIMenuItem slippingLosSantos = new UIMenuItem("Still Slipping Los Santos Radio", "");
+        uimenu.AddItem(slippingLosSantos);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == slippingLosSantos)
+            {
+                Game.RadioStation = RadioStation.StillSlippingLosSantos;
+            }
+        };
+        UIMenuItem blueArkRadio = new UIMenuItem("The Blue Ark", "");
+        uimenu.AddItem(blueArkRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == blueArkRadio)
+            {
+                Game.RadioStation = RadioStation.TheBlueArk;
+            }
+        };
+        UIMenuItem theLabRadio = new UIMenuItem("The Lab", "");
+        uimenu.AddItem(theLabRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == theLabRadio)
+            {
+                Game.RadioStation = RadioStation.TheLab;
+            }
+        };
+        UIMenuItem lowdownRadio = new UIMenuItem("The Lowdown", "");
+        uimenu.AddItem(lowdownRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == lowdownRadio)
+            {
+                Game.RadioStation = RadioStation.TheLowdown;
+            }
+        };
+        UIMenuItem vinewoodRadio = new UIMenuItem("Vinewood Boulevard Radio", "");
+        uimenu.AddItem(vinewoodRadio);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == vinewoodRadio)
+            {
+                Game.RadioStation = RadioStation.VinewoodBoulevardRadio;
+            }
+        };
+        UIMenuItem worldWideFM = new UIMenuItem("World Wide FM", "");
+        uimenu.AddItem(worldWideFM);
+        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
+        {
+            if (item == worldWideFM)
+            {
+                Game.RadioStation = RadioStation.WorldWideFM;
+            }
+        };
         UIMenuItem unlockAllStations = new UIMenuItem("Unlock All Radio Stations", "");
         uimenu.AddItem(unlockAllStations);
         uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
@@ -766,6 +863,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_C_COW");
             }
         };
+        UIMenuItem coyote = new UIMenuItem("Coyote", "");
+        uimenu.AddItem(coyote);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == coyote;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_COYOTE");
+            }
+        };
     }
 
     
@@ -774,7 +881,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~by~w~ JonJonGames ~y~v1.0");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.0");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
@@ -794,6 +901,7 @@ public class SimplePedMenu : Script
             bool flag = e.KeyCode == this.OpenMenu && !this._menuPool.IsAnyMenuOpen();
             if (flag)
             {
+                Cursor.Hide();
                 mainMenu.Visible = !mainMenu.Visible;
             }
         };
