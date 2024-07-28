@@ -883,6 +883,56 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_C_COYOTE");
             }
         };
+        UIMenuItem crow = new UIMenuItem("Crow", "");
+        uimenu.AddItem(crow);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == crow;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_CROW");
+            }
+        };
+        UIMenuItem deer = new UIMenuItem("Deer", "");
+        uimenu.AddItem(deer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == deer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_DEER");
+            }
+        };
+        UIMenuItem dolphin = new UIMenuItem("Dolphin", "");
+        uimenu.AddItem(dolphin);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == dolphin;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_DOLPHIN");
+            }
+        };
+        UIMenuItem fish = new UIMenuItem("Fish", "");
+        uimenu.AddItem(fish);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == fish;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_FISH");
+            }
+        };
+        UIMenuItem hammerShark = new UIMenuItem("Hammer Shark", "");
+        uimenu.AddItem(hammerShark);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == hammerShark;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_SHARKHAMMER");
+            }
+        };
     }
 
     
