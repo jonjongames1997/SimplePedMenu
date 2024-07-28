@@ -451,6 +451,8 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_DOUBLEACTION"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNIPERRIFLE"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STUNGUN"), 9999, false, true);
             }
         };
     }
@@ -931,6 +933,16 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_SHARKHAMMER");
+            }
+        };
+        UIMenuItem huskyDog = new UIMenuItem("Husky", "");
+        uimenu.AddItem(huskyDog);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == huskyDog;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_HUSKY");
             }
         };
     }
