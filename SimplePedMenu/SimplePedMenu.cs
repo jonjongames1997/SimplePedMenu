@@ -241,6 +241,26 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_ANDREAS");
             }
         };
+        UIMenuItem impotentRage = new UIMenuItem("Impotent Rage", "");
+        uimenu.AddItem(impotentRage);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == impotentRage;
+            if (flag)
+            {
+                Game.Player.ChangeModel("U_M_Y_IMPORAGE");
+            }
+        };
+        UIMenuItem johnnyK = new UIMenuItem("Johnny Klebitz", "");
+        uimenu.AddItem(johnnyK);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == johnnyK;
+            if (flag)
+            {
+                Game.Player.ChangeModel("CS_JOHNNYKLEBITZ");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -420,6 +440,39 @@ public class SimplePedMenu : Script
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
             bool flag = item == faggio;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Faggio", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem hermes = new UIMenuItem("Hermes", "");
+        uimenu.AddItem(hermes);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == hermes;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Hermes", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem duneBuggy = new UIMenuItem("Dune", "");
+        uimenu.AddItem(faggio);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == duneBuggy;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Dune", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem outlaw = new UIMenuItem("Outlaw", "");
+        uimenu.AddItem(faggio);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == outlaw;
             if (flag)
             {
                 Vehicle vehicle = World.CreateVehicle("Faggio", Game.Player.Character.Position);
