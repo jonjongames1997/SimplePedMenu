@@ -231,16 +231,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_F_Y_BARTENDER_01");
             }
         };
-        UIMenuItem agentSanchez = new UIMenuItem("Agent Sanchez", "");
-        uimenu.AddItem(agentSanchez);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == agentSanchez;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_ANDREAS");
-            }
-        };
         UIMenuItem impotentRage = new UIMenuItem("Impotent Rage", "");
         uimenu.AddItem(impotentRage);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -249,16 +239,6 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("U_M_Y_IMPORAGE");
-            }
-        };
-        UIMenuItem johnnyK = new UIMenuItem("Johnny Klebitz", "");
-        uimenu.AddItem(johnnyK);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == johnnyK;
-            if (flag)
-            {
-                Game.Player.ChangeModel("CS_JOHNNYKLEBITZ");
             }
         };
     }
@@ -458,7 +438,7 @@ public class SimplePedMenu : Script
             }
         };
         UIMenuItem duneBuggy = new UIMenuItem("Dune", "");
-        uimenu.AddItem(faggio);
+        uimenu.AddItem(duneBuggy);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
             bool flag = item == duneBuggy;
@@ -469,13 +449,13 @@ public class SimplePedMenu : Script
             }
         };
         UIMenuItem outlaw = new UIMenuItem("Outlaw", "");
-        uimenu.AddItem(faggio);
+        uimenu.AddItem(outlaw);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
             bool flag = item == outlaw;
             if (flag)
             {
-                Vehicle vehicle = World.CreateVehicle("Faggio", Game.Player.Character.Position);
+                Vehicle vehicle = World.CreateVehicle("Outlaw", Game.Player.Character.Position);
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
