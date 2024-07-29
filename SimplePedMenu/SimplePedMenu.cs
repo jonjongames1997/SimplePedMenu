@@ -459,6 +459,28 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem benson = new UIMenuItem("Benson", "");
+        uimenu.AddItem(benson);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == benson;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Benson", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem mule1 = new UIMenuItem("Mule 1", "");
+        uimenu.AddItem(mule1);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == mule1;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Mule", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
@@ -486,6 +508,8 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNIPERRIFLE"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STUNGUN"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNSPISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAYPISTOL"), 9999, false, true);
             }
         };
     }
@@ -529,7 +553,7 @@ public class SimplePedMenu : Script
         {
             if (item == clearPeds)
             {
-                World.ClearAreaOfPeds(Game.Player.Character.Position, 100f);
+                World.ClearAreaOfPeds(Game.Player.Character.Position, 200f);
             }
         };
         UIMenuItem clearCops = new UIMenuItem("Clear Area of Cops", "");
@@ -538,7 +562,7 @@ public class SimplePedMenu : Script
         {
             if (item == clearCops)
             {
-                World.ClearAreaOfCops(Game.Player.Character.Position, 100f);
+                World.ClearAreaOfCops(Game.Player.Character.Position, 200f);
             }
         };
         UIMenuItem removeWaypoint = new UIMenuItem("Remove Waypoint", "");
@@ -548,6 +572,42 @@ public class SimplePedMenu : Script
             if (item == removeWaypoint)
             {
                 World.RemoveWaypoint();
+            }
+        };
+        UIMenuItem deleteTrains = new UIMenuItem("Delete Trains", "");
+        uimenu.AddItem(deleteTrains);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == deleteTrains)
+            {
+                World.DeleteAllTrains();
+            }
+        };
+        UIMenuItem giveArmor = new UIMenuItem("Give Armor", "");
+        uimenu.AddItem(giveArmor);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == giveArmor)
+            {
+                Game.Player.Character.Armor = 100;
+            }
+        };
+        UIMenuItem cleanBlood = new UIMenuItem("Clear Blood", "");
+        uimenu.AddItem(cleanBlood);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == cleanBlood)
+            {
+                Game.Player.Character.ClearBloodDamage();
+            }
+        };
+        UIMenuItem clearKillRecord = new UIMenuItem("Clear Kill Record", "");
+        uimenu.AddItem(clearKillRecord);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == clearKillRecord)
+            {
+                Game.Player.Character.ClearKillerRecord();
             }
         };
     }
