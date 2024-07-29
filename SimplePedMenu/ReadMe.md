@@ -5,7 +5,8 @@ Simple Ped Menu is a ped menu where you can change into any ped in the game besi
 # Features
 * Change your ped model easily
 * Spawn into a vehicle
-* Equip a weapon
+* Equip weapons
+* and more!
 
 # Requirements
 
