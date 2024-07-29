@@ -968,16 +968,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_C_SHARKHAMMER");
             }
         };
-        UIMenuItem huskyDog = new UIMenuItem("Husky", "");
-        uimenu.AddItem(huskyDog);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == huskyDog;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_HUSKY");
-            }
-        };
     }
 
     
