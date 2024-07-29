@@ -1036,7 +1036,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.0");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.1");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
