@@ -601,15 +601,6 @@ public class SimplePedMenu : Script
                 Game.Player.Character.ClearBloodDamage();
             }
         };
-        UIMenuItem clearKillRecord = new UIMenuItem("Clear Kill Record", "");
-        uimenu.AddItem(clearKillRecord);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == clearKillRecord)
-            {
-                Game.Player.Character.ClearKillerRecord();
-            }
-        };
     }
 
     public void RadioStationMenu(UIMenu menu)
