@@ -10,7 +10,7 @@ Simple Ped Menu is a ped menu where you can change into any ped in the game besi
 
 # Requirements
 
-* NativeUI (Latest)
+* LemonUI.SHVDN3 (Latest)
 * ScriptHookV (Latest)
 * ScriptHookVDotNet3 (Nightly version recommended)
 
