@@ -1,5 +1,7 @@
 ﻿// Native UI Menu Template 3.0 - Abel Software
 // You must download and use Scripthook V Dot Net Reference and NativeUI Reference (LINKS AT BOTTOM OF THE TEMPLATE)
+// Ignore Spelling: Ped
+
 using GTA;
 using NativeUI;
 using System.Windows.Forms;
@@ -547,24 +549,6 @@ public class SimplePedMenu : Script
                 World.Blackout = false;
             }
         };
-        UIMenuItem clearPeds = new UIMenuItem("Clear Area of Peds", "");
-        uimenu.AddItem(clearPeds);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == clearPeds)
-            {
-                World.ClearAreaOfPeds(Game.Player.Character.Position, 200f);
-            }
-        };
-        UIMenuItem clearCops = new UIMenuItem("Clear Area of Cops", "");
-        uimenu.AddItem(clearCops);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == clearCops)
-            {
-                World.ClearAreaOfCops(Game.Player.Character.Position, 200f);
-            }
-        };
         UIMenuItem removeWaypoint = new UIMenuItem("Remove Waypoint", "");
         uimenu.AddItem(removeWaypoint);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -572,15 +556,6 @@ public class SimplePedMenu : Script
             if (item == removeWaypoint)
             {
                 World.RemoveWaypoint();
-            }
-        };
-        UIMenuItem deleteTrains = new UIMenuItem("Delete Trains", "");
-        uimenu.AddItem(deleteTrains);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == deleteTrains)
-            {
-                World.DeleteAllTrains();
             }
         };
         UIMenuItem giveArmor = new UIMenuItem("Give Armor", "");
@@ -850,15 +825,6 @@ public class SimplePedMenu : Script
             if (item == worldWideFM)
             {
                 Game.RadioStation = RadioStation.WorldWideFM;
-            }
-        };
-        UIMenuItem unlockAllStations = new UIMenuItem("Unlock All Radio Stations", "");
-        uimenu.AddItem(unlockAllStations);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == unlockAllStations)
-            {
-                Game.UnlockAllRadioStations();
             }
         };
     }
