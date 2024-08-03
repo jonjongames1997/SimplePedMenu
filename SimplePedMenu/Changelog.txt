@@ -8,6 +8,7 @@ v1.1:
 - Added 5 new animals in "Animals" section (Hen, Killer Whale, Humpback Whale, Pigeon, and pug)
 - Added 2 new options ("Clone Ped" and "Refill Special Ability")
 - Added 2 boats into Vehicle category ("Dinghy5" and "JetMax")
+- Added 1 new vehicle (Technical)
 
 v1.0:
 
