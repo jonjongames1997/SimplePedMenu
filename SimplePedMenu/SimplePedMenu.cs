@@ -513,6 +513,28 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem dinghy5 = new UIMenuItem("Dinghy 5", "");
+        uimenu.AddItem(dinghy5);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == dinghy5;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Dinghy5", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem jetMax = new UIMenuItem("Jetmax", "");
+        uimenu.AddItem(jetMax);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == jetMax;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Jetmax", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
