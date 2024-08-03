@@ -243,6 +243,36 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("U_M_Y_IMPORAGE");
             }
         };
+        UIMenuItem airhostess = new UIMenuItem("Air Hostess", "");
+        uimenu.AddItem(airhostess);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == airhostess;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_AIRHOSTESS_01");
+            }
+        };
+        UIMenuItem aldiNapoli = new UIMenuItem("Aldinapoli", "");
+        uimenu.AddItem(aldiNapoli);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == aldiNapoli;
+            if (flag)
+            {
+                Game.Player.ChangeModel("U_M_M_ALDINAPOLI");
+            }
+        };
+        UIMenuItem gunshopOwner = new UIMenuItem("Gun Shop Owner", "");
+        uimenu.AddItem(gunshopOwner);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gunshopOwner;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_M_Y_AMMUCITY_01");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -983,6 +1013,66 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_SHARKHAMMER");
+            }
+        };
+        UIMenuItem chickenHen = new UIMenuItem("Hen", "");
+        uimenu.AddItem(chickenHen);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == chickenHen;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_HEN");
+            }
+        };
+        UIMenuItem humbackWhale = new UIMenuItem("Humpback Whale", "");
+        uimenu.AddItem(humbackWhale);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == humbackWhale;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_HUMPBACK");
+            }
+        };
+        UIMenuItem shamuWhale = new UIMenuItem("Killer Whale", "");
+        uimenu.AddItem(shamuWhale);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == shamuWhale;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_KILLERWHALE");
+            }
+        };
+        UIMenuItem mountainLion = new UIMenuItem("Mountain Lion", "");
+        uimenu.AddItem(mountainLion);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == mountainLion;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_MTLION");
+            }
+        };
+        UIMenuItem pigeon = new UIMenuItem("Pigeon", "");
+        uimenu.AddItem(pigeon);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == pigeon;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_PIGEON");
+            }
+        };
+        UIMenuItem pugDog = new UIMenuItem("Pug", "");
+        uimenu.AddItem(pugDog);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == pugDog;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_PUG");
             }
         };
     }
