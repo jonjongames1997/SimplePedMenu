@@ -1,5 +1,8 @@
 ﻿Changelog:
 
+v1.2:
+
+
 v1.1:
 
 - Upgraded the project to Visual Studio 2022
