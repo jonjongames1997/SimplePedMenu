@@ -1,0 +1,12 @@
+﻿Changelog:
+
+v1.1:
+
+- Upgraded the project to Visual Studio 2022
+- Added 3 new peds (Ammunation Guy, Air Hostess, Aldinapoli)
+- Removed "Delete All Trains", "Unlock All Radio Stations", "Clear The Area of Peds", "Clear the area of cops" options due to VisualStudio 2022 upgrade limitations
+- Added 6 new animals in "Animals" section (Hen, Killer Whale, Humpback Whale, Mountain Lion, Pigeon, and pug)
+
+v1.0:
+
+- Initial Release
