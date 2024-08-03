@@ -606,6 +606,25 @@ public class SimplePedMenu : Script
                 Game.Player.Character.ClearBloodDamage();
             }
         };
+        UIMenuItem clonePed = new UIMenuItem("Clone Ped", "");
+        uimenu.AddItem(clonePed);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == clonePed)
+            {
+                Game.Player.Character.Clone();
+                Game.Player.Character.IsInvincible = true;
+            }
+        };
+        UIMenuItem rechargeSA = new UIMenuItem("Refill Special Ability", "");
+        uimenu.AddItem(rechargeSA);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == rechargeSA)
+            {
+                Game.Player.RefillSpecialAbility();
+            }
+        };
     }
 
     public void RadioStationMenu(UIMenu menu)
@@ -1043,16 +1062,6 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_KILLERWHALE");
-            }
-        };
-        UIMenuItem mountainLion = new UIMenuItem("Mountain Lion", "");
-        uimenu.AddItem(mountainLion);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == mountainLion;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_MTLION");
             }
         };
         UIMenuItem pigeon = new UIMenuItem("Pigeon", "");
