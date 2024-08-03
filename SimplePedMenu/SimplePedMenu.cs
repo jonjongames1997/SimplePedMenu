@@ -535,6 +535,17 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem gunTruck = new UIMenuItem("Technical", "");
+        uimenu.AddItem(gunTruck);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gunTruck;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Technical", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
