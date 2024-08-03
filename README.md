@@ -34,6 +34,7 @@ Drag and drop "scripts" folder into Main GTA Directory
 # Mod Compatibility
 * Hot Coffee by K-po Games - ❌
 * (Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
+* Dildo bicycle by Chauklet -  ✅ (Compatible)
 
 # Support
 
