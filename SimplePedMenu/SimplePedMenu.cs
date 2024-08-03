@@ -546,6 +546,17 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem gunTruck2 = new UIMenuItem("Technical 2", "");
+        uimenu.AddItem(gunTruck2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gunTruck2;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Technical2", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
 
     public void WeaponMenu(UIMenu menu)
@@ -637,16 +648,6 @@ public class SimplePedMenu : Script
             if (item == cleanBlood)
             {
                 Game.Player.Character.ClearBloodDamage();
-            }
-        };
-        UIMenuItem clonePed = new UIMenuItem("Clone Ped", "");
-        uimenu.AddItem(clonePed);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == clonePed)
-            {
-                Game.Player.Character.Clone();
-                Game.Player.Character.IsInvincible = true;
             }
         };
         UIMenuItem rechargeSA = new UIMenuItem("Refill Special Ability", "");
@@ -1125,7 +1126,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.1");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.2");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
