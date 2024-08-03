@@ -7,6 +7,7 @@ v1.1:
 - Removed "Delete All Trains", "Unlock All Radio Stations", "Clear The Area of Peds", "Clear the area of cops" options due to VisualStudio 2022 upgrade limitations
 - Added 5 new animals in "Animals" section (Hen, Killer Whale, Humpback Whale, Pigeon, and pug)
 - Added 2 new options ("Clone Ped" and "Refill Special Ability")
+- Added 2 boats into Vehicle category ("Dinghy5" and "JetMax")
 
 v1.0:
 
