@@ -2,6 +2,8 @@
 
 v1.2:
 
+- Added 4 new options (Kill yourself, Pause Game Clock, Unpause Game Clock, Instant 5 Star Wanted Level)
+-
 
 v1.1:
 
