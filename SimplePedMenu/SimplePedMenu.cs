@@ -659,6 +659,42 @@ public class SimplePedMenu : Script
                 Game.Player.RefillSpecialAbility();
             }
         };
+        UIMenuItem playerSuicide = new UIMenuItem("Kill Yourself", "");
+        uimenu.AddItem(playerSuicide);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == playerSuicide)
+            {
+                Game.Player.Character.Kill();
+            }
+        };
+        UIMenuItem pauseGameClock = new UIMenuItem("Pause Game Clock", "");
+        uimenu.AddItem(pauseGameClock);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == pauseGameClock)
+            {
+                World.IsClockPaused = true;
+            }
+        };
+        UIMenuItem unpauseGameClock = new UIMenuItem("Unpause Game Clock", "");
+        uimenu.AddItem(unpauseGameClock);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == unpauseGameClock)
+            {
+                World.IsClockPaused = false;
+            }
+        };
+        UIMenuItem fivestarWantedLevel = new UIMenuItem("Instant 5 Stars Wanted Level", "");
+        uimenu.AddItem(fivestarWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == fivestarWantedLevel)
+            {
+                Game.Player.WantedLevel = 5;
+            }
+        };
     }
 
     public void RadioStationMenu(UIMenu menu)
