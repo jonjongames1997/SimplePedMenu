@@ -3,7 +3,8 @@
 v1.2:
 
 - Added 4 new options (Kill yourself, Pause Game Clock, Unpause Game Clock, Instant 5 Star Wanted Level)
--
+- Added 2 new weapons (Switchblade and SMG)
+- Added 3 new peds (Female Ballas, Bank Manager, Female Biker Chick)
 
 v1.1:
 
