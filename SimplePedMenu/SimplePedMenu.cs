@@ -273,6 +273,36 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_M_Y_AMMUCITY_01");
             }
         };
+        UIMenuItem femaleBallas = new UIMenuItem("Female Ballas", "");
+        uimenu.AddItem(femaleBallas);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == femaleBallas;
+            if (flag)
+            {
+                Game.Player.ChangeModel("G_F_Y_BALLAS_01");
+            }
+        };
+        UIMenuItem theBankManager = new UIMenuItem("Bank Manager", "");
+        uimenu.AddItem(theBankManager);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == theBankManager;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_BANKMAN");
+            }
+        };
+        UIMenuItem bikerChick = new UIMenuItem("Female Biker Chick", "");
+        uimenu.AddItem(bikerChick);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bikerChick;
+            if (flag)
+            {
+                Game.Player.ChangeModel("U_F_Y_BIKERCHIC");
+            }
+        };
     }
 
     //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
@@ -586,6 +616,8 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STUNGUN"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNSPISTOL"), 9999, false, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAYPISTOL"), 9999, false, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SMG"), 9999, false, true);
             }
         };
     }
