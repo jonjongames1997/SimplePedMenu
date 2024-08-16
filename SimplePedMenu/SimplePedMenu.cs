@@ -1220,9 +1220,3 @@ public class SimplePedMenu : Script
         };
     }
 }
-//Useful Links
-//All Vehicles - https://pastebin.com/uTxZnhaN
-//All Player Models - https://pastebin.com/i5c1zA0W
-//All Weapons - https://pastebin.com/M3kD9pnJ
-//Native UI - https://gtaforums.com/topic/809284-net-nativeui/
-//GTA V ScriptHook V Dot Net - https://www.gta5-mods.com/tools/scripthookv-net
