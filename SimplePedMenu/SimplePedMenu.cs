@@ -1213,16 +1213,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_C_PUG");
             }
         };
-        UIMenuItem panther = new UIMenuItem("Panther", "");
-        uimenu.AddItem(panther);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == panther;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_PANTHER");
-            }
-        };
     }
 
     
