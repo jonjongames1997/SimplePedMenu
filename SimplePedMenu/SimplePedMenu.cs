@@ -620,6 +620,15 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SMG"), 9999, false, true);
             }
         };
+        var dropWeapon = new UIMenuItem("Drop Weapon", "");
+        weapons.AddItem(dropWeapon);
+        weapons.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == dropWeapon)
+            {
+                Game.Player.Character.Weapons.Drop();
+            }
+        };
     }
 
     public void OptionsMenu(UIMenu menu)
@@ -725,6 +734,24 @@ public class SimplePedMenu : Script
             if (item == fivestarWantedLevel)
             {
                 Game.Player.WantedLevel = 5;
+            }
+        };
+        UIMenuItem fourStarWantedLevel = new UIMenuItem("4 Star Wanted Level", "");
+        uimenu.AddItem(fourStarWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == fourStarWantedLevel)
+            {
+                Game.Player.WantedLevel = 4;
+            }
+        };
+        UIMenuItem threeStarWantedLevel = new UIMenuItem("3 Star Wanted Level", "");
+        uimenu.AddItem(threeStarWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == threeStarWantedLevel)
+            {
+                Game.Player.WantedLevel = 3;
             }
         };
     }
@@ -1184,6 +1211,16 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("A_C_PUG");
+            }
+        };
+        UIMenuItem panther = new UIMenuItem("Panther", "");
+        uimenu.AddItem(panther);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == panther;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_C_PANTHER");
             }
         };
     }
