@@ -4,7 +4,6 @@ v1.3:
 
 - Added new weapon option in "Weapons" category (Drop Weapon)
 - K-Po's Hot Coffee Mod is now compatible
-- Added 1 new animal (Panther)
 - Added 2 new wanted level options (4 star wanted level and 3 star wanted level)
 
 Note: In order to use the wanted level options, make sure 'Never Wanted' is not enabled on any trainer (ex. Menyoo, SimpleTrainer)
