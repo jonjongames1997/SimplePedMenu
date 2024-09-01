@@ -1,8 +1,4 @@
-﻿// Native UI Menu Template 3.0 - Abel Software
-// You must download and use Scripthook V Dot Net Reference and NativeUI Reference (LINKS AT BOTTOM OF THE TEMPLATE)
-// Ignore Spelling: Ped
-
-using GTA;
+﻿using GTA;
 using NativeUI;
 using System.Windows.Forms;
 using System;
@@ -16,7 +12,7 @@ public class SimplePedMenu : Script
     private ScriptSettings config;
     private Keys OpenMenu;
 
-    //Now, we will add your sub menu, which in this case, will be player menu to change your player model.
+    #region // Ped Model Menu //
     public void PlayerModelMenu(UIMenu menu)
     {
         UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Peds");
@@ -304,8 +300,9 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion
 
-    //Now, we will add your sub menu, which in this case, will be vehicle menu to spawn a car
+    #region // Vehicle Menu //
     public void VehicleMenu(UIMenu menu)
     {
         UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Civilian Vehicles");
@@ -588,7 +585,39 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion
 
+    #region // Animations Menu //
+    public void MPAnimationsMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Animations");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem StopAnimation = new UIMenuItem("Stop Animation", "");
+        uimenu.AddItem(StopAnimation);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == StopAnimation;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("rcmjosh1", "idle");
+            }
+        };
+        UIMenuItem dance1 = new UIMenuItem("Peace Sign", "");
+        uimenu.AddItem(dance1);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == dance1;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperpeace_sign", "mp_player_int_peace_sign");
+            }
+        };
+    }
+    #endregion
+
+    #region // Weapon Menu //
     public void WeaponMenu(UIMenu menu)
     {
         var weapons = _menuPool.AddSubMenu(menu, "Weapons");
@@ -630,7 +659,9 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion
 
+    #region // Options Menu //
     public void OptionsMenu(UIMenu menu)
     {
         UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Options");
@@ -756,6 +787,9 @@ public class SimplePedMenu : Script
         };
     }
 
+    #endregion
+
+    #region //Radio Station Menu //
     public void RadioStationMenu(UIMenu menu)
     {
         UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Radio Options");
@@ -1006,7 +1040,9 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion 
 
+    #region // Animal Menu //
     public void AnimalMenu(UIMenu menu)
     {
         UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Animals");
@@ -1214,10 +1250,11 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion //
 
-    
 
-    //Now we will add all of our sub menus into our main menu, and set the general information of the entire menu
+
+    #region // Menu Setup //
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
@@ -1229,6 +1266,7 @@ public class SimplePedMenu : Script
         this.AnimalMenu(mainMenu);
         this.RadioStationMenu(mainMenu);
         this.OptionsMenu(mainMenu);
+        this.MPAnimationsMenu(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
@@ -1246,4 +1284,5 @@ public class SimplePedMenu : Script
             }
         };
     }
+    #endregion
 }
