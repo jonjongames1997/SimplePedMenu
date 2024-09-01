@@ -2,7 +2,8 @@
 
 v1.4:
 
-- 
+- Added player animations to the menu
+- Added 7 new peds
 
 v1.3:
 
