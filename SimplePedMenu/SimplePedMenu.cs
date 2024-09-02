@@ -614,6 +614,36 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_upperpeace_sign", "mp_player_int_peace_sign");
             }
         };
+        UIMenuItem GangSign1 = new UIMenuItem("Gang Sign 1", "");
+        uimenu.AddItem(GangSign1);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == GangSign1;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_a", "mp_player_int_gang_sign_a");
+            }
+        };
+        UIMenuItem GangSign2 = new UIMenuItem("Gang Sign 1", "");
+        uimenu.AddItem(GangSign2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == GangSign2;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_b", "mp_player_int_gang_sign_b");
+            }
+        };
+        UIMenuItem RockSign = new UIMenuItem("Rock", "");
+        uimenu.AddItem(RockSign);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == RockSign;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperrock", "mp_player_int_rock");
+            }
+        };
     }
     #endregion
 
