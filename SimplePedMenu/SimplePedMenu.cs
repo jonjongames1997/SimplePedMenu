@@ -331,14 +331,14 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_F_M_BEACH_01");
             }
         };
-        UIMenuItem BradPrologue = new UIMenuItem("Brad - Prologue", "");
-        uimenu.AddItem(BradPrologue);
+        UIMenuItem InfernusStripper = new UIMenuItem("Stripper - Infernus", "");
+        uimenu.AddItem(InfernusStripper);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            bool flag = item == BradPrologue;
+            bool flag = item == InfernusStripper;
             if (flag)
             {
-                Game.Player.ChangeModel("IG_BRAD");
+                Game.Player.ChangeModel("S_F_Y_STRIPPER_02");
             }
         };
         UIMenuItem BusinessWoman = new UIMenuItem("Business Woman 1", "");
@@ -905,6 +905,15 @@ public class SimplePedMenu : Script
             if (item == threeStarWantedLevel)
             {
                 Game.Player.WantedLevel = 3;
+            }
+        };
+        UIMenuItem twoStarWantedLevel = new UIMenuItem("2 Star Wanted Level", "");
+        uimenu.AddItem(twoStarWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == twoStarWantedLevel)
+            {
+                Game.Player.WantedLevel = 2;
             }
         };
     }
