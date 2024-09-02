@@ -365,7 +365,7 @@ public class SimplePedMenu : Script
         uimenu.AddItem(DrugDealer);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            bool flag = item === DrugDealer;
+            bool flag = item == DrugDealer;
             if (flag)
             {
                 Game.Player.ChangeModel("S_M_Y_DEALER_01");
