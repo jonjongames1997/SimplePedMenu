@@ -4,6 +4,8 @@ v1.4:
 
 - Added player animations to the menu
 - Added 7 new peds
+- Added 1 new wanted level option (2 Star Wanted Level)
+- Nivinha's peds is compatible using this menu
 
 v1.3:
 
