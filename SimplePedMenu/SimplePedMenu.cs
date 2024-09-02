@@ -594,7 +594,7 @@ public class SimplePedMenu : Script
         for (int i = 0; i < 1; i++)
         {
         }
-        UIMenuItem StopAnimation = new UIMenuItem("Stop Animation", "");
+        UIMenuItem StopAnimation = new UIMenuItem("Josh Chilling", "");
         uimenu.AddItem(StopAnimation);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -642,6 +642,26 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_upperrock", "mp_player_int_rock");
+            }
+        };
+        UIMenuItem HandSalute = new UIMenuItem("Hand Salute", "");
+        uimenu.AddItem(HandSalute);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == HandSalute;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppersalute", "mp_player_int_salute");
+            }
+        };
+        UIMenuItem ChinBrush = new UIMenuItem("Chin Brush", "");
+        uimenu.AddItem(ChinBrush);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == ChinBrush;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperchin_brush", "exit");
             }
         };
     }
