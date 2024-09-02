@@ -299,6 +299,76 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("U_F_Y_BIKERCHIC");
             }
         };
+        UIMenuItem Coroner = new UIMenuItem("Coroner", "");
+        uimenu.AddItem(Coroner);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == Coroner;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_M_Y_AUTOPSY_01");
+            }
+        };
+        UIMenuItem femaleLifeguard = new UIMenuItem("Lifeguard (Female)", "");
+        uimenu.AddItem(femaleLifeguard);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == femaleLifeguard;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_F_Y_BAYWATCH_01");
+            }
+        };
+        UIMenuItem FemaleBeachgoer = new UIMenuItem("Female Beachgoer", "");
+        uimenu.AddItem(FemaleBeachgoer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == FemaleBeachgoer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_M_BEACH_01");
+            }
+        };
+        UIMenuItem BradPrologue = new UIMenuItem("Brad - Prologue", "");
+        uimenu.AddItem(BradPrologue);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == BradPrologue;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_BRAD");
+            }
+        };
+        UIMenuItem BusinessWoman = new UIMenuItem("Business Woman 1", "");
+        uimenu.AddItem(BusinessWoman);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == BusinessWoman;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
+            }
+        };
+        UIMenuItem ConstructionWorker = new UIMenuItem("Construction Worker 1", "");
+        uimenu.AddItem(ConstructionWorker);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == ConstructionWorker;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_M_Y_CONSTRUCT_02");
+            }
+        };
+        UIMenuItem DrugDealer = new UIMenuItem("Drug Dealer", "");
+        uimenu.AddItem(DrugDealer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item === DrugDealer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_M_Y_DEALER_01");
+            }
+        };
     }
     #endregion
 
