@@ -624,7 +624,7 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_a", "mp_player_int_gang_sign_a");
             }
         };
-        UIMenuItem GangSign2 = new UIMenuItem("Gang Sign 1", "");
+        UIMenuItem GangSign2 = new UIMenuItem("Gang Sign 2", "");
         uimenu.AddItem(GangSign2);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
