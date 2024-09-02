@@ -6,11 +6,13 @@ using GTA.Native;
 
 public class SimplePedMenu : Script
 {
+    #region // General Variables //
     private Ped playerPed = Game.Player.Character;
     private Player player = Game.Player;
     private MenuPool _menuPool;
     private ScriptSettings config;
     private Keys OpenMenu;
+    #endregion
 
     #region // Ped Model Menu //
     public void PlayerModelMenu(UIMenu menu)
