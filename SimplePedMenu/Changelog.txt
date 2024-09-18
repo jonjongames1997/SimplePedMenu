@@ -1,5 +1,11 @@
 ﻿Changelog:
 
+v1.5:
+
+- Added 2 new animations
+- Added 1 new wanted level option
+- Added 4 new vehicles
+
 v1.4:
 
 - Added player animations to the menu
