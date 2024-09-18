@@ -736,6 +736,26 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperchin_brush", "exit");
             }
         };
+        UIMenuItem TakePill = new UIMenuItem("Take Pill", "");
+        uimenu.AddItem(TakePill);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == TakePill;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_suicide", "pill");
+            }
+        };
+        UIMenuItem upYours = new UIMenuItem("Up Yours", "");
+        uimenu.AddItem(upYours);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == upYours;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperup_yours", "mp_player_int_up_yours_exit");
+            }
+        };
     }
     #endregion
 
@@ -1389,7 +1409,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.4");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.5");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
