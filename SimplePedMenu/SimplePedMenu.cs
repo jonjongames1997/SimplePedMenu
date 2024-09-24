@@ -657,6 +657,50 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem dumpTruck = new UIMenuItem("Dump Truck", "");
+        uimenu.AddItem(dumpTruck);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == dumpTruck;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Dump", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem flatbedTow = new UIMenuItem("Flatbed", "");
+        uimenu.AddItem(flatbedTow);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == flatbedTow;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Flatbed", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem faggio3 = new UIMenuItem("Faggio 3", "");
+        uimenu.AddItem(faggio3);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == faggio3;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Faggio3", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem stryderBike = new UIMenuItem("Stryder", "");
+        uimenu.AddItem(stryderBike);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == stryderBike;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("Stryder", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
     #endregion
 
