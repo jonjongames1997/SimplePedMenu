@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using System;
 using GTA.Native;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 
 public class SimplePedMenu : Script
 {
@@ -370,6 +372,16 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("S_M_Y_DEALER_01");
+            }
+        };
+        UIMenuItem AirportWorker = new UIMenuItem("Airport Worker", "");
+        uimenu.AddItem(AirportWorker);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == AirportWorker;
+            if (flag)
+            {
+                Game.Player.ChangeModel("S_M_Y_AIRWORKER");
             }
         };
     }
@@ -981,6 +993,51 @@ public class SimplePedMenu : Script
                 Game.Player.WantedLevel = 2;
             }
         };
+        UIMenuItem oneStarWantedLevel = new UIMenuItem("1 Star Wanted Level", "");
+        uimenu.AddItem(oneStarWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == oneStarWantedLevel)
+            {
+                Game.Player.WantedLevel = 1;
+            }
+        };
+        UIMenuItem removeWantedLevel = new UIMenuItem("Remove Wanted Level", "");
+        uimenu.AddItem(removeWantedLevel);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int idex)
+        {
+            if (item == removeWantedLevel)
+            {
+                Game.Player.WantedLevel = 0;
+            }
+        };
+        UIMenuItem godMode = new UIMenuItem("God Mode", "");
+        uimenu.AddItem(godMode);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == godMode)
+            {
+                Game.Player.Character.IsInvincible = true;
+            }
+        };
+        UIMenuItem godModeRemoval = new UIMenuItem("Remove God Mode", "");
+        uimenu.AddItem(godModeRemoval);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == godModeRemoval)
+            {
+                Game.Player.Character.IsInvincible = false;
+            }
+        };
+        UIMenuItem autoSaveGame = new UIMenuItem("Auto Save Game", "");
+        uimenu.AddItem(autoSaveGame);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == autoSaveGame)
+            {
+                Game.DoAutoSave();
+            }
+        };
     }
 
     #endregion
@@ -1448,13 +1505,49 @@ public class SimplePedMenu : Script
     }
     #endregion //
 
+    #region // Prop Weapons //
+    public void PropWeaponMenu(UIMenu menu)
+    {
+        var props = this._menuPool.AddSubMenu(menu, "Prop Weapons");
+        for (int i = 0; i < 1; i++) ;
+        var newprops = new UIMenuItem("Give Props", "");
+        props.AddItem(newprops);
+        props.OnItemSelect += (sender, item, index) =>
+        {
+            if (item == newprops)
+            {
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BAT"), 9999, true, true);
+            }
+        };
+    }
+    #endregion
 
+    #region // Credits //
+
+    public void _credits(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Credits Section");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem credits = new UIMenuItem("Credits", "");
+        uimenu.AddItem(credits);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == credits;
+            if (flag)
+            {
+                BigMessageThread.MessageInstance.ShowSimpleShard("Credits", "AbelGaming's NativeUI Menu Template");
+            }
+        };
+    }
+    #endregion
 
     #region // Menu Setup //
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.5");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.6");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
@@ -1463,6 +1556,8 @@ public class SimplePedMenu : Script
         this.RadioStationMenu(mainMenu);
         this.OptionsMenu(mainMenu);
         this.MPAnimationsMenu(mainMenu);
+        this.PropWeaponMenu(mainMenu);
+        this._credits(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
