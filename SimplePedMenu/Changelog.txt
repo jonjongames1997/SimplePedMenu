@@ -1,5 +1,12 @@
 ﻿Changelog:
 
+v1.6:
+
+- Added 5 new options in 'Options Menu'
+- Added Prop Weapons menu (Only 1 prop weapon available at this time. Adding more in the future)
+- Added Credits section
+- Added 1 new ped
+
 v1.5:
 
 - Added 2 new animations
