@@ -811,6 +811,52 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_upperup_yours", "mp_player_int_up_yours_exit");
             }
         };
+        UIMenuItem wanking = new UIMenuItem("Wank", "");
+        uimenu.AddItem(wanking);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wanking;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperwank", "mp_player_int_wank_01");
+            }
+        };
+        UIMenuItem hostage = new UIMenuItem("Pistol to the Head", "");
+        uimenu.AddItem(hostage);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == hostage;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_suicide", "pistol");
+            }
+        };
+        UIMenuItem flippingOff = new UIMenuItem("Flipping the Bird", "");
+        uimenu.AddItem(flippingOff);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            Game.Player.Character.Task.PlayAnimation("mp_player_intfinger", "mp_player_int_finger");
+        };
+        UIMenuItem loveBro = new UIMenuItem("Bro Love", "");
+        uimenu.AddItem(loveBro);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == loveBro;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperbro_love", "mp_player_int_bro_love");
+            }
+        };
+        UIMenuItem headNod = new UIMenuItem("Head Nod", "");
+        uimenu.AddItem(headNod);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == headNod;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upper_nod", "mp_player_int_nod_no");
+            }
+        };
     }
     #endregion
 
@@ -1535,7 +1581,7 @@ public class SimplePedMenu : Script
             bool flag = item == credits;
             if (flag)
             {
-                BigMessageThread.MessageInstance.ShowSimpleShard("Credits", "AbelGaming's NativeUI Menu Template");
+                BigMessageThread.MessageInstance.ShowSimpleShard("CREDITS", "AbelGaming's NativeUI Menu Template");
             }
         };
     }
@@ -1545,7 +1591,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod by~w~ JonJonGames ~y~v1.6");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.7");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
