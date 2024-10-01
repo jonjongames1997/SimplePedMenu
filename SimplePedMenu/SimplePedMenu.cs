@@ -3,18 +3,16 @@ using NativeUI;
 using System.Windows.Forms;
 using System;
 using GTA.Native;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
+using static GTA.ScriptSettings;
 
 public class SimplePedMenu : Script
 {
     #region // General Variables //
     private Ped playerPed = Game.Player.Character;
     private Player player = Game.Player;
-    private MenuPool _menuPool;
-    private ScriptSettings config;
-    private Keys OpenMenu;
+    private readonly MenuPool _menuPool;
+    private readonly ScriptSettings config;
+    private readonly Keys OpenMenu;
     #endregion
 
     #region // Ped Model Menu //
@@ -1570,7 +1568,6 @@ public class SimplePedMenu : Script
             bool flag = e.KeyCode == this.OpenMenu && !this._menuPool.IsAnyMenuOpen();
             if (flag)
             {
-                Cursor.Hide();
                 mainMenu.Visible = !mainMenu.Visible;
             }
         };
