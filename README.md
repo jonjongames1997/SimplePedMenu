@@ -32,9 +32,19 @@ Drag and drop "scripts" folder into Main GTA Directory
 * 2 Radio Stations will not work (Blaine County Radio & West Coast Talk Show) when crossing the county line. RockstarGames hardcoded this. You just got to deal with it.
 
 # Mod Compatibility
-* Hot Coffee by K-po Games - ✅ (Now Compatible)
-* (Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
-* Dildo bicycle by Chauklet -  ✅ (Compatible)
+Hot Coffee by K-po Games - ✅
+
+(Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
+
+Dildo bicycle by Chauklet - ✅
+
+My Ped Collection 2022 Part 1 by Nivinha - ✅
+
+My Ped Collection 2022 by Nivinha - ✅
+
+Strippers by Nivinha - ✅
+
+My Ig-Janet with special skills and physics by Nivinha - ✅
 
 # Support
 
