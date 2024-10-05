@@ -382,6 +382,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_M_Y_AIRWORKER");
             }
         };
+        UIMenuItem JanetBartender = new UIMenuItem("Janet", "");
+        uimenu.AddItem(JanetBartender);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == JanetBartender;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_JANET");
+            }
+        };
     }
     #endregion
 
@@ -835,7 +845,11 @@ public class SimplePedMenu : Script
         uimenu.AddItem(flippingOff);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            Game.Player.Character.Task.PlayAnimation("mp_player_intfinger", "mp_player_int_finger");
+           bool flag = item == flippingOff;
+           if (flag)
+           {
+                Game.Player.Character.Task.PlayAnimation("mp_player_intfinger", "mp_player_int_finger");
+           }
         };
         UIMenuItem loveBro = new UIMenuItem("Bro Love", "");
         uimenu.AddItem(loveBro);
@@ -1591,7 +1605,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.7");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.6.1");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
