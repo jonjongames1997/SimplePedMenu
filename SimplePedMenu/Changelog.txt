@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+v1.6.1:
+
+- Fixed an error in the code where the animations wouldn't play correctly.
+- Added 1 new ped (Janet)
+
 v1.6:
 
 - Added 5 new options in 'Options Menu'
