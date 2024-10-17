@@ -30,10 +30,19 @@ Drag and drop "scripts" folder into Main GTA Directory
 You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
 
 # Mod Compatibility
-* Hot Coffee by K-po Games - ✅
-* (Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
-* Dildo Bike by Chauklet - ✅
-* Nivinha Ped Collections - ✅
+Hot Coffee by K-po Games - ✅
+
+(Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
+
+Dildo bicycle by Chauklet - ✅
+
+My Ped Collection 2022 Part 1 by Nivinha - ✅
+
+My Ped Collection 2022 by Nivinha - ✅
+
+Strippers by Nivinha - ✅
+
+My Ig-Janet with special skills and physics by Nivinha - ✅
 
 # Support
 
