@@ -911,7 +911,16 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_upperarse_pick", "mp_player_int_arse_pick");
             }
         };
-
+        UIMenuItem mouthYapping = new UIMenuItem("Mouth Yapping", "");
+        uimenu.AddItem(mouthYapping);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == mouthYapping;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_facial", "mic_chatter");
+            }
+        };
     }
     #endregion
 
