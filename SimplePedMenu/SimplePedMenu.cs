@@ -901,6 +901,16 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperface_palm", "enter_fp");
             }
         };
+        UIMenuItem diggingForCheese = new UIMenuItem("Digging for Cheese", "");
+        uimenu.AddItem(diggingForCheese);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == diggingForCheese;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperarse_pick", "mp_player_int_arse_pick");
+            }
+        };
 
     }
     #endregion
