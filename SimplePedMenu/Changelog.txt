@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+v1.7:
+
+- Added some new animations
+- 
+
 v1.6.1:
 
 - Fixed an error in the code where the animations wouldn't play correctly.
