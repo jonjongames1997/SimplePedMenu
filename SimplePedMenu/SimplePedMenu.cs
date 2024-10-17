@@ -871,6 +871,37 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mp_player_int_upper_nod", "mp_player_int_nod_no");
             }
         };
+        UIMenuItem docking = new UIMenuItem("Docking", "");
+        uimenu.AddItem(docking);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == docking;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdock", "exit_fp");
+            }
+        };
+        UIMenuItem grabbingtheDick = new UIMenuItem("Grab Deez Nuts", "");
+        uimenu.AddItem(grabbingtheDick);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == grabbingtheDick;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergrab_crotch", "mp_player_int_grab_crotch");
+            }
+        };
+        UIMenuItem facepalm = new UIMenuItem("Face Palm", "");
+        uimenu.AddItem(facepalm);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == facepalm;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperface_palm", "enter_fp");
+            }
+        };
+
     }
     #endregion
 
@@ -1575,6 +1606,8 @@ public class SimplePedMenu : Script
             if (item == newprops)
             {
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BAT"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CROWBAR"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 9999, true, true);
             }
         };
     }
@@ -1605,7 +1638,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.6.1");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.7");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
