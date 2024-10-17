@@ -162,56 +162,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_ABIGAIL");
             }
         };
-        UIMenuItem cultguy01 = new UIMenuItem("Male Cult 1", "");
-        uimenu.AddItem(cultguy01);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cultguy01;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_M_ACULT_01");
-            }
-        };
-        UIMenuItem cultguy02 = new UIMenuItem("Male Cult 2", "");
-        uimenu.AddItem(cultguy02);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cultguy02;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_O_ACULT_01");
-            }
-        };
-        UIMenuItem cultguy03 = new UIMenuItem("Male Cult 3", "");
-        uimenu.AddItem(cultguy03);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cultguy03;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_Y_ACULT_01");
-            }
-        };
-        UIMenuItem cultguy04 = new UIMenuItem("Male Cult 4", "");
-        uimenu.AddItem(cultguy04);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cultguy04;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_O_ACULT_02");
-            }
-        };
-        UIMenuItem cultguy05 = new UIMenuItem("Male Cult 5", "");
-        uimenu.AddItem(cultguy05);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cultguy05;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_Y_ACULT_02");
-            }
-        };
         UIMenuItem anita = new UIMenuItem("Anita", "");
         uimenu.AddItem(anita);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
