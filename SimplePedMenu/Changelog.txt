@@ -4,6 +4,7 @@ v1.7:
 
 - Added 10 new animations
 - Removed Cult peds due to causing game lag
+- Added 2 new prop weapons
 
 v1.6.1:
 
