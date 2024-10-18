@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System;
 using GTA.Native;
 using static GTA.ScriptSettings;
+using Newtonsoft.Json.Serialization;
 
 public class SimplePedMenu : Script
 {
@@ -869,6 +870,56 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.Character.Task.PlayAnimation("mp_facial", "mic_chatter");
+            }
+        };
+        UIMenuItem leaning = new UIMenuItem("Leaning", "");
+        uimenu.AddItem(leaning);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == leaning;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_cp_welcome_tutleaning", "idle_a");
+            }
+        };
+        UIMenuItem airGuitar = new UIMenuItem("Air Guitar", "");
+        uimenu.AddItem(airGuitar);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == airGuitar;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperair_guitar", "idle_a_fp");
+            }
+        };
+        UIMenuItem crunchingKnuckles = new UIMenuItem("Crunching Knuckles", "");
+        uimenu.AddItem(crunchingKnuckles);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == crunchingKnuckles;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperknuckle_crunch", "idle_a");
+            }
+        };
+        UIMenuItem nosePicking = new UIMenuItem("Nose Picking", "");
+        uimenu.AddItem(nosePicking);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == nosePicking;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppernose_pick", "enter");
+            }
+        };
+        UIMenuItem djing = new UIMenuItem("DJ", "");
+        uimenu.AddItem(djing);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == djing;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("nim@mp_player_intupperdj", "idle_a");
             }
         };
     }
