@@ -919,7 +919,7 @@ public class SimplePedMenu : Script
             bool flag = item == djing;
             if (flag)
             {
-                Game.Player.Character.Task.PlayAnimation("nim@mp_player_intupperdj", "idle_a");
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdj", "idle_a");
             }
         };
     }
