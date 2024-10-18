@@ -2,9 +2,8 @@
 
 v1.7:
 
-- Added some new animations
+- Added 10 new animations
 - Removed Cult peds due to causing game lag
-- 
 
 v1.6.1:
 
