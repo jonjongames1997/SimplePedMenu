@@ -343,6 +343,46 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_JANET");
             }
         };
+        UIMenuItem KerryMcIntosh = new UIMenuItem("Kerry McIntosh", "");
+        uimenu.AddItem(KerryMcIntosh);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == KerryMcIntosh;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_KERRYMCINTOSH");
+            }
+        };
+        UIMenuItem businessWoman = new UIMenuItem("Business Woman 1", "");
+        uimenu.AddItem(businessWoman);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == businessWoman;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
+            }
+        };
+        UIMenuItem businessWoman2 = new UIMenuItem("Business Woman 2", "");
+        uimenu.AddItem(businessWoman2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == businessWoman2;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_Y_BUSINESS_02");
+            }
+        };
+        UIMenuItem businessWoman3 = new UIMenuItem("Business Woman 3", "");
+        uimenu.AddItem(businessWoman3);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == businessWoman3;
+            if (flag)
+            {
+                Game.Player.ChangeModel("A_F_Y_BUSINESS_03");
+            }
+        };
     }
     #endregion
 
@@ -920,6 +960,56 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdj", "idle_a");
+            }
+        };
+        UIMenuItem BeQuiet = new UIMenuItem("Be Quiet", "");
+        uimenu.AddItem(BeQuiet);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == BeQuiet;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppershush", "enter");
+            }
+        };
+        UIMenuItem thumbsUp = new UIMenuItem("Thumbs Up", "");
+        uimenu.AddItem(thumbsUp);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == thumbsUp;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumbs_up", "enter");
+            }
+        };
+        UIMenuItem slowclapping = new UIMenuItem("Slow Clapping", "");
+        uimenu.AddItem(slowclapping);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == slowclapping;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperslow_clap", "idle_a");
+            }
+        };
+        UIMenuItem ISurrender = new UIMenuItem("Surrendering", "");
+        uimenu.AddItem(ISurrender);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == ISurrender;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppersurrender", "enter");
+            }
+        };
+        UIMenuItem MakeItRain = new UIMenuItem("Make It Rain", "");
+        uimenu.AddItem(MakeItRain);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == MakeItRain;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperraining_cash", "idle_a");
             }
         };
     }
@@ -1658,7 +1748,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ JonJonGames ~y~v1.8");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v1.8");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
