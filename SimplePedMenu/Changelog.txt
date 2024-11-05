@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+v1.8:
+
+- Added 4 new peds
+- Added 5 new Animations
+
 v1.7:
 
 - Added 10 new animations
