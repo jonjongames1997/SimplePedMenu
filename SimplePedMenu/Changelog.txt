@@ -2,6 +2,8 @@
 
 v1.9:
 
+- Added 4 new animations
+- Added 7 new peds
 - 
 
 v1.8:
