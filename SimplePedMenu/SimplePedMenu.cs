@@ -383,6 +383,76 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("A_F_Y_BUSINESS_03");
             }
         };
+        UIMenuItem shirtlessDude = new UIMenuItem("Shirtless Dude", "");
+        uimenu.AddItem(shirtlessDude);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == shirtlessDude;
+            if(flag)
+            {
+                Game.Player.ChangeModel("U_M_Y_ABNER");
+            }
+        };
+        UIMenuItem footballFan = new UIMenuItem("Football Fan", "");
+        uimenu.AddItem(footballFan);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == footballFan;
+            if (flag)
+            {
+                Game.Player.ChangeModel("a_m_m_afriamer_01");
+            }
+        };
+        UIMenuItem carMechanic = new UIMenuItem("Car Mechanic", "");
+        uimenu.AddItem(carMechanic);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == carMechanic;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_m_m_autoshop_01");
+            }
+        };
+        UIMenuItem ClassyWoman = new UIMenuItem("Classy Woman", "");
+        uimenu.AddItem(ClassyWoman);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == ClassyWoman;
+            if (flag)
+            {
+                Game.Player.ChangeModel("a_f_y_bevhills_01");
+            }
+        };
+        UIMenuItem FemaleLSPDWhiteCop = new UIMenuItem("LSPD Female Cop", "");
+        uimenu.AddItem(FemaleLSPDWhiteCop);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == FemaleLSPDWhiteCop;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_f_y_cop_01");
+            }
+        };
+        UIMenuItem LSPDCop = new UIMenuItem("LSPD Male Cop", "");
+        uimenu.AddItem(LSPDCop);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == LSPDCop;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_m_y_cop_01");
+            }
+        };
+        UIMenuItem deadCorpse = new UIMenuItem("Dead Corpse 1", "");
+        uimenu.AddItem(deadCorpse);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == deadCorpse;
+            if (flag)
+            {
+                Game.Player.ChangeModel("u_f_m_corpse_01");
+            }
+        };
     }
     #endregion
 
@@ -1010,6 +1080,46 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperraining_cash", "idle_a");
+            }
+        };
+        UIMenuItem yourLoco = new UIMenuItem("Your Loco", "");
+        uimenu.AddItem(yourLoco);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == yourLoco;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperyou_loco", "idle_a");
+            }
+        };
+        UIMenuItem Waving = new UIMenuItem("Waving", "");
+        uimenu.AddItem(Waving);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == Waving;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperwave", "idle_a");
+            }
+        };
+        UIMenuItem Disco = new UIMenuItem("70s Disco", "");
+        uimenu.AddItem(Disco);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == Disco;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperuncle_disco", "idle_a");
+            }
+        };
+        UIMenuItem pluggingEars = new UIMenuItem("Plugging Ears", "");
+        uimenu.AddItem(pluggingEars);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == pluggingEars;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumb_on_ears", "idle_a");
             }
         };
     }
