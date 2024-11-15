@@ -1,5 +1,9 @@
 ﻿Changelog:
 
+v2.0:
+
+- 
+
 v1.9:
 
 - Added 4 new animations
