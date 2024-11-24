@@ -45,6 +45,10 @@ Strippers by Nivinha - ✅
 
 My Ig-Janet with special skills and physics by Nivinha - ✅
 
+Los Santos RED - ❌
+
+RDE - ❌
+
 # Support
 
 If you want to suggest, report bugs, or need help with this menu, join my personal Discord: https://discord.com/N9KgZx4KUn 
