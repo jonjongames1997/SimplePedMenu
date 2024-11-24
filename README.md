@@ -12,7 +12,6 @@ Simple Ped Menu is a ped menu where you can change into any ped in the game besi
 # Requirements
 
 * NativeUI (Latest)
-* ScriptHookV (Latest)
 * ScriptHookVDotNet3 (Nightly version recommended)
 
 # Install
@@ -45,6 +44,10 @@ My Ped Collection 2022 by Nivinha - ✅
 Strippers by Nivinha - ✅
 
 My Ig-Janet with special skills and physics by Nivinha - ✅
+
+Los Santos RED - ❌
+
+RDE - ❌
 
 # Support
 
