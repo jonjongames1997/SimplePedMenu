@@ -5,13 +5,13 @@ Simple Ped Menu is a ped menu where you can change into any ped in the game besi
 # Features
 * Change your ped model easily
 * Spawn into a vehicle
-* Equip weapons
+* Equip a weapon
+* Change Radio Stations
 * and more!
 
 # Requirements
 
-* LemonUI.SHVDN3 (Latest)
-* ScriptHookV (Latest)
+* NativeUI (Latest)
 * ScriptHookVDotNet3 (Nightly version recommended)
 
 # Install
@@ -21,13 +21,14 @@ Drag and drop "scripts" folder into Main GTA Directory
 
 1) Go in game 
 
-2) Hit F9 (by default) to bring up the menu then you should have a section for peds, vehicles, and weapons
+2) Hit F9 (by default) to bring up the menu then you should have a section for peds, vehicles, weapons, and more.
 
 3) Select what you want and enjoy!
 
 # Radio Options Use
 
-You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
+* You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
+* 2 Radio Stations will not work (Blaine County Radio & West Coast Talk Show) when crossing the county line. RockstarGames hardcoded this. You just got to deal with it.
 
 # Mod Compatibility
 Hot Coffee by K-po Games - ✅
@@ -43,6 +44,10 @@ My Ped Collection 2022 by Nivinha - ✅
 Strippers by Nivinha - ✅
 
 My Ig-Janet with special skills and physics by Nivinha - ✅
+
+Los Santos RED - ❌
+
+RDE - ❌
 
 # Support
 
