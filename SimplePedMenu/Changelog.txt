@@ -2,7 +2,11 @@
 
 v2.0:
 
-- 
+- Updated ReadMe
+- Added [] new vehicles
+- Added [] new prop weapons
+- Added [] peds
+- Added [] Animations
 
 v1.9:
 
