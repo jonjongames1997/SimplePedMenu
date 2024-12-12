@@ -453,16 +453,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("u_f_m_corpse_01");
             }
         };
-        UIMenuItem beverlyPhotography = new UIMenuItem("Beverly", "");
-        uimenu.AddItem(beverlyPhotography);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == beverlyPhotography;
-            if (flag)
-            {
-                Game.Player.ChangeModel("cs_beverly");
-            }
-        };
         UIMenuItem militaryPed1 = new UIMenuItem("Military Guy 1", "");
         uimenu.AddItem(militaryPed1);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -491,16 +481,6 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("s_m_y_blackops_03");
-            }
-        };
-        UIMenuItem brad = new UIMenuItem("Brad", "");
-        uimenu.AddItem(brad);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == brad;
-            if (flag)
-            {
-                Game.Player.ChangeModel("cs_brad");
             }
         };
         UIMenuItem theBride = new UIMenuItem("Bride", "");
