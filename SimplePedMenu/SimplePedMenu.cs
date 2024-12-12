@@ -503,6 +503,26 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("ig_casey");
             }
         };
+        UIMenuItem breakdancer = new UIMenuItem("Break Dancer", "");
+        uimenu.AddItem(breakdancer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == breakdancer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("a_m_y_breakdance_01");
+            }
+        };
+        UIMenuItem burgershotDrugDealer = new UIMenuItem("Burger Shot Drug Dealer", "");
+        uimenu.AddItem(burgershotDrugDealer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == burgershotDrugDealer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("u_m_y_burgerdrug_01");
+            }
+        };
     }
     #endregion
 
