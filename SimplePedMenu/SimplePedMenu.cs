@@ -453,6 +453,76 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("u_f_m_corpse_01");
             }
         };
+        UIMenuItem beverlyPhotography = new UIMenuItem("Beverly", "");
+        uimenu.AddItem(beverlyPhotography);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == beverlyPhotography;
+            if (flag)
+            {
+                Game.Player.ChangeModel("cs_beverly");
+            }
+        };
+        UIMenuItem militaryPed1 = new UIMenuItem("Military Guy 1", "");
+        uimenu.AddItem(militaryPed1);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == militaryPed1;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_m_y_blackops_01");
+            }
+        };
+        UIMenuItem militaryPed2 = new UIMenuItem("Military Guy 2", "");
+        uimenu.AddItem(militaryPed2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == militaryPed2;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_m_y_blackops_02");
+            }
+        };
+        UIMenuItem militaryPed3 = new UIMenuItem("Military Guy 3", "");
+        uimenu.AddItem(militaryPed3);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == militaryPed3;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_m_y_blackops_03");
+            }
+        };
+        UIMenuItem brad = new UIMenuItem("Brad", "");
+        uimenu.AddItem(brad);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == brad;
+            if (flag)
+            {
+                Game.Player.ChangeModel("cs_brad");
+            }
+        };
+        UIMenuItem theBride = new UIMenuItem("Bride", "");
+        uimenu.AddItem(theBride);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == theBride;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_bride");
+            }
+        };
+        UIMenuItem caseyGruppe = new UIMenuItem("Casey", "");
+        uimenu.AddItem(caseyGruppe);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == caseyGruppe;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_casey");
+            }
+        };
     }
     #endregion
 
@@ -779,6 +849,61 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Vehicle vehicle = World.CreateVehicle("Stryder", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem terrorbyte = new UIMenuItem("Terrorbyte", "");
+        uimenu.AddItem(terrorbyte);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == terrorbyte;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("terbyte", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem moneyTruck = new UIMenuItem("Stockade", "");
+        uimenu.AddItem(moneyTruck);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == moneyTruck;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("stockade", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem asbo = new UIMenuItem("Asbo", "");
+        uimenu.AddItem(asbo);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == asbo;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("asbo", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem blista = new UIMenuItem("Blista", "");
+        uimenu.AddItem(blista);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == blista;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("blista", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem barrage = new UIMenuItem("Barrage", "");
+        uimenu.AddItem(barrage);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == barrage;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("barrage", Game.Player.Character.Position);
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
@@ -1602,7 +1727,27 @@ public class SimplePedMenu : Script
             }
         };
     }
-    #endregion 
+    #endregion
+
+    #region // Prop Menu //
+    public void PropMenu(UIMenu menu)
+    {
+        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Prop Menu");
+        for (int i = 0; i < 1; i++)
+        {
+        }
+        UIMenuItem trafficCone = new UIMenuItem("Traffic Cone", "");
+        uimenu.AddItem(trafficCone);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == trafficCone;
+            if (flag)
+            {
+                World.CreateProp("prop_roadcone01a", Game.Player.Character.Position, true, true);
+            }
+        };
+    }
+    #endregion
 
     #region // Animal Menu //
     public void AnimalMenu(UIMenu menu)
@@ -1836,6 +1981,12 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_KNIFE"), 9999, true, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MACHETE"), 9999, true, true);
                 Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CANDYCANE"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNOWBALL"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BALL"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_ACIDPACKAGE"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PETROLCAN"), 9999, true, true);
+                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, true, true);
             }
         };
     }
@@ -1876,6 +2027,7 @@ public class SimplePedMenu : Script
         this.OptionsMenu(mainMenu);
         this.MPAnimationsMenu(mainMenu);
         this.PropWeaponMenu(mainMenu);
+        this.PropMenu(mainMenu);
         this._credits(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
