@@ -1247,6 +1247,56 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumb_on_ears", "idle_a");
             }
         };
+        UIMenuItem amandaIdle = new UIMenuItem("Amanda Sitting Idle", "");
+        uimenu.AddItem(amandaIdle);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == amandaIdle;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("timetable@reunited@ig_10", "base_amanda");
+            }
+        };
+        UIMenuItem meditateIdle = new UIMenuItem("Meditate", "");
+        uimenu.AddItem(meditateIdle);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == meditateIdle;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("rcmcollect_paperleadinout@", "meditiate_idle");
+            }
+        };
+        UIMenuItem twerking = new UIMenuItem("Twerk", "");
+        uimenu.AddItem(twerking);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == twerking;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("switch@trevor@mocks_lapdance", "001443_01_trvs_28_idle_stripper");
+            }
+        };
+        UIMenuItem PrivatedanceIdle = new UIMenuItem("Private Dance Idle", "");
+        uimenu.AddItem(PrivatedanceIdle);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == PrivatedanceIdle;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@idle", "priv_dance_idle");
+            }
+        };
+        UIMenuItem lapdance2 = new UIMenuItem("Lap Dance 2", "");
+        uimenu.AddItem(lapdance2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == lapdance2;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mini@strip_club@lap_dance_2g@ld_2g_p1", "ld_2g_p1_s2");
+            }
+        };
     }
     #endregion
 
