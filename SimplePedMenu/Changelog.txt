@@ -6,7 +6,7 @@ v2.0:
 - Added 5 new vehicles
 - Added 6 new prop weapons
 - Added 7 new peds
-- Added [] new Animations
+- Added 5 new Animations
 
 v1.9:
 
