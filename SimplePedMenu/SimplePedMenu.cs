@@ -1779,26 +1779,6 @@ public class SimplePedMenu : Script
     }
     #endregion
 
-    #region // Prop Menu //
-    public void PropMenu(UIMenu menu)
-    {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Prop Menu");
-        for (int i = 0; i < 1; i++)
-        {
-        }
-        UIMenuItem trafficCone = new UIMenuItem("Traffic Cone", "");
-        uimenu.AddItem(trafficCone);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == trafficCone;
-            if (flag)
-            {
-                World.CreateProp("prop_roadcone01a", Game.Player.Character.Position, true, true);
-            }
-        };
-    }
-    #endregion
-
     #region // Animal Menu //
     public void AnimalMenu(UIMenu menu)
     {
@@ -2077,7 +2057,6 @@ public class SimplePedMenu : Script
         this.OptionsMenu(mainMenu);
         this.MPAnimationsMenu(mainMenu);
         this.PropWeaponMenu(mainMenu);
-        this.PropMenu(mainMenu);
         this._credits(mainMenu);
         this._menuPool.RefreshIndex();
         this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
