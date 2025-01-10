@@ -523,6 +523,16 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("u_m_y_burgerdrug_01");
             }
         };
+        UIMenuItem imaniDLC = new UIMenuItem("Imani", "");
+        uimenu.AddItem(imaniDLC);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == imaniDLC;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_IMANI");
+            }
+        };
     }
     #endregion
 
@@ -1522,6 +1532,62 @@ public class SimplePedMenu : Script
                 Game.DoAutoSave();
             }
         };
+        UIMenuItem pauseGame = new UIMenuItem("Pause Game", "");
+        uimenu.AddItem(pauseGame);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == pauseGame)
+            {
+                Game.IsPaused = true;
+            }
+        };
+        UIMenuItem unpauseGame = new UIMenuItem("Unpause Game", "");
+        uimenu.AddItem(unpauseGame);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == unpauseGame)
+            {
+                Game.IsPaused = false;
+            }
+        };
+        UIMenuItem nightVision = new UIMenuItem("Enable Night Vision", "");
+        uimenu.AddItem(nightVision);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == nightVision)
+            {
+                Game.IsNightVisionActive = true;
+            }
+        };
+        UIMenuItem nightVisionDisable = new UIMenuItem("Disable Night Vision", "");
+        uimenu.AddItem(nightVisionDisable);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == nightVisionDisable)
+            {
+                Game.IsNightVisionActive = false;
+            }
+        };
+        UIMenuItem PoliceIgnorePlayer = new UIMenuItem("Enable Police Ignore Player", "");
+        uimenu.AddItem(PoliceIgnorePlayer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == PoliceIgnorePlayer)
+            {
+                Game.Player.IgnoredByPolice = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Police Ignore Player", "Enabled");
+            }
+        };
+        UIMenuItem DisablePoliceIgnorePlayer = new UIMenuItem("Disable Police Ignore Player", "");
+        uimenu.AddItem(DisablePoliceIgnorePlayer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == DisablePoliceIgnorePlayer)
+            {
+                Game.Player.IgnoredByPolice = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Disable Police Ignore Player", "Disabled");
+            }
+        };
     }
 
     #endregion
@@ -2047,7 +2113,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.0");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.1");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
