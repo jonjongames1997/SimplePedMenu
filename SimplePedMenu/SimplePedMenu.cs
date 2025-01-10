@@ -1307,6 +1307,46 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("mini@strip_club@lap_dance_2g@ld_2g_p1", "ld_2g_p1_s2");
             }
         };
+        UIMenuItem BBQanim = new UIMenuItem("BBQ", "");
+        uimenu.AddItem(BBQanim);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == BBQanim;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("amb@prop_human_bbq@male@idle_a", "idle_b");
+            }
+        };
+        UIMenuItem trevorPuking = new UIMenuItem("Trevor Puking", "");
+        uimenu.AddItem(trevorPuking);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == trevorPuking;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("missheistpaletoscore1leadinout", "trv_puking_leadout");
+            }
+        };
+        UIMenuItem callChop = new UIMenuItem("Call Chop", "");
+        uimenu.AddItem(callChop);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == callChop;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("missfra0_chop_find", "call_chop_l");
+            }
+        };
+        UIMenuItem carmeetCheckoutCar = new UIMenuItem("Checking Out Car Carmeet", "");
+        uimenu.AddItem(carmeetCheckoutCar);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == carmeetCheckoutCar;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@amb@carmeet@checkout_car@", "female_c_idle_d");
+            }
+        };
     }
     #endregion
 
