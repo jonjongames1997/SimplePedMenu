@@ -523,7 +523,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("u_m_y_burgerdrug_01");
             }
         };
-        UIMenuItem imaniDLC = new UIMenuItem("Imani", "");
+        UIMenuItem imaniDLC = new UIMenuItem("Imani [The Contract DLC]", "");
         uimenu.AddItem(imaniDLC);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -531,6 +531,26 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("IG_IMANI");
+            }
+        };
+        UIMenuItem luchadora = new UIMenuItem("Luchadora [Los Santos Drug Wars DLC]", "");
+        uimenu.AddItem(luchadora);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == luchadora;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_LUCHADORA");
+            }
+        };
+        UIMenuItem masonDugganDLC = new UIMenuItem("Mason Duggan [The Criminal Enterprises DLC]", "");
+        uimenu.AddItem(masonDugganDLC);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == masonDugganDLC;
+            if (flag)
+            {
+                Game.Player.ChangeModel("IG_MASON_DUGGAN");
             }
         };
     }
@@ -1572,24 +1592,6 @@ public class SimplePedMenu : Script
                 Game.DoAutoSave();
             }
         };
-        UIMenuItem pauseGame = new UIMenuItem("Pause Game", "");
-        uimenu.AddItem(pauseGame);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if(item == pauseGame)
-            {
-                Game.IsPaused = true;
-            }
-        };
-        UIMenuItem unpauseGame = new UIMenuItem("Unpause Game", "");
-        uimenu.AddItem(unpauseGame);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == unpauseGame)
-            {
-                Game.IsPaused = false;
-            }
-        };
         UIMenuItem nightVision = new UIMenuItem("Enable Night Vision", "");
         uimenu.AddItem(nightVision);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -1615,7 +1617,7 @@ public class SimplePedMenu : Script
             if(item == PoliceIgnorePlayer)
             {
                 Game.Player.IgnoredByPolice = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Police Ignore Player", "Enabled");
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Enabled");
             }
         };
         UIMenuItem DisablePoliceIgnorePlayer = new UIMenuItem("Disable Police Ignore Player", "");
@@ -1625,7 +1627,7 @@ public class SimplePedMenu : Script
             if (item == DisablePoliceIgnorePlayer)
             {
                 Game.Player.IgnoredByPolice = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Disable Police Ignore Player", "Disabled");
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Disabled");
             }
         };
     }
