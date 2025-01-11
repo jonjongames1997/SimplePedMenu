@@ -2,8 +2,8 @@
 
 v2.1:
 
-- Added 6 new options
-- Added 1 new ped
+- Added 4 new options
+- Added 2 new peds
 - Added 4 new animations
 
 v2.0:
