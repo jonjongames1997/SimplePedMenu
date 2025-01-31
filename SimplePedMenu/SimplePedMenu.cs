@@ -1428,6 +1428,7 @@ public class SimplePedMenu : Script
             if (item == removeWeapons)
             {
                 Game.Player.Character.Weapons.RemoveAll();
+                BigMessageThread.MessageInstance.ShowSimpleShard("SUCCESS", "Weapons Removed successfully! :-)");
             }
         };
         UIMenuItem blackOut = new UIMenuItem("Enable Black Out", "");
@@ -1437,6 +1438,7 @@ public class SimplePedMenu : Script
             if (item == blackOut)
             {
                 World.Blackout = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Black Out", "Enabled");
             }
         };
         UIMenuItem blackOutDisable = new UIMenuItem("Disable Black Out", "");
@@ -1446,6 +1448,7 @@ public class SimplePedMenu : Script
             if (item == blackOutDisable)
             {
                 World.Blackout = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Black Out", "Dissabled");
             }
         };
         UIMenuItem removeWaypoint = new UIMenuItem("Remove Waypoint", "");
