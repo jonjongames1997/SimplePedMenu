@@ -553,6 +553,36 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_MASON_DUGGAN");
             }
         };
+        UIMenuItem carBuyer = new UIMenuItem("Car Buyer", "");
+        uimenu.AddItem(carBuyer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == carBuyer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("cs_carbuyer");
+            }
+        };
+        UIMenuItem chemicalWorker = new UIMenuItem("Chemical Worker", "");
+        uimenu.AddItem(chemicalWorker);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == chemicalWorker;
+            if (flag)
+            {
+                Game.Player.ChangeModel("g_m_m_chemwork_01");
+            }
+        };
+        UIMenuItem clayPain = new UIMenuItem("Claypain", "");
+        uimenu.AddItem(clayPain);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == clayPain;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_claypain");
+            }
+        };
     }
     #endregion
 
