@@ -3,7 +3,9 @@
 v2.2:
 
 - Added 3 new peds
-- 
+- Added 3 new vehicles
+- Added 8 new animations
+- Added 3 new options
 
 v2.1:
 
