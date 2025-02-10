@@ -967,6 +967,39 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem cargoBob = new UIMenuItem("Cargobob", "");
+        uimenu.AddItem(cargoBob);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == cargoBob;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("cargobob", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem buzzard = new UIMenuItem("Buzzard", "");
+        uimenu.AddItem(buzzard);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == buzzard;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("buzzard", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem minitank = new UIMenuItem("Minitank", "");
+        uimenu.AddItem(minitank);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == minitank;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("minitank", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
     #endregion
 
@@ -1397,6 +1430,86 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("anim@amb@carmeet@checkout_car@", "female_c_idle_d");
             }
         };
+        UIMenuItem lapDanceStripper = new UIMenuItem("Lap Dance 3", "");
+        uimenu.AddItem(lapDanceStripper);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == lapDanceStripper;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mp_am_stripper", "lap_dance_girl");
+            }
+        };
+        UIMenuItem lapDanceStripper2 = new UIMenuItem("Lap Dance 4", "");
+        uimenu.AddItem(lapDanceStripper2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == lapDanceStripper2;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@part1", "priv_dance_p1");
+            }
+        };
+        UIMenuItem yachtLapDance = new UIMenuItem("Yacht Lap Dance", "");
+        uimenu.AddItem(yachtLapDance);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == yachtLapDance;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("oddjobs@assassinate@multi@yachttarget@lapdance", "yacht_ld_f");
+            }
+        };
+        UIMenuItem bitchSlap = new UIMenuItem("Bitch Slap", "");
+        uimenu.AddItem(bitchSlap);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bitchSlap;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_slap");
+            }
+        };
+        UIMenuItem headButt = new UIMenuItem("Head Butt", "");
+        uimenu.AddItem(headButt);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == headButt;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_headbutt");
+            }
+        };
+        UIMenuItem sassyMiddleFinger = new UIMenuItem("Sassy Middle Finger", "");
+        uimenu.AddItem(sassyMiddleFinger);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sassyMiddleFinger;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intcelebrationfemale@finger", "finger");
+            }
+        };
+        UIMenuItem gettingDicked = new UIMenuItem("Getting Dicked (NSFW)", "");
+        uimenu.AddItem(gettingDicked);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == gettingDicked;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("rcmpaparazzo_2", "shag_action_poppy");
+            }
+        };
+        UIMenuItem Buttwag = new UIMenuItem("Buttwag", "");
+        uimenu.AddItem(Buttwag);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == Buttwag;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("special_ped@mountain_dancer@monologue_3@monologue_3a", "mnt_dnc_buttwag");
+            }
+        };
     }
     #endregion
 
@@ -1661,6 +1774,36 @@ public class SimplePedMenu : Script
             {
                 Game.Player.IgnoredByPolice = false;
                 BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Disabled");
+            }
+        };
+        UIMenuItem give10Bands = new UIMenuItem("Give $10,000", "");
+        uimenu.AddItem(give10Bands);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == give10Bands)
+            {
+                Game.Player.Character.Money = 10000;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Give $10,000", "You a rich motherfucker ain't ya?");
+            }
+        };
+        UIMenuItem enableRandomEvent = new UIMenuItem("Enable Random Event", "");
+        uimenu.AddItem(enableRandomEvent);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if(item == enableRandomEvent)
+            {
+                Game.IsRandomEventActive = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Enabled!");
+            }
+        };
+        UIMenuItem disableRandomEvent = new UIMenuItem("Disable Random Event", "");
+        uimenu.AddItem(disableRandomEvent);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == disableRandomEvent)
+            {
+                Game.IsRandomEventActive = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Enabled!");
             }
         };
     }
@@ -2188,7 +2331,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.1");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.2");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
