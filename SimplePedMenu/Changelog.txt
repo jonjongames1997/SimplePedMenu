@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+v2.2:
+
+- Added 3 new peds
+- 
+
 v2.1:
 
 - Added 4 new options
