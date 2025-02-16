@@ -14,6 +14,7 @@ public class SimplePedMenu : Script
     private readonly MenuPool _menuPool;
     private readonly ScriptSettings config;
     private readonly Keys OpenMenu;
+    private int ammount;
     #endregion
 
     #region // Ped Model Menu //
@@ -1782,7 +1783,7 @@ public class SimplePedMenu : Script
         {
             if(item == give10Bands)
             {
-                Game.Player.Character.Money = 10000;
+                Game.Player.Money += 10000;
                 BigMessageThread.MessageInstance.ShowSimpleShard("Give $10,000", "You a rich motherfucker ain't ya?");
             }
         };
@@ -1803,7 +1804,7 @@ public class SimplePedMenu : Script
             if (item == disableRandomEvent)
             {
                 Game.IsRandomEventActive = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Enabled!");
+                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Disabled!");
             }
         };
     }
@@ -2343,7 +2344,7 @@ public class SimplePedMenu : Script
         this.PropWeaponMenu(mainMenu);
         this._credits(mainMenu);
         this._menuPool.RefreshIndex();
-        this.config = ScriptSettings.Load("scripts\\SimplePedMenu.ini");
+        this.config = ScriptSettings.Load("//scripts//SimplePedMenu.ini");
         this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
         base.Tick += delegate (object o, EventArgs e)
         {
