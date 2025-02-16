@@ -2335,7 +2335,7 @@ public class SimplePedMenu : Script
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
-        WeaponMenu(mainMenu);
+        this.WeaponMenu(mainMenu);
         this.AnimalMenu(mainMenu);
         this.RadioStationMenu(mainMenu);
         this.OptionsMenu(mainMenu);
