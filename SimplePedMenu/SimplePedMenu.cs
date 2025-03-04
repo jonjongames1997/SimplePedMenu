@@ -1511,6 +1511,27 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("special_ped@mountain_dancer@monologue_3@monologue_3a", "mnt_dnc_buttwag");
             }
         };
+        UIMenuItem smokingFemale = new UIMenuItem("Smoking (Female)", "");
+        uimenu.AddItem(smokingFemale);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == smokingFemale;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("amb@world_human_smoking@female@idle_a", "idle_b");
+            }
+        };
+        UIMenuItem sillyDance1 = new UIMenuItem("Silly Dance 1", "");
+        uimenu.AddItem(sillyDance1);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == sillyDance1;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("anim@amb@nightclub@lazlow@hi_dancefloor@", "crowddance_hi_11_handup_laz");
+            }
+        };
+
     }
     #endregion
 
