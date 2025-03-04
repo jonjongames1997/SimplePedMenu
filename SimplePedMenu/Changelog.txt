@@ -1,5 +1,12 @@
 ﻿Changelog:
 
+v2.3:
+
+- Removed $10,000 option
+- Minor adjustments
+- Misc fixes
+- 
+
 v2.2:
 
 - Added 3 new peds
