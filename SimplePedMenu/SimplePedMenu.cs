@@ -1777,34 +1777,24 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Disabled");
             }
         };
-        UIMenuItem give10Bands = new UIMenuItem("Give $10,000", "");
-        uimenu.AddItem(give10Bands);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if(item == give10Bands)
-            {
-                Game.Player.Money += 10000;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Give $10,000", "You a rich motherfucker ain't ya?");
-            }
-        };
-        UIMenuItem enableRandomEvent = new UIMenuItem("Enable Random Event", "");
+        UIMenuItem enableRandomEvent = new UIMenuItem("Enable Random Events", "");
         uimenu.AddItem(enableRandomEvent);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
             if(item == enableRandomEvent)
             {
                 Game.IsRandomEventActive = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Enabled!");
+                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Events", "Enabled!");
             }
         };
-        UIMenuItem disableRandomEvent = new UIMenuItem("Disable Random Event", "");
+        UIMenuItem disableRandomEvent = new UIMenuItem("Disable Random Events", "");
         uimenu.AddItem(disableRandomEvent);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
             if (item == disableRandomEvent)
             {
                 Game.IsRandomEventActive = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Event", "Disabled!");
+                BigMessageThread.MessageInstance.ShowSimpleShard("Disable Random Events", "Disabled!");
             }
         };
     }
@@ -2332,7 +2322,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.2");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.3");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
