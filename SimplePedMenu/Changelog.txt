@@ -5,7 +5,7 @@ v2.3:
 - Removed $10,000 option
 - Minor adjustments
 - Misc fixes
-- 
+- Added 3 new animations
 
 v2.2:
 
