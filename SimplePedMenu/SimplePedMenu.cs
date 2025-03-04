@@ -14,7 +14,6 @@ public class SimplePedMenu : Script
     private readonly MenuPool _menuPool;
     private readonly ScriptSettings config;
     private readonly Keys OpenMenu;
-    private int ammount;
     #endregion
 
     #region // Ped Model Menu //
@@ -1531,7 +1530,16 @@ public class SimplePedMenu : Script
                 Game.Player.Character.Task.PlayAnimation("anim@amb@nightclub@lazlow@hi_dancefloor@", "crowddance_hi_11_handup_laz");
             }
         };
-
+        UIMenuItem situps = new UIMenuItem("Situps", "");
+        uimenu.AddItem(situps);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == situps;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("amb@world_human_sit_ups@male@idle_a", "idle_a");
+            }
+        };
     }
     #endregion
 
