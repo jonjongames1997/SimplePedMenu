@@ -1826,6 +1826,16 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Disable Random Events", "Disabled!");
             }
         };
+        UIMenuItem tenGrand = new UIMenuItem("Give $10,000", "");
+        uimenu.AddItem(tenGrand);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == tenGrand)
+            {
+                Game.Player.Money += 10000;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $10,000");
+            }
+        };
     }
 
     #endregion
