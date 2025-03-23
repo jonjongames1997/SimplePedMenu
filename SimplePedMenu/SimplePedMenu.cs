@@ -553,16 +553,6 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_MASON_DUGGAN");
             }
         };
-        UIMenuItem carBuyer = new UIMenuItem("Car Buyer", "");
-        uimenu.AddItem(carBuyer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == carBuyer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("cs_carbuyer");
-            }
-        };
         UIMenuItem chemicalWorker = new UIMenuItem("Chemical Worker", "");
         uimenu.AddItem(chemicalWorker);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -2361,7 +2351,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.3");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.4");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
