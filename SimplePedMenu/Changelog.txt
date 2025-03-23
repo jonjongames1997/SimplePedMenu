@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+v2.4:
+
+- Re-added the $10,000 option. This only works if you are either Trevor, Michael, or Franklin
+- Removed car dealer as it was not spawning correctly
+
 v2.3:
 
 - Removed $10,000 option
