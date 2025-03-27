@@ -1826,6 +1826,26 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $10,000");
             }
         };
+        UIMenuItem millyMilly = new UIMenuItem("Give $1,000,000", "");
+        uimenu.AddItem(millyMilly);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == millyMilly)
+            {
+                Game.Player.Money += 1000000;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $1,000,000");
+            }
+        };
+        UIMenuItem twentyMilly = new UIMenuItem("Give $20,000,000", "");
+        uimenu.AddItem(twentyMilly);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == twentyMilly)
+            {
+                Game.Player.Money += 20000000;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $20,000,000");
+            }
+        };
     }
 
     #endregion
