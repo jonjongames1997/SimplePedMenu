@@ -1,9 +1,15 @@
 ﻿Changelog:
 
+v2.5:
+
+- Added 2 new money options: "Give $1,000,000" and "Give $20,000,000"
+- Added 2 new animations
+- Added 1 new vehicle
+
 v2.4:
 
 - Re-added the $10,000 option. This only works if you are either Trevor, Michael, or Franklin
-- Removed car dealer as it was not spawning correctly
+- Removed car buyer ped as it would not spawn in for some reason.
 - Added 2 new money options in options section - This only works if you are either Trevor, Michael, or Franklin
 
 v2.3:
