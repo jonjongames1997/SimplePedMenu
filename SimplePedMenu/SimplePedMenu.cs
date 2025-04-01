@@ -990,6 +990,17 @@ public class SimplePedMenu : Script
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
+        UIMenuItem seasparrowChopper = new UIMenuItem("Seasparrow 2", "");
+        uimenu.AddItem(seasparrowChopper);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == seasparrowChopper;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("seasparrow2", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
     }
     #endregion
 
@@ -1528,6 +1539,26 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.Character.Task.PlayAnimation("amb@world_human_sit_ups@male@idle_a", "idle_a");
+            }
+        };
+        UIMenuItem rejectIdle = new UIMenuItem("Rejct Idle", "");
+        uimenu.AddItem(rejectIdle);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == rejectIdle;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("mini@hookers_sp", "idle_reject");
+            }
+        };
+        UIMenuItem traceyDance = new UIMenuItem("The Tracey Dance", "");
+        uimenu.AddItem(traceyDance);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == traceyDance;
+            if (flag)
+            {
+                Game.Player.Character.Task.PlayAnimation("timetable@tracy@ig_5@idle_a", "idle_c");
             }
         };
     }
@@ -2371,7 +2402,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.4");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.5");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
