@@ -1,3 +1,5 @@
+<img src="https://img.shields.io/badge/status-Active-blue" />
+
 # Simple Ped Menu for GTA V Singleplayer
 
 Simple Ped Menu is a ped menu where you can change into any ped in the game besides Michael, Franklin, and Trevor.
