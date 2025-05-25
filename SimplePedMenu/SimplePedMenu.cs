@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using System;
 using GTA.Native;
 using static GTA.ScriptSettings;
-using Newtonsoft.Json.Serialization;
 
 public class SimplePedMenu : Script
 {
@@ -1625,35 +1624,6 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("SUCCESS", "Weapons Removed successfully! :-)");
             }
         };
-        UIMenuItem blackOut = new UIMenuItem("Enable Black Out", "");
-        uimenu.AddItem(blackOut);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == blackOut)
-            {
-                World.Blackout = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Black Out", "Enabled");
-            }
-        };
-        UIMenuItem blackOutDisable = new UIMenuItem("Disable Black Out", "");
-        uimenu.AddItem(blackOutDisable);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == blackOutDisable)
-            {
-                World.Blackout = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Black Out", "Dissabled");
-            }
-        };
-        UIMenuItem removeWaypoint = new UIMenuItem("Remove Waypoint", "");
-        uimenu.AddItem(removeWaypoint);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == removeWaypoint)
-            {
-                World.RemoveWaypoint();
-            }
-        };
         UIMenuItem giveArmor = new UIMenuItem("Give Armor", "");
         uimenu.AddItem(giveArmor);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -1688,24 +1658,6 @@ public class SimplePedMenu : Script
             if (item == playerSuicide)
             {
                 Game.Player.Character.Kill();
-            }
-        };
-        UIMenuItem pauseGameClock = new UIMenuItem("Pause Game Clock", "");
-        uimenu.AddItem(pauseGameClock);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == pauseGameClock)
-            {
-                World.IsClockPaused = true;
-            }
-        };
-        UIMenuItem unpauseGameClock = new UIMenuItem("Unpause Game Clock", "");
-        uimenu.AddItem(unpauseGameClock);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == unpauseGameClock)
-            {
-                World.IsClockPaused = false;
             }
         };
         UIMenuItem fivestarWantedLevel = new UIMenuItem("Instant 5 Stars Wanted Level", "");
@@ -1789,24 +1741,6 @@ public class SimplePedMenu : Script
                 Game.DoAutoSave();
             }
         };
-        UIMenuItem nightVision = new UIMenuItem("Enable Night Vision", "");
-        uimenu.AddItem(nightVision);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if(item == nightVision)
-            {
-                Game.IsNightVisionActive = true;
-            }
-        };
-        UIMenuItem nightVisionDisable = new UIMenuItem("Disable Night Vision", "");
-        uimenu.AddItem(nightVisionDisable);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == nightVisionDisable)
-            {
-                Game.IsNightVisionActive = false;
-            }
-        };
         UIMenuItem PoliceIgnorePlayer = new UIMenuItem("Enable Police Ignore Player", "");
         uimenu.AddItem(PoliceIgnorePlayer);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
@@ -1825,26 +1759,6 @@ public class SimplePedMenu : Script
             {
                 Game.Player.IgnoredByPolice = false;
                 BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Disabled");
-            }
-        };
-        UIMenuItem enableRandomEvent = new UIMenuItem("Enable Random Events", "");
-        uimenu.AddItem(enableRandomEvent);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if(item == enableRandomEvent)
-            {
-                Game.IsRandomEventActive = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Enable Random Events", "Enabled!");
-            }
-        };
-        UIMenuItem disableRandomEvent = new UIMenuItem("Disable Random Events", "");
-        uimenu.AddItem(disableRandomEvent);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == disableRandomEvent)
-            {
-                Game.IsRandomEventActive = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Disable Random Events", "Disabled!");
             }
         };
         UIMenuItem tenGrand = new UIMenuItem("Give $10,000", "");
@@ -1877,24 +1791,24 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $20,000,000");
             }
         };
-        UIMenuItem showPoliceBlipsOnMap = new UIMenuItem("Show Police Blips on Map", "");
-        uimenu.AddItem(showPoliceBlipsOnMap);
+        UIMenuItem policeBlips = new UIMenuItem("Enable Police Blips On Radar", "");
+        uimenu.AddItem(policeBlips);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            if (item == showPoliceBlipsOnMap)
+            if (item == policeBlips)
             {
-                World.ShowPoliceBlips = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips", "Shown");
+                Game.ShowsPoliceBlipsOnRadar = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips On Radar", "Enabled");
             }
         };
-        UIMenuItem hidePoliceBlipsOnMap = new UIMenuItem("Hide Police Blips on Map", "");
-        uimenu.AddItem(hidePoliceBlipsOnMap);
+        UIMenuItem disablePoliceBlips = new UIMenuItem("Disable Police Blips On Radar", "");
+        uimenu.AddItem(disablePoliceBlips);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
-            if (item == hidePoliceBlipsOnMap)
+            if (item == disablePoliceBlips)
             {
-                World.ShowPoliceBlips = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips", "Hidden");
+                Game.ShowsPoliceBlipsOnRadar = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips On Radar", "Disabled");
             }
         };
     }
