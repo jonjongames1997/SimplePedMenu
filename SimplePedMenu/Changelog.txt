@@ -2,7 +2,7 @@
 
 2.7: 
 
-- Added 3 new options [Show and Hide Police Blips on Map and stop music]
+- Added 4 new options [Show/Hide Police Blips on Map, Stop Music, Enable/Disable Thermal Vision]
 - Removed 9 Options from the "Options" section due to NativeUI update
 
 v2.5:
