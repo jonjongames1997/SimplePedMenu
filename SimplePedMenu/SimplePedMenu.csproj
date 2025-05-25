@@ -34,24 +34,17 @@
     <Reference Include="Microsoft.Win32.Registry, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Win32.Registry.5.0.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
     </Reference>
-    <Reference Include="NativeUI, Version=1.9.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\references\NativeUI.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="NativeUI">
+      <HintPath>..\..\..\EpicGames_GTAV\GTAV\NativeUI.dll</HintPath>
     </Reference>
     <Reference Include="RAGENativeUI">
-      <HintPath>..\..\..\JMCalloutsRemasteredReferences\RAGENativeUI.dll</HintPath>
+      <HintPath>..\..\..\EpicGames_GTAV\GTAV\RAGENativeUI.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptHookVDotNet3, Version=3.6.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\ScriptHookVDotNet3.3.6.0\lib\net48\ScriptHookVDotNet3.dll</HintPath>
+    <Reference Include="ScriptHookVDotNet2">
+      <HintPath>..\..\..\EpicGames_GTAV\GTAV\ScriptHookVDotNet2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Security.AccessControl, Version=6.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Security.AccessControl.6.0.1\lib\net461\System.Security.AccessControl.dll</HintPath>
-    </Reference>
     <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
