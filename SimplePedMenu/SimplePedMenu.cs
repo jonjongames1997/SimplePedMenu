@@ -1817,8 +1817,28 @@ public class SimplePedMenu : Script
         {
             if (item == stopMusic)
             {
-                Game.RadioStation = 0; // Stops the music by setting the radio station to 0
+                Game.RadioStation = RadioStation.RadioOff;
                 BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
+            }
+        };
+        UIMenuItem thermalVision = new UIMenuItem("Enable Thermal Vision", "");
+        uimenu.AddItem(thermalVision);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == thermalVision)
+            {
+                Game.ThermalVision = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Enabled");
+            }
+        };
+        UIMenuItem disableThermalVision = new UIMenuItem("Disable Thermal Vision", "");
+        uimenu.AddItem(disableThermalVision);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == disableThermalVision)
+            {
+                Game.ThermalVision = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Disabled");
             }
         };
     }
