@@ -1,5 +1,9 @@
 ﻿Changelog:
 
+2.7: 
+
+- Added 2 new options [Show and Hide Police Blips on Map]
+
 v2.5:
 
 - Added 2 new money options: "Give $1,000,000" and "Give $20,000,000"
