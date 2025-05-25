@@ -1811,6 +1811,16 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips On Radar", "Disabled");
             }
         };
+        UIMenuItem stopMusic = new UIMenuItem("Stop Music", "");
+        uimenu.AddItem(stopMusic);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == stopMusic)
+            {
+                Game.RadioStation = 0; // Stops the music by setting the radio station to 0
+                BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
+            }
+        };
     }
 
     #endregion
