@@ -1877,6 +1877,26 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $20,000,000");
             }
         };
+        UIMenuItem showPoliceBlipsOnMap = new UIMenuItem("Show Police Blips on Map", "");
+        uimenu.AddItem(showPoliceBlipsOnMap);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == showPoliceBlipsOnMap)
+            {
+                World.ShowPoliceBlips = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips", "Shown");
+            }
+        };
+        UIMenuItem hidePoliceBlipsOnMap = new UIMenuItem("Hide Police Blips on Map", "");
+        uimenu.AddItem(hidePoliceBlipsOnMap);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == hidePoliceBlipsOnMap)
+            {
+                World.ShowPoliceBlips = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips", "Hidden");
+            }
+        };
     }
 
     #endregion
@@ -2402,7 +2422,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.5");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.7");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
