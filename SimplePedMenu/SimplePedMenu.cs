@@ -1841,6 +1841,26 @@ public class SimplePedMenu : Script
                 BigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Disabled");
             }
         };
+        UIMenuItem ignoreByEveryone = new UIMenuItem("Ignore By Everyone", "");
+        uimenu.AddItem(ignoreByEveryone);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == ignoreByEveryone)
+            {
+                Game.Player.IgnoredByEveryone = true;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Ignore By Everyone", "Enabled");
+            }
+        };
+        UIMenuItem DisableignoreByEveryone = new UIMenuItem("Disable Ignore By Everyone", "");
+        uimenu.AddItem(DisableignoreByEveryone);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            if (item == DisableignoreByEveryone)
+            {
+                Game.Player.IgnoredByEveryone = false;
+                BigMessageThread.MessageInstance.ShowSimpleShard("Ignore By Everyone", "Disabled");
+            }
+        };
     }
 
     #endregion
