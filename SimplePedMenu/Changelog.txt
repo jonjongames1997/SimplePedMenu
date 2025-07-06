@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+2.8:
+
+- Added 3 new peds into the ped model menu section
+- Added compatible mods list named "CompatibleMods.json" in the zip file
+
 2.7: 
 
 - Added 6 new options [Show/Hide Police Blips on Map, Stop Music, Enable/Disable Thermal Vision, Enable/Disable Ignored By Everyone]
