@@ -60,6 +60,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CompatibleMods.json" />
     <None Include="packages.config" />
     <None Include="ReadMe.md" />
     <None Include="SimplePedMenu.ini" />
