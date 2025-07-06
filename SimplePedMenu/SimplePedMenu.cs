@@ -572,6 +572,36 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("ig_claypain");
             }
         };
+        UIMenuItem stripperDancer = new UIMenuItem("Stripper", "");
+        uimenu.AddItem(stripperDancer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == stripperDancer;
+            if (flag)
+            {
+                Game.Player.ChangeModel("csb_stripper_01");
+            }
+        };
+        UIMenuItem stripperDancer2 = new UIMenuItem("Stripper 2", "");
+        uimenu.AddItem(stripperDancer2);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == stripperDancer2;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_f_y_stripper_01");
+            }
+        };
+        UIMenuItem femaleParkRanger = new UIMenuItem("Female Park Ranger", "");
+        uimenu.AddItem(femaleParkRanger);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == femaleParkRanger;
+            if (flag)
+            {
+                Game.Player.ChangeModel("s_f_y_ranger_01");
+            }
+        };
     }
     #endregion
 
@@ -2386,7 +2416,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.7");
+        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.8");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
