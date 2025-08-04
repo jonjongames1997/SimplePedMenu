@@ -602,6 +602,26 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("s_f_y_ranger_01");
             }
         };
+        UIMenuItem casinoManager = new UIMenuItem("Agatha Baker", "");
+        uimenu.AddItem(casinoManager);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == casinoManager;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_agatha");
+            }
+        };
+        UIMenuItem casinoManagerCutscene = new UIMenuItem("Agatha Baker Cutscene", "");
+        uimenu.AddItem(casinoManagerCutscene);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == casinoManagerCutscene;
+            if (flag)
+            {
+                Game.Player.ChangeModel("csb_agatha");
+            }
+        };
     }
     #endregion
 
@@ -1027,6 +1047,17 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Vehicle vehicle = World.CreateVehicle("seasparrow2", Game.Player.Character.Position);
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+        };
+        UIMenuItem bulldozer = new UIMenuItem("Bulldozer", "");
+        uimenu.AddItem(bulldozer);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == bulldozer;
+            if (flag)
+            {
+                Vehicle vehicle = World.CreateVehicle("bulldozer", Game.Player.Character.Position);
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             }
         };
