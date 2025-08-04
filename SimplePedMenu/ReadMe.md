@@ -51,6 +51,8 @@ Los Santos RED - ❌
 
 RDE - ❌
 
+IG_Agatha Baker Special Physics - ✅
+
 # Support
 
 If you want to suggest, report bugs, or need help with this menu, join my personal Discord: https://discord.com/N9KgZx4KUn 
