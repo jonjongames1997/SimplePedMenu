@@ -5,6 +5,8 @@
 - Added 2 new peds into the ped model menu section
 - Removed 1 ped that was causing game lag
 - Misc Fixes and adjustemts
+- Updated CompatibleMods.json file
+- IG_GeorginaCheng Special Physics by Nivinha is compaitble with this menu.
 
 v3 is in the works! 3.0 will be a complete overhaul of the menu with tons of new features and options!
 
