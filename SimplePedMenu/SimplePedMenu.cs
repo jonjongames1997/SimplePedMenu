@@ -332,7 +332,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("S_M_Y_AIRWORKER");
             }
         };
-        UIMenuItem JanetBartender = new UIMenuItem("Janet", "");
+        UIMenuItem JanetBartender = new UIMenuItem("Janet", "A bar owner in Sandy Shores");
         uimenu.AddItem(JanetBartender);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -482,7 +482,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("s_m_y_blackops_03");
             }
         };
-        UIMenuItem theBride = new UIMenuItem("Bride", "");
+        UIMenuItem theBride = new UIMenuItem("Bride", "A sexy girl in a dress");
         uimenu.AddItem(theBride);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -492,7 +492,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("ig_bride");
             }
         };
-        UIMenuItem caseyGruppe = new UIMenuItem("Casey", "");
+        UIMenuItem caseyGruppe = new UIMenuItem("Casey", "Gruppe6 Security Driver");
         uimenu.AddItem(caseyGruppe);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -502,7 +502,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("ig_casey");
             }
         };
-        UIMenuItem breakdancer = new UIMenuItem("Break Dancer", "");
+        UIMenuItem breakdancer = new UIMenuItem("Break Dancer", "A random dude from the hood");
         uimenu.AddItem(breakdancer);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -512,7 +512,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("a_m_y_breakdance_01");
             }
         };
-        UIMenuItem burgershotDrugDealer = new UIMenuItem("Burger Shot Drug Dealer", "");
+        UIMenuItem burgershotDrugDealer = new UIMenuItem("Burger Shot Drug Dealer", "Jimmy DeSanta's Drug Dealer");
         uimenu.AddItem(burgershotDrugDealer);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -522,7 +522,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("u_m_y_burgerdrug_01");
             }
         };
-        UIMenuItem imaniDLC = new UIMenuItem("Imani [The Contract DLC]", "");
+        UIMenuItem imaniDLC = new UIMenuItem("Imani", "[The Contract DLC]");
         uimenu.AddItem(imaniDLC);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -532,7 +532,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_IMANI");
             }
         };
-        UIMenuItem luchadora = new UIMenuItem("Luchadora [Los Santos Drug Wars DLC]", "");
+        UIMenuItem luchadora = new UIMenuItem("Luchadora", "[Los Santos Drug Wars DLC]");
         uimenu.AddItem(luchadora);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -542,7 +542,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_LUCHADORA");
             }
         };
-        UIMenuItem masonDugganDLC = new UIMenuItem("Mason Duggan [The Criminal Enterprises DLC]", "");
+        UIMenuItem masonDugganDLC = new UIMenuItem("Mason Duggan", "[The Criminal Enterprises DLC]");
         uimenu.AddItem(masonDugganDLC);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -552,7 +552,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("IG_MASON_DUGGAN");
             }
         };
-        UIMenuItem chemicalWorker = new UIMenuItem("Chemical Worker", "");
+        UIMenuItem chemicalWorker = new UIMenuItem("Chemical Worker", "He has covid");
         uimenu.AddItem(chemicalWorker);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -562,7 +562,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("g_m_m_chemwork_01");
             }
         };
-        UIMenuItem clayPain = new UIMenuItem("Claypain", "");
+        UIMenuItem clayPain = new UIMenuItem("Claypain", "A rapper from the hood");
         uimenu.AddItem(clayPain);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -572,7 +572,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("ig_claypain");
             }
         };
-        UIMenuItem stripperDancer = new UIMenuItem("Stripper", "");
+        UIMenuItem stripperDancer = new UIMenuItem("Stripper", "Vanilla Unicorn Dancer");
         uimenu.AddItem(stripperDancer);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -582,17 +582,7 @@ public class SimplePedMenu : Script
                 Game.Player.ChangeModel("csb_stripper_01");
             }
         };
-        UIMenuItem stripperDancer2 = new UIMenuItem("Stripper 2", "");
-        uimenu.AddItem(stripperDancer2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == stripperDancer2;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_f_y_stripper_01");
-            }
-        };
-        UIMenuItem femaleParkRanger = new UIMenuItem("Female Park Ranger", "");
+        UIMenuItem femaleParkRanger = new UIMenuItem("Female Park Ranger", "Park ranger");
         uimenu.AddItem(femaleParkRanger);
         uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
         {
@@ -620,6 +610,26 @@ public class SimplePedMenu : Script
             if (flag)
             {
                 Game.Player.ChangeModel("csb_agatha");
+            }
+        };
+        UIMenuItem georginaCheng = new UIMenuItem("Georgina Cheng", "Diamond Casino Heist DLC");
+        uimenu.AddItem(georginaCheng);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == georginaCheng;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_georginacheng");
+            }
+        };
+        UIMenuItem wendy = new UIMenuItem("Wendy", "Diamond Casino Heist DLC");
+        uimenu.AddItem(wendy);
+        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+        {
+            bool flag = item == wendy;
+            if (flag)
+            {
+                Game.Player.ChangeModel("ig_wendy");
             }
         };
     }
@@ -2447,7 +2457,7 @@ public class SimplePedMenu : Script
     public SimplePedMenu()
     {
         this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple Ped Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.8");
+        UIMenu mainMenu = new UIMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.9");
         this._menuPool.Add(mainMenu);
         this.PlayerModelMenu(mainMenu);
         this.VehicleMenu(mainMenu);
