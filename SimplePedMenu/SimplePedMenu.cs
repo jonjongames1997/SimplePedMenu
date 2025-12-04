@@ -1,8 +1,12 @@
-﻿using GTA;
-using NativeUI;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using System;
+using GTA;
 using GTA.Native;
+using GTA.UI;
+using LemonUI;
+using LemonUI.Menus;
+using NativeUI;
 using static GTA.ScriptSettings;
 
 public class SimplePedMenu : Script
@@ -10,2445 +14,1712 @@ public class SimplePedMenu : Script
     #region // General Variables //
     private Ped playerPed = Game.Player.Character;
     private Player player = Game.Player;
-    private readonly MenuPool _menuPool;
+
+    private readonly ObjectPool _objectPool;
     private readonly ScriptSettings config;
     private readonly Keys OpenMenu;
+    private readonly NativeMenu _mainMenu;
+
+    private readonly List<int> favoritePedModels = new List<int>();
+    private readonly List<int> favoriteVehicleModels = new List<int>();
+
+    private const string FavoritesPedsSection = "FavoritesPeds";
+    private const string FavoritesVehiclesSection = "FavoritesVehicles";
+    private const string FavoritesKey = "Models";
+    #endregion
+
+    #region // Favorites Helpers //
+    private void LoadFavorites()
+    {
+        // Read CSV lists of hashes from INI
+        string pedCsv = config.GetValue(FavoritesPedsSection, FavoritesKey, "");
+        string vehCsv = config.GetValue(FavoritesVehiclesSection, FavoritesKey, "");
+
+        favoritePedModels.Clear();
+        favoriteVehicleModels.Clear();
+
+        if (!string.IsNullOrWhiteSpace(pedCsv))
+        {
+            foreach (var part in pedCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (int.TryParse(part.Trim(), out int hash))
+                    favoritePedModels.Add(hash);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(vehCsv))
+        {
+            foreach (var part in vehCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (int.TryParse(part.Trim(), out int hash))
+                    favoriteVehicleModels.Add(hash);
+            }
+        }
+    }
+
+    private void SaveFavorites()
+    {
+        string pedCsv = string.Join(",", favoritePedModels);
+        string vehCsv = string.Join(",", favoriteVehicleModels);
+
+        config.SetValue(FavoritesPedsSection, FavoritesKey, pedCsv);
+        config.SetValue(FavoritesVehiclesSection, FavoritesKey, vehCsv);
+        config.Save();
+    }
+
+    private string HashToHexLabel(int hash)
+    {
+        return $"0x{hash:X8}";
+    }
+
+    private string VehicleNameFromHash(int hash)
+    {
+        var model = new Model(hash);
+        if (!model.IsInCdImage || !model.IsValid || !model.IsVehicle)
+            return $"Vehicle {HashToHexLabel(hash)}";
+
+        // Try to get a friendly display name from the game
+        string displayName = Function.Call<string>(Hash.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL, hash);
+        if (!string.IsNullOrWhiteSpace(displayName))
+        {
+            string localized = Game.GetLocalizedString(displayName);
+            if (!string.IsNullOrWhiteSpace(localized) && localized != "NULL")
+                return $"{localized} ({HashToHexLabel(hash)})";
+
+            return $"{displayName} ({HashToHexLabel(hash)})";
+        }
+
+        return $"Vehicle {HashToHexLabel(hash)}";
+    }
+
+    private string PedLabelFromHash(int hash)
+    {
+        var model = new Model(hash);
+        if (!model.IsInCdImage || !model.IsValid || !model.IsPed)
+            return $"Ped {HashToHexLabel(hash)}";
+
+        // Model.ToString() usually gives the internal name if known
+        string name = model.ToString();
+        if (!string.IsNullOrWhiteSpace(name))
+            return $"{name} ({HashToHexLabel(hash)})";
+
+        return $"Ped {HashToHexLabel(hash)}";
+    }
+    #endregion
+
+    #region // Favorites Menu //
+    public void FavoritesMenu(NativeMenu menu)
+    {
+        var favoritesMenu = new NativeMenu("Favorites", "Pinned peds & vehicles");
+        _objectPool.Add(favoritesMenu);
+        menu.AddSubMenu(favoritesMenu);
+
+        // Submenu for favorite peds
+        var favPedsMenu = new NativeMenu("Favorite Peds", "Quick access to ped models");
+        _objectPool.Add(favPedsMenu);
+        favoritesMenu.AddSubMenu(favPedsMenu);
+
+        // Submenu for favorite vehicles
+        var favVehMenu = new NativeMenu("Favorite Vehicles", "Quick access to vehicles");
+        _objectPool.Add(favVehMenu);
+        favoritesMenu.AddSubMenu(favVehMenu);
+
+        // --- Add Current Ped ---
+        var addCurrentPed = new NativeItem("Add Current Ped to Favorites", "");
+        favoritesMenu.Add(addCurrentPed);
+        addCurrentPed.Activated += (sender, args) =>
+        {
+            int currentPedHash = Game.Player.Character.Model.Hash;
+            if (!favoritePedModels.Contains(currentPedHash))
+            {
+                favoritePedModels.Add(currentPedHash);
+                SaveFavorites();
+                BigMessageThread.MessageInstance.ShowSimpleShard(
+                    "Favorites",
+                    "Current ped added to favorites."
+                );
+
+                // Rebuild ped favorites submenu
+                RebuildFavoritePedsMenu(favPedsMenu);
+            }
+            else
+            {
+                BigMessageThread.MessageInstance.ShowSimpleShard(
+                    "Favorites",
+                    "Current ped is already in favorites."
+                );
+            }
+        };
+
+        // --- Add Current Vehicle ---
+        var addCurrentVehicle = new NativeItem("Add Current Vehicle to Favorites", "");
+        favoritesMenu.Add(addCurrentVehicle);
+        addCurrentVehicle.Activated += (sender, args) =>
+        {
+            Vehicle veh = Game.Player.Character.CurrentVehicle;
+            if (veh == null || !veh.Exists())
+            {
+                BigMessageThread.MessageInstance.ShowSimpleShard(
+                    "Favorites",
+                    "You are not in a vehicle."
+                );
+                return;
+            }
+
+            int modelHash = veh.Model.Hash;
+            if (!favoriteVehicleModels.Contains(modelHash))
+            {
+                favoriteVehicleModels.Add(modelHash);
+                SaveFavorites();
+                BigMessageThread.MessageInstance.ShowSimpleShard(
+                    "Favorites",
+                    "Current vehicle added to favorites."
+                );
+
+                // Rebuild vehicle favorites submenu
+                RebuildFavoriteVehiclesMenu(favVehMenu);
+            }
+            else
+            {
+                BigMessageThread.MessageInstance.ShowSimpleShard(
+                    "Favorites",
+                    "Current vehicle is already in favorites."
+                );
+            }
+        };
+
+        // Build initial favorites lists
+        RebuildFavoritePedsMenu(favPedsMenu);
+        RebuildFavoriteVehiclesMenu(favVehMenu);
+    }
+
+    private void RebuildFavoritePedsMenu(NativeMenu menu)
+    {
+        menu.Clear();
+
+        if (favoritePedModels.Count == 0)
+        {
+            menu.Add(new NativeItem("No favorite peds yet.", "Use 'Add Current Ped to Favorites' in the Favorites menu."));
+            return;
+        }
+
+        foreach (int hash in favoritePedModels)
+        {
+            string label = PedLabelFromHash(hash);
+            var item = new NativeItem(label, "Change player model to this favorite");
+            menu.Add(item);
+
+            item.Activated += (sender, args) =>
+            {
+                var model = new Model(hash);
+                if (!model.IsInCdImage || !model.IsValid)
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard(
+                        "Favorites",
+                        "Ped model is invalid or not loaded."
+                    );
+                    return;
+                }
+
+                Game.Player.ChangeModel(model);
+            };
+        }
+
+        // Clear favorites option
+        var clearItem = new NativeItem("Clear Favorite Peds", "");
+        menu.Add(clearItem);
+        clearItem.Activated += (sender, args) =>
+        {
+            favoritePedModels.Clear();
+            SaveFavorites();
+            menu.Clear();
+            menu.Add(new NativeItem("No favorite peds yet.", "Use 'Add Current Ped to Favorites' in the Favorites menu."));
+            BigMessageThread.MessageInstance.ShowSimpleShard(
+                "Favorites",
+                "All favorite peds cleared."
+            );
+        };
+    }
+
+    private void RebuildFavoriteVehiclesMenu(NativeMenu menu)
+    {
+        menu.Clear();
+
+        if (favoriteVehicleModels.Count == 0)
+        {
+            menu.Add(new NativeItem("No favorite vehicles yet.", "Use 'Add Current Vehicle to Favorites' in the Favorites menu."));
+            return;
+        }
+
+        foreach (int hash in favoriteVehicleModels)
+        {
+            string label = VehicleNameFromHash(hash);
+            var item = new NativeItem(label, "Spawn this favorite vehicle");
+            menu.Add(item);
+
+            item.Activated += (sender, args) =>
+            {
+                var model = new Model(hash);
+                if (!model.IsInCdImage || !model.IsValid || !model.IsVehicle)
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard(
+                        "Favorites",
+                        "Vehicle model is invalid or not loaded."
+                    );
+                    return;
+                }
+
+                Vehicle vehicle = World.CreateVehicle(model, Game.Player.Character.Position);
+                if (vehicle != null && vehicle.Exists())
+                {
+                    Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+                }
+                else
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard(
+                        "Favorites",
+                        "Failed to spawn vehicle."
+                    );
+                }
+            };
+        }
+
+        // Clear favorites option
+        var clearItem = new NativeItem("Clear Favorite Vehicles", "");
+        menu.Add(clearItem);
+        clearItem.Activated += (sender, args) =>
+        {
+            favoriteVehicleModels.Clear();
+            SaveFavorites();
+            menu.Clear();
+            menu.Add(new NativeItem("No favorite vehicles yet.", "Use 'Add Current Vehicle to Favorites' in the Favorites menu."));
+            BigMessageThread.MessageInstance.ShowSimpleShard(
+                "Favorites",
+                "All favorite vehicles cleared."
+            );
+        };
+    }
     #endregion
 
     #region // Ped Model Menu //
-    public void PlayerModelMenu(UIMenu menu)
+    public void PlayerModelMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Peds");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Peds", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        NativeItem femaleTopless = new NativeItem("Female Topless 1", "");
+        uimenu.Add(femaleTopless);
+        femaleTopless.Activated += (sender, args) =>
         {
-        }
-        UIMenuItem femaleTopless = new UIMenuItem("Female Topless 1", "");
-        uimenu.AddItem(femaleTopless);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == femaleTopless;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_TOPLESS_01");
-            }
+            Game.Player.ChangeModel("A_F_Y_TOPLESS_01");
         };
-        UIMenuItem tonyaHooker = new UIMenuItem("Tonya", "");
-        uimenu.AddItem(tonyaHooker);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem tonyaHooker = new NativeItem("Tonya", "");
+        uimenu.Add(tonyaHooker);
+        tonyaHooker.Activated += (sender, args) =>
         {
-            bool flag = item == tonyaHooker;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_TONYA");
-            }
+            Game.Player.ChangeModel("IG_TONYA");
         };
-        UIMenuItem karenDaniels = new UIMenuItem("Karen Daniels", "");
-        uimenu.AddItem(karenDaniels);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem karenDaniels = new NativeItem("Karen Daniels", "");
+        uimenu.Add(karenDaniels);
+        karenDaniels.Activated += (sender, args) =>
         {
-            bool flag = item == karenDaniels;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_MICHELLE");
-            }
+            Game.Player.ChangeModel("IG_MICHELLE");
         };
-        UIMenuItem tourist = new UIMenuItem("Female Tourist 1", "");
-        uimenu.AddItem(tourist);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem tourist = new NativeItem("Female Tourist 1", "");
+        uimenu.Add(tourist);
+        tourist.Activated += (sender, args) =>
         {
-            bool flag = item == tourist;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_TOURIST_01");
-            }
+            Game.Player.ChangeModel("A_F_Y_TOURIST_01");
         };
-        UIMenuItem vagosGirl01 = new UIMenuItem("Female Vagos 1", "");
-        uimenu.AddItem(vagosGirl01);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem vagosGirl01 = new NativeItem("Female Vagos 1", "");
+        uimenu.Add(vagosGirl01);
+        vagosGirl01.Activated += (sender, args) =>
         {
-            bool flag = item == vagosGirl01;
-            if (flag)
-            {
-                Game.Player.ChangeModel("G_F_Y_VAGOS_01");
-            }
+            Game.Player.ChangeModel("G_F_Y_VAGOS_01");
         };
-        UIMenuItem ashleyCrackhead = new UIMenuItem("Ashley", "");
-        uimenu.AddItem(ashleyCrackhead);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem ashleyCrackhead = new NativeItem("Ashley", "");
+        uimenu.Add(ashleyCrackhead);
+        ashleyCrackhead.Activated += (sender, args) =>
         {
-            bool flag = item == ashleyCrackhead;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_ASHLEY");
-            }
+            Game.Player.ChangeModel("IG_ASHLEY");
         };
-        UIMenuItem grandpa = new UIMenuItem("Grandpa", "");
-        uimenu.AddItem(grandpa);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem grandpa = new NativeItem("Grandpa", "");
+        uimenu.Add(grandpa);
+        grandpa.Activated += (sender, args) =>
         {
-            bool flag = item == grandpa;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_M_O_GENSTREET_01");
-            }
+            Game.Player.ChangeModel("A_M_O_GENSTREET_01");
         };
-        UIMenuItem sexyPoppy = new UIMenuItem("Poppy Mitchell", "");
-        uimenu.AddItem(sexyPoppy);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sexyPoppy = new NativeItem("Poppy Mitchell", "");
+        uimenu.Add(sexyPoppy);
+        sexyPoppy.Activated += (sender, args) =>
         {
-            bool flag = item == sexyPoppy;
-            if (flag)
-            {
-                Game.Player.ChangeModel("U_F_Y_POPPYMICH");
-            }
+            Game.Player.ChangeModel("U_F_Y_POPPYMICH");
         };
-        UIMenuItem sexyMaryAnn = new UIMenuItem("Mary Ann", "");
-        uimenu.AddItem(sexyMaryAnn);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sexyMaryAnn = new NativeItem("Mary Ann", "");
+        uimenu.Add(sexyMaryAnn);
+        sexyMaryAnn.Activated += (sender, args) =>
         {
-            bool flag = item == sexyMaryAnn;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_MARYANN");
-            }
+            Game.Player.ChangeModel("IG_MARYANN");
         };
-        UIMenuItem jewelstoreLady = new UIMenuItem("Jewel Store Lady", "");
-        uimenu.AddItem(jewelstoreLady);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem jewelstoreLady = new NativeItem("Jewel Store Lady", "");
+        uimenu.Add(jewelstoreLady);
+        jewelstoreLady.Activated += (sender, args) =>
         {
-            bool flag = item == jewelstoreLady;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_JEWELASS");
-            }
+            Game.Player.ChangeModel("IG_JEWELASS");
         };
-        UIMenuItem sexyHooker01 = new UIMenuItem("Hooker 1", "");
-        uimenu.AddItem(sexyHooker01);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sexyHooker01 = new NativeItem("Hooker 1", "");
+        uimenu.Add(sexyHooker01);
+        sexyHooker01.Activated += (sender, args) =>
         {
-            bool flag = item == sexyHooker01;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_HOOKER_01");
-            }
+            Game.Player.ChangeModel("S_F_Y_HOOKER_01");
         };
-        UIMenuItem sexyHooker02 = new UIMenuItem("Hooker 2", "");
-        uimenu.AddItem(sexyHooker02);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sexyHooker02 = new NativeItem("Hooker 2", "");
+        uimenu.Add(sexyHooker02);
+        sexyHooker02.Activated += (sender, args) =>
         {
-            bool flag = item == sexyHooker02;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_HOOKER_02");
-            }
+            Game.Player.ChangeModel("S_F_Y_HOOKER_02");
         };
-        UIMenuItem sexyHooker03 = new UIMenuItem("Hooker 3", "");
-        uimenu.AddItem(sexyHooker03);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sexyHooker03 = new NativeItem("Hooker 3", "");
+        uimenu.Add(sexyHooker03);
+        sexyHooker03.Activated += (sender, args) =>
         {
-            bool flag = item == sexyHooker03;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_HOOKER_03");
-            }
+            Game.Player.ChangeModel("S_F_Y_HOOKER_03");
         };
-        UIMenuItem abigail = new UIMenuItem("Abigail", "");
-        uimenu.AddItem(abigail);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem abigail = new NativeItem("Abigail", "");
+        uimenu.Add(abigail);
+        abigail.Activated += (sender, args) =>
         {
-            bool flag = item == abigail;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_ABIGAIL");
-            }
+            Game.Player.ChangeModel("IG_ABIGAIL");
         };
-        UIMenuItem anita = new UIMenuItem("Anita", "");
-        uimenu.AddItem(anita);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem anita = new NativeItem("Anita", "");
+        uimenu.Add(anita);
+        anita.Activated += (sender, args) =>
         {
-            bool flag = item == anita;
-            if (flag)
-            {
-                Game.Player.ChangeModel("CSB_ANITA");
-            }
+            Game.Player.ChangeModel("CSB_ANITA");
         };
-        UIMenuItem barTender = new UIMenuItem("Bartender", "");
-        uimenu.AddItem(barTender);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem barTender = new NativeItem("Bartender", "");
+        uimenu.Add(barTender);
+        barTender.Activated += (sender, args) =>
         {
-            bool flag = item == barTender;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_BARTENDER_01");
-            }
+            Game.Player.ChangeModel("S_F_Y_BARTENDER_01");
         };
-        UIMenuItem impotentRage = new UIMenuItem("Impotent Rage", "");
-        uimenu.AddItem(impotentRage);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem impotentRage = new NativeItem("Impotent Rage", "");
+        uimenu.Add(impotentRage);
+        impotentRage.Activated += (sender, args) =>
         {
-            bool flag = item == impotentRage;
-            if (flag)
-            {
-                Game.Player.ChangeModel("U_M_Y_IMPORAGE");
-            }
+            Game.Player.ChangeModel("U_M_Y_IMPORAGE");
         };
-        UIMenuItem airhostess = new UIMenuItem("Air Hostess", "");
-        uimenu.AddItem(airhostess);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem airhostess = new NativeItem("Air Hostess", "");
+        uimenu.Add(airhostess);
+        airhostess.Activated += (sender, args) =>
         {
-            bool flag = item == airhostess;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_AIRHOSTESS_01");
-            }
+            Game.Player.ChangeModel("S_F_Y_AIRHOSTESS_01");
         };
-        UIMenuItem aldiNapoli = new UIMenuItem("Aldinapoli", "");
-        uimenu.AddItem(aldiNapoli);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem aldiNapoli = new NativeItem("Aldinapoli", "");
+        uimenu.Add(aldiNapoli);
+        aldiNapoli.Activated += (sender, args) =>
         {
-            bool flag = item == aldiNapoli;
-            if (flag)
-            {
-                Game.Player.ChangeModel("U_M_M_ALDINAPOLI");
-            }
+            Game.Player.ChangeModel("U_M_M_ALDINAPOLI");
         };
-        UIMenuItem gunshopOwner = new UIMenuItem("Gun Shop Owner", "");
-        uimenu.AddItem(gunshopOwner);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem gunshopOwner = new NativeItem("Gun Shop Owner", "");
+        uimenu.Add(gunshopOwner);
+        gunshopOwner.Activated += (sender, args) =>
         {
-            bool flag = item == gunshopOwner;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_M_Y_AMMUCITY_01");
-            }
+            Game.Player.ChangeModel("S_M_Y_AMMUCITY_01");
         };
-        UIMenuItem femaleBallas = new UIMenuItem("Female Ballas", "");
-        uimenu.AddItem(femaleBallas);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem femaleBallas = new NativeItem("Female Ballas", "");
+        uimenu.Add(femaleBallas);
+        femaleBallas.Activated += (sender, args) =>
         {
-            bool flag = item == femaleBallas;
-            if (flag)
-            {
-                Game.Player.ChangeModel("G_F_Y_BALLAS_01");
-            }
+            Game.Player.ChangeModel("G_F_Y_BALLAS_01");
         };
-        UIMenuItem theBankManager = new UIMenuItem("Bank Manager", "");
-        uimenu.AddItem(theBankManager);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem theBankManager = new NativeItem("Bank Manager", "");
+        uimenu.Add(theBankManager);
+        theBankManager.Activated += (sender, args) =>
         {
-            bool flag = item == theBankManager;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_BANKMAN");
-            }
+            Game.Player.ChangeModel("IG_BANKMAN");
         };
-        UIMenuItem bikerChick = new UIMenuItem("Female Biker Chick", "");
-        uimenu.AddItem(bikerChick);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem bikerChick = new NativeItem("Female Biker Chick", "");
+        uimenu.Add(bikerChick);
+        bikerChick.Activated += (sender, args) =>
         {
-            bool flag = item == bikerChick;
-            if (flag)
-            {
-                Game.Player.ChangeModel("U_F_Y_BIKERCHIC");
-            }
+            Game.Player.ChangeModel("U_F_Y_BIKERCHIC");
         };
-        UIMenuItem Coroner = new UIMenuItem("Coroner", "");
-        uimenu.AddItem(Coroner);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem Coroner = new NativeItem("Coroner", "");
+        uimenu.Add(Coroner);
+        Coroner.Activated += (sender, args) =>
         {
-            bool flag = item == Coroner;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_M_Y_AUTOPSY_01");
-            }
+            Game.Player.ChangeModel("S_M_Y_AUTOPSY_01");
         };
-        UIMenuItem femaleLifeguard = new UIMenuItem("Lifeguard (Female)", "");
-        uimenu.AddItem(femaleLifeguard);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem femaleLifeguard = new NativeItem("Lifeguard (Female)", "");
+        uimenu.Add(femaleLifeguard);
+        femaleLifeguard.Activated += (sender, args) =>
         {
-            bool flag = item == femaleLifeguard;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_BAYWATCH_01");
-            }
+            Game.Player.ChangeModel("S_F_Y_BAYWATCH_01");
         };
-        UIMenuItem FemaleBeachgoer = new UIMenuItem("Female Beachgoer", "");
-        uimenu.AddItem(FemaleBeachgoer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem FemaleBeachgoer = new NativeItem("Female Beachgoer", "");
+        uimenu.Add(FemaleBeachgoer);
+        FemaleBeachgoer.Activated += (sender, args) =>
         {
-            bool flag = item == FemaleBeachgoer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_M_BEACH_01");
-            }
+            Game.Player.ChangeModel("A_F_M_BEACH_01");
         };
-        UIMenuItem InfernusStripper = new UIMenuItem("Stripper - Infernus", "");
-        uimenu.AddItem(InfernusStripper);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem InfernusStripper = new NativeItem("Stripper - Infernus", "");
+        uimenu.Add(InfernusStripper);
+        InfernusStripper.Activated += (sender, args) =>
         {
-            bool flag = item == InfernusStripper;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_F_Y_STRIPPER_02");
-            }
+            Game.Player.ChangeModel("S_F_Y_STRIPPER_02");
         };
-        UIMenuItem BusinessWoman = new UIMenuItem("Business Woman 1", "");
-        uimenu.AddItem(BusinessWoman);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem BusinessWoman = new NativeItem("Business Woman 1", "");
+        uimenu.Add(BusinessWoman);
+        BusinessWoman.Activated += (sender, args) =>
         {
-            bool flag = item == BusinessWoman;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
-            }
+            Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
         };
-        UIMenuItem ConstructionWorker = new UIMenuItem("Construction Worker 1", "");
-        uimenu.AddItem(ConstructionWorker);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem ConstructionWorker = new NativeItem("Construction Worker 1", "");
+        uimenu.Add(ConstructionWorker);
+        ConstructionWorker.Activated += (sender, args) =>
         {
-            bool flag = item == ConstructionWorker;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_M_Y_CONSTRUCT_02");
-            }
+            Game.Player.ChangeModel("S_M_Y_CONSTRUCT_02");
         };
-        UIMenuItem DrugDealer = new UIMenuItem("Drug Dealer", "");
-        uimenu.AddItem(DrugDealer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem DrugDealer = new NativeItem("Drug Dealer", "");
+        uimenu.Add(DrugDealer);
+        DrugDealer.Activated += (sender, args) =>
         {
-            bool flag = item == DrugDealer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_M_Y_DEALER_01");
-            }
+            Game.Player.ChangeModel("S_M_Y_DEALER_01");
         };
-        UIMenuItem AirportWorker = new UIMenuItem("Airport Worker", "");
-        uimenu.AddItem(AirportWorker);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem AirportWorker = new NativeItem("Airport Worker", "");
+        uimenu.Add(AirportWorker);
+        AirportWorker.Activated += (sender, args) =>
         {
-            bool flag = item == AirportWorker;
-            if (flag)
-            {
-                Game.Player.ChangeModel("S_M_Y_AIRWORKER");
-            }
+            Game.Player.ChangeModel("S_M_Y_AIRWORKER");
         };
-        UIMenuItem JanetBartender = new UIMenuItem("Janet", "A bar owner in Sandy Shores");
-        uimenu.AddItem(JanetBartender);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem JanetBartender = new NativeItem("Janet", "A bar owner in Sandy Shores");
+        uimenu.Add(JanetBartender);
+        JanetBartender.Activated += (sender, args) =>
         {
-            bool flag = item == JanetBartender;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_JANET");
-            }
+            Game.Player.ChangeModel("IG_JANET");
         };
-        UIMenuItem KerryMcIntosh = new UIMenuItem("Kerry McIntosh", "");
-        uimenu.AddItem(KerryMcIntosh);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem KerryMcIntosh = new NativeItem("Kerry McIntosh", "");
+        uimenu.Add(KerryMcIntosh);
+        KerryMcIntosh.Activated += (sender, args) =>
         {
-            bool flag = item == KerryMcIntosh;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_KERRYMCINTOSH");
-            }
+            Game.Player.ChangeModel("IG_KERRYMCINTOSH");
         };
-        UIMenuItem businessWoman = new UIMenuItem("Business Woman 1", "");
-        uimenu.AddItem(businessWoman);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem businessWoman = new NativeItem("Business Woman 1", "");
+        uimenu.Add(businessWoman);
+        businessWoman.Activated += (sender, args) =>
         {
-            bool flag = item == businessWoman;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
-            }
+            Game.Player.ChangeModel("A_F_Y_BUSINESS_01");
         };
-        UIMenuItem businessWoman2 = new UIMenuItem("Business Woman 2", "");
-        uimenu.AddItem(businessWoman2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem businessWoman2 = new NativeItem("Business Woman 2", "");
+        uimenu.Add(businessWoman2);
+        businessWoman2.Activated += (sender, args) =>
         {
-            bool flag = item == businessWoman2;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_BUSINESS_02");
-            }
+            Game.Player.ChangeModel("A_F_Y_BUSINESS_02");
         };
-        UIMenuItem businessWoman3 = new UIMenuItem("Business Woman 3", "");
-        uimenu.AddItem(businessWoman3);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem businessWoman3 = new NativeItem("Business Woman 3", "");
+        uimenu.Add(businessWoman3);
+        businessWoman3.Activated += (sender, args) =>
         {
-            bool flag = item == businessWoman3;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_F_Y_BUSINESS_03");
-            }
+            Game.Player.ChangeModel("A_F_Y_BUSINESS_03");
         };
-        UIMenuItem shirtlessDude = new UIMenuItem("Shirtless Dude", "");
-        uimenu.AddItem(shirtlessDude);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem shirtlessDude = new NativeItem("Shirtless Dude", "");
+        uimenu.Add(shirtlessDude);
+        shirtlessDude.Activated += (sender, args) =>
         {
-            bool flag = item == shirtlessDude;
-            if(flag)
-            {
-                Game.Player.ChangeModel("U_M_Y_ABNER");
-            }
+            Game.Player.ChangeModel("U_M_Y_ABNER");
         };
-        UIMenuItem footballFan = new UIMenuItem("Football Fan", "");
-        uimenu.AddItem(footballFan);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem footballFan = new NativeItem("Football Fan", "");
+        uimenu.Add(footballFan);
+        footballFan.Activated += (sender, args) =>
         {
-            bool flag = item == footballFan;
-            if (flag)
-            {
-                Game.Player.ChangeModel("a_m_m_afriamer_01");
-            }
+            Game.Player.ChangeModel("a_m_m_afriamer_01");
         };
-        UIMenuItem carMechanic = new UIMenuItem("Car Mechanic", "");
-        uimenu.AddItem(carMechanic);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem carMechanic = new NativeItem("Car Mechanic", "");
+        uimenu.Add(carMechanic);
+        carMechanic.Activated += (sender, args) =>
         {
-            bool flag = item == carMechanic;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_m_m_autoshop_01");
-            }
+            Game.Player.ChangeModel("s_m_m_autoshop_01");
         };
-        UIMenuItem ClassyWoman = new UIMenuItem("Classy Woman", "");
-        uimenu.AddItem(ClassyWoman);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem ClassyWoman = new NativeItem("Classy Woman", "");
+        uimenu.Add(ClassyWoman);
+        ClassyWoman.Activated += (sender, args) =>
         {
-            bool flag = item == ClassyWoman;
-            if (flag)
-            {
-                Game.Player.ChangeModel("a_f_y_bevhills_01");
-            }
+            Game.Player.ChangeModel("a_f_y_bevhills_01");
         };
-        UIMenuItem FemaleLSPDWhiteCop = new UIMenuItem("LSPD Female Cop", "");
-        uimenu.AddItem(FemaleLSPDWhiteCop);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem FemaleLSPDWhiteCop = new NativeItem("LSPD Female Cop", "");
+        uimenu.Add(FemaleLSPDWhiteCop);
+        FemaleLSPDWhiteCop.Activated += (sender, args) =>
         {
-            bool flag = item == FemaleLSPDWhiteCop;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_f_y_cop_01");
-            }
+            Game.Player.ChangeModel("s_f_y_cop_01");
         };
-        UIMenuItem LSPDCop = new UIMenuItem("LSPD Male Cop", "");
-        uimenu.AddItem(LSPDCop);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem LSPDCop = new NativeItem("LSPD Male Cop", "");
+        uimenu.Add(LSPDCop);
+        LSPDCop.Activated += (sender, args) =>
         {
-            bool flag = item == LSPDCop;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_m_y_cop_01");
-            }
+            Game.Player.ChangeModel("s_m_y_cop_01");
         };
-        UIMenuItem deadCorpse = new UIMenuItem("Dead Corpse 1", "");
-        uimenu.AddItem(deadCorpse);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem deadCorpse = new NativeItem("Dead Corpse 1", "");
+        uimenu.Add(deadCorpse);
+        deadCorpse.Activated += (sender, args) =>
         {
-            bool flag = item == deadCorpse;
-            if (flag)
-            {
-                Game.Player.ChangeModel("u_f_m_corpse_01");
-            }
+            Game.Player.ChangeModel("u_f_m_corpse_01");
         };
-        UIMenuItem militaryPed1 = new UIMenuItem("Military Guy 1", "");
-        uimenu.AddItem(militaryPed1);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem militaryPed1 = new NativeItem("Military Guy 1", "");
+        uimenu.Add(militaryPed1);
+        militaryPed1.Activated += (sender, args) =>
         {
-            bool flag = item == militaryPed1;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_m_y_blackops_01");
-            }
+            Game.Player.ChangeModel("s_m_y_blackops_01");
         };
-        UIMenuItem militaryPed2 = new UIMenuItem("Military Guy 2", "");
-        uimenu.AddItem(militaryPed2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem militaryPed2 = new NativeItem("Military Guy 2", "");
+        uimenu.Add(militaryPed2);
+        militaryPed2.Activated += (sender, args) =>
         {
-            bool flag = item == militaryPed2;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_m_y_blackops_02");
-            }
+            Game.Player.ChangeModel("s_m_y_blackops_02");
         };
-        UIMenuItem militaryPed3 = new UIMenuItem("Military Guy 3", "");
-        uimenu.AddItem(militaryPed3);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem militaryPed3 = new NativeItem("Military Guy 3", "");
+        uimenu.Add(militaryPed3);
+        militaryPed3.Activated += (sender, args) =>
         {
-            bool flag = item == militaryPed3;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_m_y_blackops_03");
-            }
+            Game.Player.ChangeModel("s_m_y_blackops_03");
         };
-        UIMenuItem theBride = new UIMenuItem("Bride", "A sexy girl in a dress");
-        uimenu.AddItem(theBride);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem theBride = new NativeItem("Bride", "A sexy girl in a dress");
+        uimenu.Add(theBride);
+        theBride.Activated += (sender, args) =>
         {
-            bool flag = item == theBride;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_bride");
-            }
+            Game.Player.ChangeModel("ig_bride");
         };
-        UIMenuItem caseyGruppe = new UIMenuItem("Casey", "Gruppe6 Security Driver");
-        uimenu.AddItem(caseyGruppe);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem caseyGruppe = new NativeItem("Casey", "Gruppe6 Security Driver");
+        uimenu.Add(caseyGruppe);
+        caseyGruppe.Activated += (sender, args) =>
         {
-            bool flag = item == caseyGruppe;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_casey");
-            }
+            Game.Player.ChangeModel("ig_casey");
         };
-        UIMenuItem breakdancer = new UIMenuItem("Break Dancer", "A random dude from the hood");
-        uimenu.AddItem(breakdancer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem breakdancer = new NativeItem("Break Dancer", "A random dude from the hood");
+        uimenu.Add(breakdancer);
+        breakdancer.Activated += (sender, args) =>
         {
-            bool flag = item == breakdancer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("a_m_y_breakdance_01");
-            }
+            Game.Player.ChangeModel("a_m_y_breakdance_01");
         };
-        UIMenuItem burgershotDrugDealer = new UIMenuItem("Burger Shot Drug Dealer", "Jimmy DeSanta's Drug Dealer");
-        uimenu.AddItem(burgershotDrugDealer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem burgershotDrugDealer = new NativeItem("Burger Shot Drug Dealer", "Jimmy DeSanta's Drug Dealer");
+        uimenu.Add(burgershotDrugDealer);
+        burgershotDrugDealer.Activated += (sender, args) =>
         {
-            bool flag = item == burgershotDrugDealer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("u_m_y_burgerdrug_01");
-            }
+            Game.Player.ChangeModel("u_m_y_burgerdrug_01");
         };
-        UIMenuItem imaniDLC = new UIMenuItem("Imani", "[The Contract DLC]");
-        uimenu.AddItem(imaniDLC);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem imaniDLC = new NativeItem("Imani", "[The Contract DLC]");
+        uimenu.Add(imaniDLC);
+        imaniDLC.Activated += (sender, args) =>
         {
-            bool flag = item == imaniDLC;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_IMANI");
-            }
+            Game.Player.ChangeModel("IG_IMANI");
         };
-        UIMenuItem luchadora = new UIMenuItem("Luchadora", "[Los Santos Drug Wars DLC]");
-        uimenu.AddItem(luchadora);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem luchadora = new NativeItem("Luchadora", "[Los Santos Drug Wars DLC]");
+        uimenu.Add(luchadora);
+        luchadora.Activated += (sender, args) =>
         {
-            bool flag = item == luchadora;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_LUCHADORA");
-            }
+            Game.Player.ChangeModel("IG_LUCHADORA");
         };
-        UIMenuItem masonDugganDLC = new UIMenuItem("Mason Duggan", "[The Criminal Enterprises DLC]");
-        uimenu.AddItem(masonDugganDLC);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem masonDugganDLC = new NativeItem("Mason Duggan", "[The Criminal Enterprises DLC]");
+        uimenu.Add(masonDugganDLC);
+        masonDugganDLC.Activated += (sender, args) =>
         {
-            bool flag = item == masonDugganDLC;
-            if (flag)
-            {
-                Game.Player.ChangeModel("IG_MASON_DUGGAN");
-            }
+            Game.Player.ChangeModel("IG_MASON_DUGGAN");
         };
-        UIMenuItem chemicalWorker = new UIMenuItem("Chemical Worker", "He has covid");
-        uimenu.AddItem(chemicalWorker);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem chemicalWorker = new NativeItem("Chemical Worker", "He has covid");
+        uimenu.Add(chemicalWorker);
+        chemicalWorker.Activated += (sender, args) =>
         {
-            bool flag = item == chemicalWorker;
-            if (flag)
-            {
-                Game.Player.ChangeModel("g_m_m_chemwork_01");
-            }
+            Game.Player.ChangeModel("g_m_m_chemwork_01");
         };
-        UIMenuItem clayPain = new UIMenuItem("Claypain", "A rapper from the hood");
-        uimenu.AddItem(clayPain);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem clayPain = new NativeItem("Claypain", "A rapper from the hood");
+        uimenu.Add(clayPain);
+        clayPain.Activated += (sender, args) =>
         {
-            bool flag = item == clayPain;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_claypain");
-            }
+            Game.Player.ChangeModel("ig_claypain");
         };
-        UIMenuItem stripperDancer = new UIMenuItem("Stripper", "Vanilla Unicorn Dancer");
-        uimenu.AddItem(stripperDancer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem stripperDancer = new NativeItem("Stripper", "Vanilla Unicorn Dancer");
+        uimenu.Add(stripperDancer);
+        stripperDancer.Activated += (sender, args) =>
         {
-            bool flag = item == stripperDancer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("csb_stripper_01");
-            }
+            Game.Player.ChangeModel("csb_stripper_01");
         };
-        UIMenuItem femaleParkRanger = new UIMenuItem("Female Park Ranger", "Park ranger");
-        uimenu.AddItem(femaleParkRanger);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem femaleParkRanger = new NativeItem("Female Park Ranger", "Park ranger");
+        uimenu.Add(femaleParkRanger);
+        femaleParkRanger.Activated += (sender, args) =>
         {
-            bool flag = item == femaleParkRanger;
-            if (flag)
-            {
-                Game.Player.ChangeModel("s_f_y_ranger_01");
-            }
+            Game.Player.ChangeModel("s_f_y_ranger_01");
         };
-        UIMenuItem casinoManager = new UIMenuItem("Agatha Baker", "");
-        uimenu.AddItem(casinoManager);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem casinoManager = new NativeItem("Agatha Baker", "");
+        uimenu.Add(casinoManager);
+        casinoManager.Activated += (sender, args) =>
         {
-            bool flag = item == casinoManager;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_agatha");
-            }
+            Game.Player.ChangeModel("ig_agatha");
         };
-        UIMenuItem casinoManagerCutscene = new UIMenuItem("Agatha Baker Cutscene", "");
-        uimenu.AddItem(casinoManagerCutscene);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem casinoManagerCutscene = new NativeItem("Agatha Baker Cutscene", "");
+        uimenu.Add(casinoManagerCutscene);
+        casinoManagerCutscene.Activated += (sender, args) =>
         {
-            bool flag = item == casinoManagerCutscene;
-            if (flag)
-            {
-                Game.Player.ChangeModel("csb_agatha");
-            }
+            Game.Player.ChangeModel("csb_agatha");
         };
-        UIMenuItem georginaCheng = new UIMenuItem("Georgina Cheng", "Diamond Casino Heist DLC");
-        uimenu.AddItem(georginaCheng);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem georginaCheng = new NativeItem("Georgina Cheng", "Diamond Casino Heist DLC");
+        uimenu.Add(georginaCheng);
+        georginaCheng.Activated += (sender, args) =>
         {
-            bool flag = item == georginaCheng;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_georginacheng");
-            }
+            Game.Player.ChangeModel("ig_georginacheng");
         };
-        UIMenuItem wendy = new UIMenuItem("Wendy", "Diamond Casino Heist DLC");
-        uimenu.AddItem(wendy);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem wendy = new NativeItem("Wendy", "Diamond Casino Heist DLC");
+        uimenu.Add(wendy);
+        wendy.Activated += (sender, args) =>
         {
-            bool flag = item == wendy;
-            if (flag)
-            {
-                Game.Player.ChangeModel("ig_wendy");
-            }
+            Game.Player.ChangeModel("ig_wendy");
         };
     }
     #endregion
 
     #region // Vehicle Menu //
-    public void VehicleMenu(UIMenu menu)
+    public void VehicleMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Civilian Vehicles");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Civilian Vehicles", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        void SpawnAndWarp(string model)
         {
+            Vehicle vehicle = World.CreateVehicle(model, Game.Player.Character.Position);
+            if (vehicle != null)
+            {
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
         }
-        UIMenuItem tornado = new UIMenuItem("Tornado", "");
-        uimenu.AddItem(tornado);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == tornado;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Tornado", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem sovereign = new UIMenuItem("Sovereign", "");
-        uimenu.AddItem(sovereign);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == sovereign;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Sovereign", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem hustler = new UIMenuItem("Hustler", "");
-        uimenu.AddItem(hustler);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == hustler;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Hustler", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem bigRig = new UIMenuItem("Phantom", "");
-        uimenu.AddItem(bigRig);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == bigRig;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Phantom", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem beachBuggy = new UIMenuItem("Bifta", "");
-        uimenu.AddItem(beachBuggy);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == beachBuggy;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Bifta", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem punchBuggy = new UIMenuItem("Weevil", "");
-        uimenu.AddItem(punchBuggy);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == punchBuggy;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Weevil", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem bmxBike = new UIMenuItem("BMX (Bike)", "");
-        uimenu.AddItem(bmxBike);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == bmxBike;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Bmx", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem beachCruiser = new UIMenuItem("Beach Cruiser (Bike)", "");
-        uimenu.AddItem(beachCruiser);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == beachCruiser;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Cruiser", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem fixter = new UIMenuItem("Fixter (Bike)", "");
-        uimenu.AddItem(fixter);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == fixter;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Fixter", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem scorcherBike = new UIMenuItem("Scorcher (Bike)", "");
-        uimenu.AddItem(scorcherBike);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == scorcherBike;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Scorcher", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem triBike = new UIMenuItem("Tribike", "");
-        uimenu.AddItem(triBike);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == triBike;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Tribike", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem triBike2 = new UIMenuItem("Tribike 2", "");
-        uimenu.AddItem(triBike2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == triBike2;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Tribike2", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem triBike3 = new UIMenuItem("Tribike 3", "");
-        uimenu.AddItem(triBike3);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == triBike3;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Tribike3", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem oppressor = new UIMenuItem("Oppressor", "");
-        uimenu.AddItem(oppressor);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == oppressor;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Oppressor2", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem bati = new UIMenuItem("Bati", "");
-        uimenu.AddItem(bati);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == bati;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Bati", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem faggio = new UIMenuItem("Faggio", "");
-        uimenu.AddItem(faggio);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == faggio;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Faggio", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem hermes = new UIMenuItem("Hermes", "");
-        uimenu.AddItem(hermes);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == hermes;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Hermes", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem duneBuggy = new UIMenuItem("Dune", "");
-        uimenu.AddItem(duneBuggy);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == duneBuggy;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Dune", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem outlaw = new UIMenuItem("Outlaw", "");
-        uimenu.AddItem(outlaw);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == outlaw;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Outlaw", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem benson = new UIMenuItem("Benson", "");
-        uimenu.AddItem(benson);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == benson;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Benson", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem mule1 = new UIMenuItem("Mule 1", "");
-        uimenu.AddItem(mule1);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == mule1;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Mule", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem dinghy5 = new UIMenuItem("Dinghy 5", "");
-        uimenu.AddItem(dinghy5);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == dinghy5;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Dinghy5", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem jetMax = new UIMenuItem("Jetmax", "");
-        uimenu.AddItem(jetMax);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == jetMax;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Jetmax", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem gunTruck = new UIMenuItem("Technical", "");
-        uimenu.AddItem(gunTruck);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == gunTruck;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Technical", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem gunTruck2 = new UIMenuItem("Technical 2", "");
-        uimenu.AddItem(gunTruck2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == gunTruck2;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Technical2", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem dumpTruck = new UIMenuItem("Dump Truck", "");
-        uimenu.AddItem(dumpTruck);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == dumpTruck;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Dump", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem flatbedTow = new UIMenuItem("Flatbed", "");
-        uimenu.AddItem(flatbedTow);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == flatbedTow;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Flatbed", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem faggio3 = new UIMenuItem("Faggio 3", "");
-        uimenu.AddItem(faggio3);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == faggio3;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Faggio3", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem stryderBike = new UIMenuItem("Stryder", "");
-        uimenu.AddItem(stryderBike);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == stryderBike;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("Stryder", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem terrorbyte = new UIMenuItem("Terrorbyte", "");
-        uimenu.AddItem(terrorbyte);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == terrorbyte;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("terbyte", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem moneyTruck = new UIMenuItem("Stockade", "");
-        uimenu.AddItem(moneyTruck);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == moneyTruck;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("stockade", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem asbo = new UIMenuItem("Asbo", "");
-        uimenu.AddItem(asbo);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == asbo;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("asbo", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem blista = new UIMenuItem("Blista", "");
-        uimenu.AddItem(blista);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == blista;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("blista", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem barrage = new UIMenuItem("Barrage", "");
-        uimenu.AddItem(barrage);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == barrage;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("barrage", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem cargoBob = new UIMenuItem("Cargobob", "");
-        uimenu.AddItem(cargoBob);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cargoBob;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("cargobob", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem buzzard = new UIMenuItem("Buzzard", "");
-        uimenu.AddItem(buzzard);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == buzzard;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("buzzard", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem minitank = new UIMenuItem("Minitank", "");
-        uimenu.AddItem(minitank);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == minitank;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("minitank", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem seasparrowChopper = new UIMenuItem("Seasparrow 2", "");
-        uimenu.AddItem(seasparrowChopper);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == seasparrowChopper;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("seasparrow2", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
-        UIMenuItem bulldozer = new UIMenuItem("Bulldozer", "");
-        uimenu.AddItem(bulldozer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == bulldozer;
-            if (flag)
-            {
-                Vehicle vehicle = World.CreateVehicle("bulldozer", Game.Player.Character.Position);
-                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-            }
-        };
+
+        NativeItem tornado = new NativeItem("Tornado", "");
+        uimenu.Add(tornado);
+        tornado.Activated += (sender, args) => SpawnAndWarp("Tornado");
+
+        NativeItem sovereign = new NativeItem("Sovereign", "");
+        uimenu.Add(sovereign);
+        sovereign.Activated += (sender, args) => SpawnAndWarp("Sovereign");
+
+        NativeItem hustler = new NativeItem("Hustler", "");
+        uimenu.Add(hustler);
+        hustler.Activated += (sender, args) => SpawnAndWarp("Hustler");
+
+        NativeItem bigRig = new NativeItem("Phantom", "");
+        uimenu.Add(bigRig);
+        bigRig.Activated += (sender, args) => SpawnAndWarp("Phantom");
+
+        NativeItem beachBuggy = new NativeItem("Bifta", "");
+        uimenu.Add(beachBuggy);
+        beachBuggy.Activated += (sender, args) => SpawnAndWarp("Bifta");
+
+        NativeItem punchBuggy = new NativeItem("Weevil", "");
+        uimenu.Add(punchBuggy);
+        punchBuggy.Activated += (sender, args) => SpawnAndWarp("Weevil");
+
+        NativeItem bmxBike = new NativeItem("BMX (Bike)", "");
+        uimenu.Add(bmxBike);
+        bmxBike.Activated += (sender, args) => SpawnAndWarp("Bmx");
+
+        NativeItem beachCruiser = new NativeItem("Beach Cruiser (Bike)", "");
+        uimenu.Add(beachCruiser);
+        beachCruiser.Activated += (sender, args) => SpawnAndWarp("Cruiser");
+
+        NativeItem fixter = new NativeItem("Fixter (Bike)", "");
+        uimenu.Add(fixter);
+        fixter.Activated += (sender, args) => SpawnAndWarp("Fixter");
+
+        NativeItem scorcherBike = new NativeItem("Scorcher (Bike)", "");
+        uimenu.Add(scorcherBike);
+        scorcherBike.Activated += (sender, args) => SpawnAndWarp("Scorcher");
+
+        NativeItem triBike = new NativeItem("Tribike", "");
+        uimenu.Add(triBike);
+        triBike.Activated += (sender, args) => SpawnAndWarp("Tribike");
+
+        NativeItem triBike2 = new NativeItem("Tribike 2", "");
+        uimenu.Add(triBike2);
+        triBike2.Activated += (sender, args) => SpawnAndWarp("Tribike2");
+
+        NativeItem triBike3 = new NativeItem("Tribike 3", "");
+        uimenu.Add(triBike3);
+        triBike3.Activated += (sender, args) => SpawnAndWarp("Tribike3");
+
+        NativeItem oppressor = new NativeItem("Oppressor", "");
+        uimenu.Add(oppressor);
+        oppressor.Activated += (sender, args) => SpawnAndWarp("Oppressor2");
+
+        NativeItem bati = new NativeItem("Bati", "");
+        uimenu.Add(bati);
+        bati.Activated += (sender, args) => SpawnAndWarp("Bati");
+
+        NativeItem faggio = new NativeItem("Faggio", "");
+        uimenu.Add(faggio);
+        faggio.Activated += (sender, args) => SpawnAndWarp("Faggio");
+
+        NativeItem hermes = new NativeItem("Hermes", "");
+        uimenu.Add(hermes);
+        hermes.Activated += (sender, args) => SpawnAndWarp("Hermes");
+
+        NativeItem duneBuggy = new NativeItem("Dune", "");
+        uimenu.Add(duneBuggy);
+        duneBuggy.Activated += (sender, args) => SpawnAndWarp("Dune");
+
+        NativeItem outlaw = new NativeItem("Outlaw", "");
+        uimenu.Add(outlaw);
+        outlaw.Activated += (sender, args) => SpawnAndWarp("Outlaw");
+
+        NativeItem benson = new NativeItem("Benson", "");
+        uimenu.Add(benson);
+        benson.Activated += (sender, args) => SpawnAndWarp("Benson");
+
+        NativeItem mule1 = new NativeItem("Mule 1", "");
+        uimenu.Add(mule1);
+        mule1.Activated += (sender, args) => SpawnAndWarp("Mule");
+
+        NativeItem dinghy5 = new NativeItem("Dinghy 5", "");
+        uimenu.Add(dinghy5);
+        dinghy5.Activated += (sender, args) => SpawnAndWarp("Dinghy5");
+
+        NativeItem jetMax = new NativeItem("Jetmax", "");
+        uimenu.Add(jetMax);
+        jetMax.Activated += (sender, args) => SpawnAndWarp("Jetmax");
+
+        NativeItem gunTruck = new NativeItem("Technical", "");
+        uimenu.Add(gunTruck);
+        gunTruck.Activated += (sender, args) => SpawnAndWarp("Technical");
+
+        NativeItem gunTruck2 = new NativeItem("Technical 2", "");
+        uimenu.Add(gunTruck2);
+        gunTruck2.Activated += (sender, args) => SpawnAndWarp("Technical2");
+
+        NativeItem dumpTruck = new NativeItem("Dump Truck", "");
+        uimenu.Add(dumpTruck);
+        dumpTruck.Activated += (sender, args) => SpawnAndWarp("Dump");
+
+        NativeItem flatbedTow = new NativeItem("Flatbed", "");
+        uimenu.Add(flatbedTow);
+        flatbedTow.Activated += (sender, args) => SpawnAndWarp("Flatbed");
+
+        NativeItem faggio3 = new NativeItem("Faggio 3", "");
+        uimenu.Add(faggio3);
+        faggio3.Activated += (sender, args) => SpawnAndWarp("Faggio3");
+
+        NativeItem stryderBike = new NativeItem("Stryder", "");
+        uimenu.Add(stryderBike);
+        stryderBike.Activated += (sender, args) => SpawnAndWarp("Stryder");
+
+        NativeItem terrorbyte = new NativeItem("Terrorbyte", "");
+        uimenu.Add(terrorbyte);
+        terrorbyte.Activated += (sender, args) => SpawnAndWarp("terbyte");
+
+        NativeItem moneyTruck = new NativeItem("Stockade", "");
+        uimenu.Add(moneyTruck);
+        moneyTruck.Activated += (sender, args) => SpawnAndWarp("stockade");
+
+        NativeItem asbo = new NativeItem("Asbo", "");
+        uimenu.Add(asbo);
+        asbo.Activated += (sender, args) => SpawnAndWarp("asbo");
+
+        NativeItem blista = new NativeItem("Blista", "");
+        uimenu.Add(blista);
+        blista.Activated += (sender, args) => SpawnAndWarp("blista");
+
+        NativeItem barrage = new NativeItem("Barrage", "");
+        uimenu.Add(barrage);
+        barrage.Activated += (sender, args) => SpawnAndWarp("barrage");
+
+        NativeItem cargoBob = new NativeItem("Cargobob", "");
+        uimenu.Add(cargoBob);
+        cargoBob.Activated += (sender, args) => SpawnAndWarp("cargobob");
+
+        NativeItem buzzard = new NativeItem("Buzzard", "");
+        uimenu.Add(buzzard);
+        buzzard.Activated += (sender, args) => SpawnAndWarp("buzzard");
+
+        NativeItem minitank = new NativeItem("Minitank", "");
+        uimenu.Add(minitank);
+        minitank.Activated += (sender, args) => SpawnAndWarp("minitank");
+
+        NativeItem seasparrowChopper = new NativeItem("Seasparrow 2", "");
+        uimenu.Add(seasparrowChopper);
+        seasparrowChopper.Activated += (sender, args) => SpawnAndWarp("seasparrow2");
+
+        NativeItem bulldozer = new NativeItem("Bulldozer", "");
+        uimenu.Add(bulldozer);
+        bulldozer.Activated += (sender, args) => SpawnAndWarp("bulldozer");
     }
     #endregion
 
     #region // Animations Menu //
-    public void MPAnimationsMenu(UIMenu menu)
+    public void MPAnimationsMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Animations");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Animations", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        NativeItem StopAnimation = new NativeItem("Josh Chilling", "");
+        uimenu.Add(StopAnimation);
+        StopAnimation.Activated += (sender, args) =>
         {
-        }
-        UIMenuItem StopAnimation = new UIMenuItem("Josh Chilling", "");
-        uimenu.AddItem(StopAnimation);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == StopAnimation;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("rcmjosh1", "idle");
-            }
+            Game.Player.Character.Task.PlayAnimation("rcmjosh1", "idle");
         };
-        UIMenuItem dance1 = new UIMenuItem("Peace Sign", "");
-        uimenu.AddItem(dance1);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem dance1 = new NativeItem("Peace Sign", "");
+        uimenu.Add(dance1);
+        dance1.Activated += (sender, args) =>
         {
-            bool flag = item == dance1;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperpeace_sign", "mp_player_int_peace_sign");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperpeace_sign", "mp_player_int_peace_sign");
         };
-        UIMenuItem GangSign1 = new UIMenuItem("Gang Sign 1", "");
-        uimenu.AddItem(GangSign1);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem GangSign1 = new NativeItem("Gang Sign 1", "");
+        uimenu.Add(GangSign1);
+        GangSign1.Activated += (sender, args) =>
         {
-            bool flag = item == GangSign1;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_a", "mp_player_int_gang_sign_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_a", "mp_player_int_gang_sign_a");
         };
-        UIMenuItem GangSign2 = new UIMenuItem("Gang Sign 2", "");
-        uimenu.AddItem(GangSign2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem GangSign2 = new NativeItem("Gang Sign 2", "");
+        uimenu.Add(GangSign2);
+        GangSign2.Activated += (sender, args) =>
         {
-            bool flag = item == GangSign2;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_b", "mp_player_int_gang_sign_b");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergang_sign_b", "mp_player_int_gang_sign_b");
         };
-        UIMenuItem RockSign = new UIMenuItem("Rock", "");
-        uimenu.AddItem(RockSign);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem RockSign = new NativeItem("Rock", "");
+        uimenu.Add(RockSign);
+        RockSign.Activated += (sender, args) =>
         {
-            bool flag = item == RockSign;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperrock", "mp_player_int_rock");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperrock", "mp_player_int_rock");
         };
-        UIMenuItem HandSalute = new UIMenuItem("Hand Salute", "");
-        uimenu.AddItem(HandSalute);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem HandSalute = new NativeItem("Hand Salute", "");
+        uimenu.Add(HandSalute);
+        HandSalute.Activated += (sender, args) =>
         {
-            bool flag = item == HandSalute;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppersalute", "mp_player_int_salute");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_uppersalute", "mp_player_int_salute");
         };
-        UIMenuItem ChinBrush = new UIMenuItem("Chin Brush", "");
-        uimenu.AddItem(ChinBrush);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem ChinBrush = new NativeItem("Chin Brush", "");
+        uimenu.Add(ChinBrush);
+        ChinBrush.Activated += (sender, args) =>
         {
-            bool flag = item == ChinBrush;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperchin_brush", "exit");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperchin_brush", "exit");
         };
-        UIMenuItem TakePill = new UIMenuItem("Take Pill", "");
-        uimenu.AddItem(TakePill);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem TakePill = new NativeItem("Take Pill", "");
+        uimenu.Add(TakePill);
+        TakePill.Activated += (sender, args) =>
         {
-            bool flag = item == TakePill;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_suicide", "pill");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_suicide", "pill");
         };
-        UIMenuItem upYours = new UIMenuItem("Up Yours", "");
-        uimenu.AddItem(upYours);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem upYours = new NativeItem("Up Yours", "");
+        uimenu.Add(upYours);
+        upYours.Activated += (sender, args) =>
         {
-            bool flag = item == upYours;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperup_yours", "mp_player_int_up_yours_exit");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperup_yours", "mp_player_int_up_yours_exit");
         };
-        UIMenuItem wanking = new UIMenuItem("Wank", "");
-        uimenu.AddItem(wanking);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem wanking = new NativeItem("Wank", "");
+        uimenu.Add(wanking);
+        wanking.Activated += (sender, args) =>
         {
-            bool flag = item == wanking;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperwank", "mp_player_int_wank_01");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperwank", "mp_player_int_wank_01");
         };
-        UIMenuItem hostage = new UIMenuItem("Pistol to the Head", "");
-        uimenu.AddItem(hostage);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem hostage = new NativeItem("Pistol to the Head", "");
+        uimenu.Add(hostage);
+        hostage.Activated += (sender, args) =>
         {
-            bool flag = item == hostage;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_suicide", "pistol");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_suicide", "pistol");
         };
-        UIMenuItem flippingOff = new UIMenuItem("Flipping the Bird", "");
-        uimenu.AddItem(flippingOff);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem flippingOff = new NativeItem("Flipping the Bird", "");
+        uimenu.Add(flippingOff);
+        flippingOff.Activated += (sender, args) =>
         {
-           bool flag = item == flippingOff;
-           if (flag)
-           {
-                Game.Player.Character.Task.PlayAnimation("mp_player_intfinger", "mp_player_int_finger");
-           }
+            Game.Player.Character.Task.PlayAnimation("mp_player_intfinger", "mp_player_int_finger");
         };
-        UIMenuItem loveBro = new UIMenuItem("Bro Love", "");
-        uimenu.AddItem(loveBro);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem loveBro = new NativeItem("Bro Love", "");
+        uimenu.Add(loveBro);
+        loveBro.Activated += (sender, args) =>
         {
-            bool flag = item == loveBro;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperbro_love", "mp_player_int_bro_love");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperbro_love", "mp_player_int_bro_love");
         };
-        UIMenuItem headNod = new UIMenuItem("Head Nod", "");
-        uimenu.AddItem(headNod);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem headNod = new NativeItem("Head Nod", "");
+        uimenu.Add(headNod);
+        headNod.Activated += (sender, args) =>
         {
-            bool flag = item == headNod;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upper_nod", "mp_player_int_nod_no");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upper_nod", "mp_player_int_nod_no");
         };
-        UIMenuItem docking = new UIMenuItem("Docking", "");
-        uimenu.AddItem(docking);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem docking = new NativeItem("Docking", "");
+        uimenu.Add(docking);
+        docking.Activated += (sender, args) =>
         {
-            bool flag = item == docking;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdock", "exit_fp");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdock", "exit_fp");
         };
-        UIMenuItem grabbingtheDick = new UIMenuItem("Grab Deez Nuts", "");
-        uimenu.AddItem(grabbingtheDick);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem grabbingtheDick = new NativeItem("Grab Deez Nuts", "");
+        uimenu.Add(grabbingtheDick);
+        grabbingtheDick.Activated += (sender, args) =>
         {
-            bool flag = item == grabbingtheDick;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergrab_crotch", "mp_player_int_grab_crotch");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_uppergrab_crotch", "mp_player_int_grab_crotch");
         };
-        UIMenuItem facepalm = new UIMenuItem("Face Palm", "");
-        uimenu.AddItem(facepalm);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem facepalm = new NativeItem("Face Palm", "");
+        uimenu.Add(facepalm);
+        facepalm.Activated += (sender, args) =>
         {
-            bool flag = item == facepalm;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperface_palm", "enter_fp");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperface_palm", "enter_fp");
         };
-        UIMenuItem diggingForCheese = new UIMenuItem("Digging for Cheese", "");
-        uimenu.AddItem(diggingForCheese);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem diggingForCheese = new NativeItem("Digging for Cheese", "");
+        uimenu.Add(diggingForCheese);
+        diggingForCheese.Activated += (sender, args) =>
         {
-            bool flag = item == diggingForCheese;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_player_int_upperarse_pick", "mp_player_int_arse_pick");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_player_int_upperarse_pick", "mp_player_int_arse_pick");
         };
-        UIMenuItem mouthYapping = new UIMenuItem("Mouth Yapping", "");
-        uimenu.AddItem(mouthYapping);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem mouthYapping = new NativeItem("Mouth Yapping", "");
+        uimenu.Add(mouthYapping);
+        mouthYapping.Activated += (sender, args) =>
         {
-            bool flag = item == mouthYapping;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_facial", "mic_chatter");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_facial", "mic_chatter");
         };
-        UIMenuItem leaning = new UIMenuItem("Leaning", "");
-        uimenu.AddItem(leaning);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem leaning = new NativeItem("Leaning", "");
+        uimenu.Add(leaning);
+        leaning.Activated += (sender, args) =>
         {
-            bool flag = item == leaning;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_cp_welcome_tutleaning", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_cp_welcome_tutleaning", "idle_a");
         };
-        UIMenuItem airGuitar = new UIMenuItem("Air Guitar", "");
-        uimenu.AddItem(airGuitar);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem airGuitar = new NativeItem("Air Guitar", "");
+        uimenu.Add(airGuitar);
+        airGuitar.Activated += (sender, args) =>
         {
-            bool flag = item == airGuitar;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperair_guitar", "idle_a_fp");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperair_guitar", "idle_a_fp");
         };
-        UIMenuItem crunchingKnuckles = new UIMenuItem("Crunching Knuckles", "");
-        uimenu.AddItem(crunchingKnuckles);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem crunchingKnuckles = new NativeItem("Crunching Knuckles", "");
+        uimenu.Add(crunchingKnuckles);
+        crunchingKnuckles.Activated += (sender, args) =>
         {
-            bool flag = item == crunchingKnuckles;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperknuckle_crunch", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperknuckle_crunch", "idle_a");
         };
-        UIMenuItem nosePicking = new UIMenuItem("Nose Picking", "");
-        uimenu.AddItem(nosePicking);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem nosePicking = new NativeItem("Nose Picking", "");
+        uimenu.Add(nosePicking);
+        nosePicking.Activated += (sender, args) =>
         {
-            bool flag = item == nosePicking;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppernose_pick", "enter");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppernose_pick", "enter");
         };
-        UIMenuItem djing = new UIMenuItem("DJ", "");
-        uimenu.AddItem(djing);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem djing = new NativeItem("DJ", "");
+        uimenu.Add(djing);
+        djing.Activated += (sender, args) =>
         {
-            bool flag = item == djing;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdj", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperdj", "idle_a");
         };
-        UIMenuItem BeQuiet = new UIMenuItem("Be Quiet", "");
-        uimenu.AddItem(BeQuiet);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem BeQuiet = new NativeItem("Be Quiet", "");
+        uimenu.Add(BeQuiet);
+        BeQuiet.Activated += (sender, args) =>
         {
-            bool flag = item == BeQuiet;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppershush", "enter");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppershush", "enter");
         };
-        UIMenuItem thumbsUp = new UIMenuItem("Thumbs Up", "");
-        uimenu.AddItem(thumbsUp);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem thumbsUp = new NativeItem("Thumbs Up", "");
+        uimenu.Add(thumbsUp);
+        thumbsUp.Activated += (sender, args) =>
         {
-            bool flag = item == thumbsUp;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumbs_up", "enter");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumbs_up", "enter");
         };
-        UIMenuItem slowclapping = new UIMenuItem("Slow Clapping", "");
-        uimenu.AddItem(slowclapping);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem slowclapping = new NativeItem("Slow Clapping", "");
+        uimenu.Add(slowclapping);
+        slowclapping.Activated += (sender, args) =>
         {
-            bool flag = item == slowclapping;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperslow_clap", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperslow_clap", "idle_a");
         };
-        UIMenuItem ISurrender = new UIMenuItem("Surrendering", "");
-        uimenu.AddItem(ISurrender);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem ISurrender = new NativeItem("Surrendering", "");
+        uimenu.Add(ISurrender);
+        ISurrender.Activated += (sender, args) =>
         {
-            bool flag = item == ISurrender;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppersurrender", "enter");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intuppersurrender", "enter");
         };
-        UIMenuItem MakeItRain = new UIMenuItem("Make It Rain", "");
-        uimenu.AddItem(MakeItRain);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem MakeItRain = new NativeItem("Make It Rain", "");
+        uimenu.Add(MakeItRain);
+        MakeItRain.Activated += (sender, args) =>
         {
-            bool flag = item == MakeItRain;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperraining_cash", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperraining_cash", "idle_a");
         };
-        UIMenuItem yourLoco = new UIMenuItem("Your Loco", "");
-        uimenu.AddItem(yourLoco);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem yourLoco = new NativeItem("Your Loco", "");
+        uimenu.Add(yourLoco);
+        yourLoco.Activated += (sender, args) =>
         {
-            bool flag = item == yourLoco;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperyou_loco", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperyou_loco", "idle_a");
         };
-        UIMenuItem Waving = new UIMenuItem("Waving", "");
-        uimenu.AddItem(Waving);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem Waving = new NativeItem("Waving", "");
+        uimenu.Add(Waving);
+        Waving.Activated += (sender, args) =>
         {
-            bool flag = item == Waving;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperwave", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperwave", "idle_a");
         };
-        UIMenuItem Disco = new UIMenuItem("70s Disco", "");
-        uimenu.AddItem(Disco);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem Disco = new NativeItem("70s Disco", "");
+        uimenu.Add(Disco);
+        Disco.Activated += (sender, args) =>
         {
-            bool flag = item == Disco;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperuncle_disco", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperuncle_disco", "idle_a");
         };
-        UIMenuItem pluggingEars = new UIMenuItem("Plugging Ears", "");
-        uimenu.AddItem(pluggingEars);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem pluggingEars = new NativeItem("Plugging Ears", "");
+        uimenu.Add(pluggingEars);
+        pluggingEars.Activated += (sender, args) =>
         {
-            bool flag = item == pluggingEars;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumb_on_ears", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intupperthumb_on_ears", "idle_a");
         };
-        UIMenuItem amandaIdle = new UIMenuItem("Amanda Sitting Idle", "");
-        uimenu.AddItem(amandaIdle);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem amandaIdle = new NativeItem("Amanda Sitting Idle", "");
+        uimenu.Add(amandaIdle);
+        amandaIdle.Activated += (sender, args) =>
         {
-            bool flag = item == amandaIdle;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("timetable@reunited@ig_10", "base_amanda");
-            }
+            Game.Player.Character.Task.PlayAnimation("timetable@reunited@ig_10", "base_amanda");
         };
-        UIMenuItem meditateIdle = new UIMenuItem("Meditate", "");
-        uimenu.AddItem(meditateIdle);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem meditateIdle = new NativeItem("Meditate", "");
+        uimenu.Add(meditateIdle);
+        meditateIdle.Activated += (sender, args) =>
         {
-            bool flag = item == meditateIdle;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("rcmcollect_paperleadinout@", "meditiate_idle");
-            }
+            Game.Player.Character.Task.PlayAnimation("rcmcollect_paperleadinout@", "meditiate_idle");
         };
-        UIMenuItem twerking = new UIMenuItem("Twerk", "");
-        uimenu.AddItem(twerking);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem twerking = new NativeItem("Twerk", "");
+        uimenu.Add(twerking);
+        twerking.Activated += (sender, args) =>
         {
-            bool flag = item == twerking;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("switch@trevor@mocks_lapdance", "001443_01_trvs_28_idle_stripper");
-            }
+            Game.Player.Character.Task.PlayAnimation("switch@trevor@mocks_lapdance", "001443_01_trvs_28_idle_stripper");
         };
-        UIMenuItem PrivatedanceIdle = new UIMenuItem("Private Dance Idle", "");
-        uimenu.AddItem(PrivatedanceIdle);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem PrivatedanceIdle = new NativeItem("Private Dance Idle", "");
+        uimenu.Add(PrivatedanceIdle);
+        PrivatedanceIdle.Activated += (sender, args) =>
         {
-            bool flag = item == PrivatedanceIdle;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@idle", "priv_dance_idle");
-            }
+            Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@idle", "priv_dance_idle");
         };
-        UIMenuItem lapdance2 = new UIMenuItem("Lap Dance 2", "");
-        uimenu.AddItem(lapdance2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem lapdance2 = new NativeItem("Lap Dance 2", "");
+        uimenu.Add(lapdance2);
+        lapdance2.Activated += (sender, args) =>
         {
-            bool flag = item == lapdance2;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mini@strip_club@lap_dance_2g@ld_2g_p1", "ld_2g_p1_s2");
-            }
+            Game.Player.Character.Task.PlayAnimation("mini@strip_club@lap_dance_2g@ld_2g_p1", "ld_2g_p1_s2");
         };
-        UIMenuItem BBQanim = new UIMenuItem("BBQ", "");
-        uimenu.AddItem(BBQanim);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem BBQanim = new NativeItem("BBQ", "");
+        uimenu.Add(BBQanim);
+        BBQanim.Activated += (sender, args) =>
         {
-            bool flag = item == BBQanim;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("amb@prop_human_bbq@male@idle_a", "idle_b");
-            }
+            Game.Player.Character.Task.PlayAnimation("amb@prop_human_bbq@male@idle_a", "idle_b");
         };
-        UIMenuItem trevorPuking = new UIMenuItem("Trevor Puking", "");
-        uimenu.AddItem(trevorPuking);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem trevorPuking = new NativeItem("Trevor Puking", "");
+        uimenu.Add(trevorPuking);
+        trevorPuking.Activated += (sender, args) =>
         {
-            bool flag = item == trevorPuking;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("missheistpaletoscore1leadinout", "trv_puking_leadout");
-            }
+            Game.Player.Character.Task.PlayAnimation("missheistpaletoscore1leadinout", "trv_puking_leadout");
         };
-        UIMenuItem callChop = new UIMenuItem("Call Chop", "");
-        uimenu.AddItem(callChop);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem callChop = new NativeItem("Call Chop", "");
+        uimenu.Add(callChop);
+        callChop.Activated += (sender, args) =>
         {
-            bool flag = item == callChop;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("missfra0_chop_find", "call_chop_l");
-            }
+            Game.Player.Character.Task.PlayAnimation("missfra0_chop_find", "call_chop_l");
         };
-        UIMenuItem carmeetCheckoutCar = new UIMenuItem("Checking Out Car Carmeet", "");
-        uimenu.AddItem(carmeetCheckoutCar);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem carmeetCheckoutCar = new NativeItem("Checking Out Car Carmeet", "");
+        uimenu.Add(carmeetCheckoutCar);
+        carmeetCheckoutCar.Activated += (sender, args) =>
         {
-            bool flag = item == carmeetCheckoutCar;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@amb@carmeet@checkout_car@", "female_c_idle_d");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@amb@carmeet@checkout_car@", "female_c_idle_d");
         };
-        UIMenuItem lapDanceStripper = new UIMenuItem("Lap Dance 3", "");
-        uimenu.AddItem(lapDanceStripper);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem lapDanceStripper = new NativeItem("Lap Dance 3", "");
+        uimenu.Add(lapDanceStripper);
+        lapDanceStripper.Activated += (sender, args) =>
         {
-            bool flag = item == lapDanceStripper;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mp_am_stripper", "lap_dance_girl");
-            }
+            Game.Player.Character.Task.PlayAnimation("mp_am_stripper", "lap_dance_girl");
         };
-        UIMenuItem lapDanceStripper2 = new UIMenuItem("Lap Dance 4", "");
-        uimenu.AddItem(lapDanceStripper2);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem lapDanceStripper2 = new NativeItem("Lap Dance 4", "");
+        uimenu.Add(lapDanceStripper2);
+        lapDanceStripper2.Activated += (sender, args) =>
         {
-            bool flag = item == lapDanceStripper2;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@part1", "priv_dance_p1");
-            }
+            Game.Player.Character.Task.PlayAnimation("mini@strip_club@private_dance@part1", "priv_dance_p1");
         };
-        UIMenuItem yachtLapDance = new UIMenuItem("Yacht Lap Dance", "");
-        uimenu.AddItem(yachtLapDance);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem yachtLapDance = new NativeItem("Yacht Lap Dance", "");
+        uimenu.Add(yachtLapDance);
+        yachtLapDance.Activated += (sender, args) =>
         {
-            bool flag = item == yachtLapDance;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("oddjobs@assassinate@multi@yachttarget@lapdance", "yacht_ld_f");
-            }
+            Game.Player.Character.Task.PlayAnimation("oddjobs@assassinate@multi@yachttarget@lapdance", "yacht_ld_f");
         };
-        UIMenuItem bitchSlap = new UIMenuItem("Bitch Slap", "");
-        uimenu.AddItem(bitchSlap);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem bitchSlap = new NativeItem("Bitch Slap", "");
+        uimenu.Add(bitchSlap);
+        bitchSlap.Activated += (sender, args) =>
         {
-            bool flag = item == bitchSlap;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_slap");
-            }
+            Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_slap");
         };
-        UIMenuItem headButt = new UIMenuItem("Head Butt", "");
-        uimenu.AddItem(headButt);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem headButt = new NativeItem("Head Butt", "");
+        uimenu.Add(headButt);
+        headButt.Activated += (sender, args) =>
         {
-            bool flag = item == headButt;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_headbutt");
-            }
+            Game.Player.Character.Task.PlayAnimation("melee@unarmed@streamed_variations", "plyr_takedown_front_headbutt");
         };
-        UIMenuItem sassyMiddleFinger = new UIMenuItem("Sassy Middle Finger", "");
-        uimenu.AddItem(sassyMiddleFinger);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sassyMiddleFinger = new NativeItem("Sassy Middle Finger", "");
+        uimenu.Add(sassyMiddleFinger);
+        sassyMiddleFinger.Activated += (sender, args) =>
         {
-            bool flag = item == sassyMiddleFinger;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@mp_player_intcelebrationfemale@finger", "finger");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@mp_player_intcelebrationfemale@finger", "finger");
         };
-        UIMenuItem gettingDicked = new UIMenuItem("Getting Dicked (NSFW)", "");
-        uimenu.AddItem(gettingDicked);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem gettingDicked = new NativeItem("Getting Dicked (NSFW)", "");
+        uimenu.Add(gettingDicked);
+        gettingDicked.Activated += (sender, args) =>
         {
-            bool flag = item == gettingDicked;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("rcmpaparazzo_2", "shag_action_poppy");
-            }
+            Game.Player.Character.Task.PlayAnimation("rcmpaparazzo_2", "shag_action_poppy");
         };
-        UIMenuItem Buttwag = new UIMenuItem("Buttwag", "");
-        uimenu.AddItem(Buttwag);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem Buttwag = new NativeItem("Buttwag", "");
+        uimenu.Add(Buttwag);
+        Buttwag.Activated += (sender, args) =>
         {
-            bool flag = item == Buttwag;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("special_ped@mountain_dancer@monologue_3@monologue_3a", "mnt_dnc_buttwag");
-            }
+            Game.Player.Character.Task.PlayAnimation("special_ped@mountain_dancer@monologue_3@monologue_3a", "mnt_dnc_buttwag");
         };
-        UIMenuItem smokingFemale = new UIMenuItem("Smoking (Female)", "");
-        uimenu.AddItem(smokingFemale);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem smokingFemale = new NativeItem("Smoking (Female)", "");
+        uimenu.Add(smokingFemale);
+        smokingFemale.Activated += (sender, args) =>
         {
-            bool flag = item == smokingFemale;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("amb@world_human_smoking@female@idle_a", "idle_b");
-            }
+            Game.Player.Character.Task.PlayAnimation("amb@world_human_smoking@female@idle_a", "idle_b");
         };
-        UIMenuItem sillyDance1 = new UIMenuItem("Silly Dance 1", "");
-        uimenu.AddItem(sillyDance1);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem sillyDance1 = new NativeItem("Silly Dance 1", "");
+        uimenu.Add(sillyDance1);
+        sillyDance1.Activated += (sender, args) =>
         {
-            bool flag = item == sillyDance1;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("anim@amb@nightclub@lazlow@hi_dancefloor@", "crowddance_hi_11_handup_laz");
-            }
+            Game.Player.Character.Task.PlayAnimation("anim@amb@nightclub@lazlow@hi_dancefloor@", "crowddance_hi_11_handup_laz");
         };
-        UIMenuItem situps = new UIMenuItem("Situps", "");
-        uimenu.AddItem(situps);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem situps = new NativeItem("Situps", "");
+        uimenu.Add(situps);
+        situps.Activated += (sender, args) =>
         {
-            bool flag = item == situps;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("amb@world_human_sit_ups@male@idle_a", "idle_a");
-            }
+            Game.Player.Character.Task.PlayAnimation("amb@world_human_sit_ups@male@idle_a", "idle_a");
         };
-        UIMenuItem rejectIdle = new UIMenuItem("Rejct Idle", "");
-        uimenu.AddItem(rejectIdle);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem rejectIdle = new NativeItem("Rejct Idle", "");
+        uimenu.Add(rejectIdle);
+        rejectIdle.Activated += (sender, args) =>
         {
-            bool flag = item == rejectIdle;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("mini@hookers_sp", "idle_reject");
-            }
+            Game.Player.Character.Task.PlayAnimation("mini@hookers_sp", "idle_reject");
         };
-        UIMenuItem traceyDance = new UIMenuItem("The Tracey Dance", "");
-        uimenu.AddItem(traceyDance);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem traceyDance = new NativeItem("The Tracey Dance", "");
+        uimenu.Add(traceyDance);
+        traceyDance.Activated += (sender, args) =>
         {
-            bool flag = item == traceyDance;
-            if (flag)
-            {
-                Game.Player.Character.Task.PlayAnimation("timetable@tracy@ig_5@idle_a", "idle_c");
-            }
+            Game.Player.Character.Task.PlayAnimation("timetable@tracy@ig_5@idle_a", "idle_c");
         };
     }
     #endregion
 
     #region // Weapon Menu //
-    public void WeaponMenu(UIMenu menu)
+    public void WeaponMenu(NativeMenu menu)
     {
-        var weapons = _menuPool.AddSubMenu(menu, "Weapons");
-        for (int i = 0; i < 1; i++) ;
-        var newweapons = new UIMenuItem("Give Weapons", "");
-        weapons.AddItem(newweapons);
-        weapons.OnItemSelect += (sender, item, index) =>
+        NativeMenu weapons = new NativeMenu("Weapons", "");
+        _objectPool.Add(weapons);
+        menu.AddSubMenu(weapons);
+
+        NativeItem newweapons = new NativeItem("Give Weapons", "");
+        weapons.Add(newweapons);
+        newweapons.Activated += (sender, args) =>
         {
-            if (item == newweapons)
-            {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true); //Weapon Hash, Weapon Equipped, Ammo Loaded
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATMG"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RPG"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GRENADELAUNCHER"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MINIGUN"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAILGUN"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STICKYBOMB"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_DOUBLEACTION"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNIPERRIFLE"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STUNGUN"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNSPISTOL"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAYPISTOL"), 9999, false, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SMG"), 9999, false, true);
-            }
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 1, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATPISTOL"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PUMPSHOTGUN"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_TACTICALRIFLE"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_COMBATMG"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RPG"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GRENADELAUNCHER"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MINIGUN"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAILGUN"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STICKYBOMB"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_DOUBLEACTION"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNIPERRIFLE"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PISTOL"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_STUNGUN"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNSPISTOL"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_RAYPISTOL"), 9999, false, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SMG"), 9999, false, true);
         };
-        var dropWeapon = new UIMenuItem("Drop Weapon", "");
-        weapons.AddItem(dropWeapon);
-        weapons.OnItemSelect += (sender, item, index) =>
+
+        NativeItem dropWeapon = new NativeItem("Drop Weapon", "");
+        weapons.Add(dropWeapon);
+        dropWeapon.Activated += (sender, args) =>
         {
-            if (item == dropWeapon)
-            {
-                Game.Player.Character.Weapons.Drop();
-            }
+            Game.Player.Character.Weapons.Drop();
         };
     }
     #endregion
 
     #region // Options Menu //
-    public void OptionsMenu(UIMenu menu)
+    public void OptionsMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Options");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Options", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        NativeItem removeWeapons = new NativeItem("Remove Weapons", "");
+        uimenu.Add(removeWeapons);
+        removeWeapons.Activated += (sender, args) =>
         {
-        }
-        UIMenuItem removeWeapons = new UIMenuItem("Remove Weapons", "");
-        uimenu.AddItem(removeWeapons);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == removeWeapons)
-            {
-                Game.Player.Character.Weapons.RemoveAll();
-                BigMessageThread.MessageInstance.ShowSimpleShard("SUCCESS", "Weapons Removed successfully! :-)");
-            }
+            Game.Player.Character.Weapons.RemoveAll();
+            BigMessageThread.MessageInstance.ShowSimpleShard("SUCCESS", "Weapons Removed successfully! :-)");
         };
-        UIMenuItem giveArmor = new UIMenuItem("Give Armor", "");
-        uimenu.AddItem(giveArmor);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem giveArmor = new NativeItem("Give Armor", "");
+        uimenu.Add(giveArmor);
+        giveArmor.Activated += (sender, args) =>
         {
-            if (item == giveArmor)
-            {
-                Game.Player.Character.Armor = 100;
-            }
+            Game.Player.Character.Armor = 100;
         };
-        UIMenuItem cleanBlood = new UIMenuItem("Clear Blood", "");
-        uimenu.AddItem(cleanBlood);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem cleanBlood = new NativeItem("Clear Blood", "");
+        uimenu.Add(cleanBlood);
+        cleanBlood.Activated += (sender, args) =>
         {
-            if (item == cleanBlood)
-            {
-                Game.Player.Character.ClearBloodDamage();
-            }
+            Game.Player.Character.ClearBloodDamage();
         };
-        UIMenuItem rechargeSA = new UIMenuItem("Refill Special Ability", "");
-        uimenu.AddItem(rechargeSA);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem rechargeSA = new NativeItem("Refill Special Ability", "");
+        uimenu.Add(rechargeSA);
+        rechargeSA.Activated += (sender, args) =>
         {
-            if (item == rechargeSA)
-            {
-                Game.Player.RefillSpecialAbility();
-            }
+            Game.Player.RefillSpecialAbility();
         };
-        UIMenuItem playerSuicide = new UIMenuItem("Kill Yourself", "");
-        uimenu.AddItem(playerSuicide);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem playerSuicide = new NativeItem("Kill Yourself", "");
+        uimenu.Add(playerSuicide);
+        playerSuicide.Activated += (sender, args) =>
         {
-            if (item == playerSuicide)
-            {
-                Game.Player.Character.Kill();
-            }
+            Game.Player.Character.Kill();
         };
-        UIMenuItem fivestarWantedLevel = new UIMenuItem("Instant 5 Stars Wanted Level", "");
-        uimenu.AddItem(fivestarWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem godMode = new NativeItem("God Mode", "");
+        uimenu.Add(godMode);
+        godMode.Activated += (sender, args) =>
         {
-            if (item == fivestarWantedLevel)
-            {
-                Game.Player.WantedLevel = 5;
-            }
+            Game.Player.Character.IsInvincible = true;
         };
-        UIMenuItem fourStarWantedLevel = new UIMenuItem("4 Star Wanted Level", "");
-        uimenu.AddItem(fourStarWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem godModeRemoval = new NativeItem("Remove God Mode", "");
+        uimenu.Add(godModeRemoval);
+        godModeRemoval.Activated += (sender, args) =>
         {
-            if (item == fourStarWantedLevel)
-            {
-                Game.Player.WantedLevel = 4;
-            }
+            Game.Player.Character.IsInvincible = false;
         };
-        UIMenuItem threeStarWantedLevel = new UIMenuItem("3 Star Wanted Level", "");
-        uimenu.AddItem(threeStarWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem autoSaveGame = new NativeItem("Auto Save Game", "");
+        uimenu.Add(autoSaveGame);
+        autoSaveGame.Activated += (sender, args) =>
         {
-            if (item == threeStarWantedLevel)
-            {
-                Game.Player.WantedLevel = 3;
-            }
+            Game.DoAutoSave();
         };
-        UIMenuItem twoStarWantedLevel = new UIMenuItem("2 Star Wanted Level", "");
-        uimenu.AddItem(twoStarWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem tenGrand = new NativeItem("Give $10,000", "");
+        uimenu.Add(tenGrand);
+        tenGrand.Activated += (sender, args) =>
         {
-            if (item == twoStarWantedLevel)
-            {
-                Game.Player.WantedLevel = 2;
-            }
+            Game.Player.Money += 10000;
+            BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $10,000");
         };
-        UIMenuItem oneStarWantedLevel = new UIMenuItem("1 Star Wanted Level", "");
-        uimenu.AddItem(oneStarWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem millyMilly = new NativeItem("Give $1,000,000", "");
+        uimenu.Add(millyMilly);
+        millyMilly.Activated += (sender, args) =>
         {
-            if(item == oneStarWantedLevel)
-            {
-                Game.Player.WantedLevel = 1;
-            }
+            Game.Player.Money += 1000000;
+            BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $1,000,000");
         };
-        UIMenuItem removeWantedLevel = new UIMenuItem("Remove Wanted Level", "");
-        uimenu.AddItem(removeWantedLevel);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int idex)
+
+        NativeItem twentyMilly = new NativeItem("Give $20,000,000", "");
+        uimenu.Add(twentyMilly);
+        twentyMilly.Activated += (sender, args) =>
         {
-            if (item == removeWantedLevel)
-            {
-                Game.Player.WantedLevel = 0;
-            }
+            Game.Player.Money += 20000000;
+            BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $20,000,000");
         };
-        UIMenuItem godMode = new UIMenuItem("God Mode", "");
-        uimenu.AddItem(godMode);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem stopMusic = new NativeItem("Stop Music", "");
+        uimenu.Add(stopMusic);
+        stopMusic.Activated += (sender, args) =>
         {
-            if(item == godMode)
-            {
-                Game.Player.Character.IsInvincible = true;
-            }
+            Game.RadioStation = RadioStation.RadioOff;
+            BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
         };
-        UIMenuItem godModeRemoval = new UIMenuItem("Remove God Mode", "");
-        uimenu.AddItem(godModeRemoval);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem thermalVision = new NativeItem("Enable Thermal Vision", "");
+        uimenu.Add(thermalVision);
+        thermalVision.Activated += (sender, args) =>
         {
-            if (item == godModeRemoval)
-            {
-                Game.Player.Character.IsInvincible = false;
-            }
+            Game.IsThermalVisionActive = true;
+            RAGENativeUI.Elements.BigMessageThread bigMessageThread = new RAGENativeUI.Elements.BigMessageThread();
+            bigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Enabled");
         };
-        UIMenuItem autoSaveGame = new UIMenuItem("Auto Save Game", "");
-        uimenu.AddItem(autoSaveGame);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
+
+        NativeItem disableThermalVision = new NativeItem("Disable Thermal Vision", "");
+        uimenu.Add(disableThermalVision);
+        disableThermalVision.Activated += (sender, args) =>
         {
-            if(item == autoSaveGame)
-            {
-                Game.DoAutoSave();
-            }
-        };
-        UIMenuItem PoliceIgnorePlayer = new UIMenuItem("Enable Police Ignore Player", "");
-        uimenu.AddItem(PoliceIgnorePlayer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if(item == PoliceIgnorePlayer)
-            {
-                Game.Player.IgnoredByPolice = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Enabled");
-            }
-        };
-        UIMenuItem DisablePoliceIgnorePlayer = new UIMenuItem("Disable Police Ignore Player", "");
-        uimenu.AddItem(DisablePoliceIgnorePlayer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == DisablePoliceIgnorePlayer)
-            {
-                Game.Player.IgnoredByPolice = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Ignore Player", "Disabled");
-            }
-        };
-        UIMenuItem tenGrand = new UIMenuItem("Give $10,000", "");
-        uimenu.AddItem(tenGrand);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == tenGrand)
-            {
-                Game.Player.Money += 10000;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $10,000");
-            }
-        };
-        UIMenuItem millyMilly = new UIMenuItem("Give $1,000,000", "");
-        uimenu.AddItem(millyMilly);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == millyMilly)
-            {
-                Game.Player.Money += 1000000;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $1,000,000");
-            }
-        };
-        UIMenuItem twentyMilly = new UIMenuItem("Give $20,000,000", "");
-        uimenu.AddItem(twentyMilly);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == twentyMilly)
-            {
-                Game.Player.Money += 20000000;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Money", "You have been given $20,000,000");
-            }
-        };
-        UIMenuItem policeBlips = new UIMenuItem("Enable Police Blips On Radar", "");
-        uimenu.AddItem(policeBlips);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == policeBlips)
-            {
-                Game.ShowsPoliceBlipsOnRadar = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips On Radar", "Enabled");
-            }
-        };
-        UIMenuItem disablePoliceBlips = new UIMenuItem("Disable Police Blips On Radar", "");
-        uimenu.AddItem(disablePoliceBlips);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == disablePoliceBlips)
-            {
-                Game.ShowsPoliceBlipsOnRadar = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Police Blips On Radar", "Disabled");
-            }
-        };
-        UIMenuItem stopMusic = new UIMenuItem("Stop Music", "");
-        uimenu.AddItem(stopMusic);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == stopMusic)
-            {
-                Game.RadioStation = RadioStation.RadioOff;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
-            }
-        };
-        UIMenuItem thermalVision = new UIMenuItem("Enable Thermal Vision", "");
-        uimenu.AddItem(thermalVision);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == thermalVision)
-            {
-                Game.ThermalVision = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Enabled");
-            }
-        };
-        UIMenuItem disableThermalVision = new UIMenuItem("Disable Thermal Vision", "");
-        uimenu.AddItem(disableThermalVision);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == disableThermalVision)
-            {
-                Game.ThermalVision = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Disabled");
-            }
-        };
-        UIMenuItem ignoreByEveryone = new UIMenuItem("Ignore By Everyone", "");
-        uimenu.AddItem(ignoreByEveryone);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == ignoreByEveryone)
-            {
-                Game.Player.IgnoredByEveryone = true;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Ignore By Everyone", "Enabled");
-            }
-        };
-        UIMenuItem DisableignoreByEveryone = new UIMenuItem("Disable Ignore By Everyone", "");
-        uimenu.AddItem(DisableignoreByEveryone);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            if (item == DisableignoreByEveryone)
-            {
-                Game.Player.IgnoredByEveryone = false;
-                BigMessageThread.MessageInstance.ShowSimpleShard("Ignore By Everyone", "Disabled");
-            }
+            Game.IsThermalVisionActive = false;
+            RAGENativeUI.Elements.BigMessageThread bigMessageThread = new RAGENativeUI.Elements.BigMessageThread();
+            bigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Disabled");
         };
     }
-
     #endregion
 
     #region //Radio Station Menu //
-    public void RadioStationMenu(UIMenu menu)
+    public void RadioStationMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Radio Options");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Radio Options", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        void SetRadio(RadioStation station)
         {
+            Game.RadioStation = station;
         }
-        UIMenuItem radioLosSantosRock = new UIMenuItem("Los Santos Rock", "");
-        uimenu.AddItem(radioLosSantosRock);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == radioLosSantosRock)
-            {
-                Game.RadioStation = RadioStation.LosSantosRockRadio;
-            }
-        };
-        UIMenuItem blaineCountyRadio = new UIMenuItem("Blaine County Radio", "");
-        uimenu.AddItem(blaineCountyRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == blaineCountyRadio)
-            {
-                Game.RadioStation = RadioStation.BlaineCountyRadio;
-            }
-        };
-        UIMenuItem rebelRadio = new UIMenuItem("Rebel Radio", "");
-        uimenu.AddItem(rebelRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == rebelRadio)
-            {
-                Game.RadioStation = RadioStation.RebelRadio;
-            }
-        };
-        UIMenuItem westCoastRadio = new UIMenuItem("West Coast Classics", "");
-        uimenu.AddItem(westCoastRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == westCoastRadio)
-            {
-                Game.RadioStation = RadioStation.WestCoastClassics;
-            }
-        };
-        UIMenuItem westCoastTalkRadio = new UIMenuItem("West Coast Talk Show", "");
-        uimenu.AddItem(westCoastTalkRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == westCoastTalkRadio)
-            {
-                Game.RadioStation = RadioStation.WestCoastTalkRadio;
-            }
-        };
-        UIMenuItem radioEastLosFM = new UIMenuItem("East Los FM", "");
-        uimenu.AddItem(radioEastLosFM);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == radioEastLosFM)
-            {
-                Game.RadioStation = RadioStation.EastLosFM;
-            }
-        };
-        UIMenuItem selfRadio = new UIMenuItem("Self Radio", "");
-        uimenu.AddItem(selfRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == selfRadio)
-            {
-                Game.RadioStation = RadioStation.SelfRadio;
-            }
-        };
-        UIMenuItem losSantosBlonded = new UIMenuItem("Blonded Los Santos", "");
-        uimenu.AddItem(losSantosBlonded);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == losSantosBlonded)
-            {
-                Game.RadioStation = RadioStation.BlondedLosSantos;
-            }
-        };
-        UIMenuItem xChannel = new UIMenuItem("Channel X", "");
-        uimenu.AddItem(xChannel);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == xChannel)
-            {
-                Game.RadioStation = RadioStation.ChannelX;
-            }
-        };
-        UIMenuItem flyloFM = new UIMenuItem("FlyloFM", "");
-        uimenu.AddItem(flyloFM);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == flyloFM)
-            {
-                Game.RadioStation = RadioStation.FlyloFM;
-            }
-        };
-        UIMenuItem iFruitRadio = new UIMenuItem("iFruit Radio", "");
-        uimenu.AddItem(iFruitRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == iFruitRadio)
-            {
-                Game.RadioStation = RadioStation.iFruitRadio;
-            }
-        };
-        UIMenuItem cultFM = new UIMenuItem("KultFM", "");
-        uimenu.AddItem(cultFM);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == cultFM)
-            {
-                Game.RadioStation = RadioStation.KultFM;
-            }
-        };
-        UIMenuItem infoWarsRadio = new UIMenuItem("Los Santos Underground Radio", "");
-        uimenu.AddItem(infoWarsRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == infoWarsRadio)
-            {
-                Game.RadioStation = RadioStation.LosSantosUndergroundRadio;
-            }
-        };
-        UIMenuItem theMediaPlayer = new UIMenuItem("Media Player", "");
-        uimenu.AddItem(theMediaPlayer);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == theMediaPlayer)
-            {
-                Game.RadioStation = RadioStation.MediaPlayer;
-            }
-        };
-        UIMenuItem motoMamiRadio = new UIMenuItem("Motomami Los Santos", "");
-        uimenu.AddItem(motoMamiRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == motoMamiRadio)
-            {
-                Game.RadioStation = RadioStation.MotomamiLosSantos;
-            }
-        };
-        UIMenuItem theMusicLocker = new UIMenuItem("Music Locker", "");
-        uimenu.AddItem(theMusicLocker);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == theMusicLocker)
-            {
-                Game.RadioStation = RadioStation.MusicLocker;
-            }
-        };
-        UIMenuItem nonstopRadio = new UIMenuItem("NonStop Pop FM", "");
-        uimenu.AddItem(nonstopRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == nonstopRadio)
-            {
-                Game.RadioStation = RadioStation.NonStopPopFM;
-            }
-        };
-        UIMenuItem lossantosRadio = new UIMenuItem("Los Santos Radio", "");
-        uimenu.AddItem(lossantosRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == lossantosRadio)
-            {
-                Game.RadioStation = RadioStation.RadioLosSantos;
-            }
-        };
-        UIMenuItem mirrorParkRadio = new UIMenuItem("Mirror Park Radio", "");
-        uimenu.AddItem(mirrorParkRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == mirrorParkRadio)
-            {
-                Game.RadioStation = RadioStation.RadioMirrorPark;
-            }
-        };
-        UIMenuItem soulwaxFM = new UIMenuItem("Soulwax FM", "");
-        uimenu.AddItem(soulwaxFM);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if(item == soulwaxFM)
-            {
-                Game.RadioStation = RadioStation.SoulwaxFM;
-            }
-        };
-        UIMenuItem spaceRadio = new UIMenuItem("Space Radio", "");
-        uimenu.AddItem(spaceRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == spaceRadio)
-            {
-                Game.RadioStation = RadioStation.Space;
-            }
-        };
-        UIMenuItem slippingLosSantos = new UIMenuItem("Still Slipping Los Santos Radio", "");
-        uimenu.AddItem(slippingLosSantos);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == slippingLosSantos)
-            {
-                Game.RadioStation = RadioStation.StillSlippingLosSantos;
-            }
-        };
-        UIMenuItem blueArkRadio = new UIMenuItem("The Blue Ark", "");
-        uimenu.AddItem(blueArkRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == blueArkRadio)
-            {
-                Game.RadioStation = RadioStation.TheBlueArk;
-            }
-        };
-        UIMenuItem theLabRadio = new UIMenuItem("The Lab", "");
-        uimenu.AddItem(theLabRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == theLabRadio)
-            {
-                Game.RadioStation = RadioStation.TheLab;
-            }
-        };
-        UIMenuItem lowdownRadio = new UIMenuItem("The Lowdown", "");
-        uimenu.AddItem(lowdownRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == lowdownRadio)
-            {
-                Game.RadioStation = RadioStation.TheLowdown;
-            }
-        };
-        UIMenuItem vinewoodRadio = new UIMenuItem("Vinewood Boulevard Radio", "");
-        uimenu.AddItem(vinewoodRadio);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == vinewoodRadio)
-            {
-                Game.RadioStation = RadioStation.VinewoodBoulevardRadio;
-            }
-        };
-        UIMenuItem worldWideFM = new UIMenuItem("World Wide FM", "");
-        uimenu.AddItem(worldWideFM);
-        uimenu.OnItemSelect += (UIMenu sender, UIMenuItem item, int index) =>
-        {
-            if (item == worldWideFM)
-            {
-                Game.RadioStation = RadioStation.WorldWideFM;
-            }
-        };
+
+        NativeItem radioLosSantosRock = new NativeItem("Los Santos Rock", "");
+        uimenu.Add(radioLosSantosRock);
+        radioLosSantosRock.Activated += (s, a) => SetRadio(RadioStation.LosSantosRockRadio);
+
+        NativeItem blaineCountyRadio = new NativeItem("Blaine County Radio", "");
+        uimenu.Add(blaineCountyRadio);
+        blaineCountyRadio.Activated += (s, a) => SetRadio(RadioStation.BlaineCountyRadio);
+
+        NativeItem rebelRadio = new NativeItem("Rebel Radio", "");
+        uimenu.Add(rebelRadio);
+        rebelRadio.Activated += (s, a) => SetRadio(RadioStation.RebelRadio);
+
+        NativeItem westCoastRadio = new NativeItem("West Coast Classics", "");
+        uimenu.Add(westCoastRadio);
+        westCoastRadio.Activated += (s, a) => SetRadio(RadioStation.WestCoastClassics);
+
+        NativeItem westCoastTalkRadio = new NativeItem("West Coast Talk Show", "");
+        uimenu.Add(westCoastTalkRadio);
+        westCoastTalkRadio.Activated += (s, a) => SetRadio(RadioStation.WestCoastTalkRadio);
+
+        NativeItem radioEastLosFM = new NativeItem("East Los FM", "");
+        uimenu.Add(radioEastLosFM);
+        radioEastLosFM.Activated += (s, a) => SetRadio(RadioStation.EastLosFM);
+
+        NativeItem selfRadio = new NativeItem("Self Radio", "");
+        uimenu.Add(selfRadio);
+        selfRadio.Activated += (s, a) => SetRadio(RadioStation.SelfRadio);
+
+        NativeItem losSantosBlonded = new NativeItem("Blonded Los Santos", "");
+        uimenu.Add(losSantosBlonded);
+        losSantosBlonded.Activated += (s, a) => SetRadio(RadioStation.BlondedLosSantos);
+
+        NativeItem xChannel = new NativeItem("Channel X", "");
+        uimenu.Add(xChannel);
+        xChannel.Activated += (s, a) => SetRadio(RadioStation.ChannelX);
+
+        NativeItem flyloFM = new NativeItem("FlyloFM", "");
+        uimenu.Add(flyloFM);
+        flyloFM.Activated += (s, a) => SetRadio(RadioStation.FlyloFM);
+
+        NativeItem iFruitRadio = new NativeItem("iFruit Radio", "");
+        uimenu.Add(iFruitRadio);
+        iFruitRadio.Activated += (s, a) => SetRadio(RadioStation.iFruitRadio);
+
+        NativeItem cultFM = new NativeItem("KultFM", "");
+        uimenu.Add(cultFM);
+        cultFM.Activated += (s, a) => SetRadio(RadioStation.KultFM);
+
+        NativeItem infoWarsRadio = new NativeItem("Los Santos Underground Radio", "");
+        uimenu.Add(infoWarsRadio);
+        infoWarsRadio.Activated += (s, a) => SetRadio(RadioStation.LosSantosUndergroundRadio);
+
+        NativeItem theMediaPlayer = new NativeItem("Media Player", "");
+        uimenu.Add(theMediaPlayer);
+        theMediaPlayer.Activated += (s, a) => SetRadio(RadioStation.MediaPlayer);
+
+        NativeItem motoMamiRadio = new NativeItem("Motomami Los Santos", "");
+        uimenu.Add(motoMamiRadio);
+        motoMamiRadio.Activated += (s, a) => SetRadio(RadioStation.MotomamiLosSantos);
+
+        NativeItem theMusicLocker = new NativeItem("Music Locker", "");
+        uimenu.Add(theMusicLocker);
+        theMusicLocker.Activated += (s, a) => SetRadio(RadioStation.MusicLocker);
+
+        NativeItem nonstopRadio = new NativeItem("NonStop Pop FM", "");
+        uimenu.Add(nonstopRadio);
+        nonstopRadio.Activated += (s, a) => SetRadio(RadioStation.NonStopPopFM);
+
+        NativeItem lossantosRadio = new NativeItem("Los Santos Radio", "");
+        uimenu.Add(lossantosRadio);
+        lossantosRadio.Activated += (s, a) => SetRadio(RadioStation.RadioLosSantos);
+
+        NativeItem mirrorParkRadio = new NativeItem("Mirror Park Radio", "");
+        uimenu.Add(mirrorParkRadio);
+        mirrorParkRadio.Activated += (s, a) => SetRadio(RadioStation.RadioMirrorPark);
+
+        NativeItem soulwaxFM = new NativeItem("Soulwax FM", "");
+        uimenu.Add(soulwaxFM);
+        soulwaxFM.Activated += (s, a) => SetRadio(RadioStation.SoulwaxFM);
+
+        NativeItem spaceRadio = new NativeItem("Space Radio", "");
+        uimenu.Add(spaceRadio);
+        spaceRadio.Activated += (s, a) => SetRadio(RadioStation.Space);
+
+        NativeItem slippingLosSantos = new NativeItem("Still Slipping Los Santos Radio", "");
+        uimenu.Add(slippingLosSantos);
+        slippingLosSantos.Activated += (s, a) => SetRadio(RadioStation.StillSlippingLosSantos);
+
+        NativeItem blueArkRadio = new NativeItem("The Blue Ark", "");
+        uimenu.Add(blueArkRadio);
+        blueArkRadio.Activated += (s, a) => SetRadio(RadioStation.TheBlueArk);
+
+        NativeItem theLabRadio = new NativeItem("The Lab", "");
+        uimenu.Add(theLabRadio);
+        theLabRadio.Activated += (s, a) => SetRadio(RadioStation.TheLab);
+
+        NativeItem lowdownRadio = new NativeItem("The Lowdown", "");
+        uimenu.Add(lowdownRadio);
+        lowdownRadio.Activated += (s, a) => SetRadio(RadioStation.TheLowdown);
+
+        NativeItem vinewoodRadio = new NativeItem("Vinewood Boulevard Radio", "");
+        uimenu.Add(vinewoodRadio);
+        vinewoodRadio.Activated += (s, a) => SetRadio(RadioStation.VinewoodBoulevardRadio);
+
+        NativeItem worldWideFM = new NativeItem("World Wide FM", "");
+        uimenu.Add(worldWideFM);
+        worldWideFM.Activated += (s, a) => SetRadio(RadioStation.WorldWideFM);
     }
     #endregion
 
     #region // Animal Menu //
-    public void AnimalMenu(UIMenu menu)
+    public void AnimalMenu(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Animals");
-        for (int i = 0; i < 1; i++)
-        {
-        }
-        UIMenuItem pig = new UIMenuItem("Pig", "");
-        uimenu.AddItem(pig);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == pig;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_PIG");
-            }
-        };
-        UIMenuItem poodle = new UIMenuItem("Poodle", "");
-        uimenu.AddItem(poodle);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == poodle;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_POODLE");
-            }
-        };
-        UIMenuItem bugsbunny = new UIMenuItem("Rabbit", "");
-        uimenu.AddItem(bugsbunny);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == bugsbunny;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_RABBIT_01");
-            }
-        };
-        UIMenuItem wildHog = new UIMenuItem("Boar", "");
-        uimenu.AddItem(wildHog);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == wildHog;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_BOAR");
-            }
-        };
-        UIMenuItem pussyCat = new UIMenuItem("Pussy Cat", "");
-        uimenu.AddItem(pussyCat);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == pussyCat;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_CAT_01");
-            }
-        };
-        UIMenuItem chickenHawk = new UIMenuItem("Chicken Hawk", "");
-        uimenu.AddItem(chickenHawk);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == chickenHawk;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_CHICKENHAWK");
-            }
-        };
-        UIMenuItem monkey = new UIMenuItem("Monkey", "");
-        uimenu.AddItem(monkey);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == monkey;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_CHIMP");
-            }
-        };
-        UIMenuItem seagull = new UIMenuItem("Seagull", "");
-        uimenu.AddItem(seagull);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == seagull;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_CORMORANT");
-            }
-        };
-        UIMenuItem cow = new UIMenuItem("Cow", "");
-        uimenu.AddItem(cow);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == cow;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_COW");
-            }
-        };
-        UIMenuItem coyote = new UIMenuItem("Coyote", "");
-        uimenu.AddItem(coyote);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == coyote;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_COYOTE");
-            }
-        };
-        UIMenuItem crow = new UIMenuItem("Crow", "");
-        uimenu.AddItem(crow);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == crow;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_CROW");
-            }
-        };
-        UIMenuItem deer = new UIMenuItem("Deer", "");
-        uimenu.AddItem(deer);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == deer;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_DEER");
-            }
-        };
-        UIMenuItem dolphin = new UIMenuItem("Dolphin", "");
-        uimenu.AddItem(dolphin);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == dolphin;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_DOLPHIN");
-            }
-        };
-        UIMenuItem fish = new UIMenuItem("Fish", "");
-        uimenu.AddItem(fish);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == fish;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_FISH");
-            }
-        };
-        UIMenuItem hammerShark = new UIMenuItem("Hammer Shark", "");
-        uimenu.AddItem(hammerShark);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == hammerShark;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_SHARKHAMMER");
-            }
-        };
-        UIMenuItem chickenHen = new UIMenuItem("Hen", "");
-        uimenu.AddItem(chickenHen);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == chickenHen;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_HEN");
-            }
-        };
-        UIMenuItem humbackWhale = new UIMenuItem("Humpback Whale", "");
-        uimenu.AddItem(humbackWhale);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == humbackWhale;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_HUMPBACK");
-            }
-        };
-        UIMenuItem shamuWhale = new UIMenuItem("Killer Whale", "");
-        uimenu.AddItem(shamuWhale);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == shamuWhale;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_KILLERWHALE");
-            }
-        };
-        UIMenuItem pigeon = new UIMenuItem("Pigeon", "");
-        uimenu.AddItem(pigeon);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == pigeon;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_PIGEON");
-            }
-        };
-        UIMenuItem pugDog = new UIMenuItem("Pug", "");
-        uimenu.AddItem(pugDog);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == pugDog;
-            if (flag)
-            {
-                Game.Player.ChangeModel("A_C_PUG");
-            }
-        };
+        NativeMenu uimenu = new NativeMenu("Animals", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        void ChangeModel(string model) => Game.Player.ChangeModel(model);
+
+        NativeItem pig = new NativeItem("Pig", "");
+        uimenu.Add(pig);
+        pig.Activated += (s, a) => ChangeModel("A_C_PIG");
+
+        NativeItem poodle = new NativeItem("Poodle", "");
+        uimenu.Add(poodle);
+        poodle.Activated += (s, a) => ChangeModel("A_C_POODLE");
+
+        NativeItem bugsbunny = new NativeItem("Rabbit", "");
+        uimenu.Add(bugsbunny);
+        bugsbunny.Activated += (s, a) => ChangeModel("A_C_RABBIT_01");
+
+        NativeItem wildHog = new NativeItem("Boar", "");
+        uimenu.Add(wildHog);
+        wildHog.Activated += (s, a) => ChangeModel("A_C_BOAR");
+
+        NativeItem pussyCat = new NativeItem("Pussy Cat", "");
+        uimenu.Add(pussyCat);
+        pussyCat.Activated += (s, a) => ChangeModel("A_C_CAT_01");
+
+        NativeItem chickenHawk = new NativeItem("Chicken Hawk", "");
+        uimenu.Add(chickenHawk);
+        chickenHawk.Activated += (s, a) => ChangeModel("A_C_CHICKENHAWK");
+
+        NativeItem monkey = new NativeItem("Monkey", "");
+        uimenu.Add(monkey);
+        monkey.Activated += (s, a) => ChangeModel("A_C_CHIMP");
+
+        NativeItem seagull = new NativeItem("Seagull", "");
+        uimenu.Add(seagull);
+        seagull.Activated += (s, a) => ChangeModel("A_C_CORMORANT");
+
+        NativeItem cow = new NativeItem("Cow", "");
+        uimenu.Add(cow);
+        cow.Activated += (s, a) => ChangeModel("A_C_COW");
+
+        NativeItem coyote = new NativeItem("Coyote", "");
+        uimenu.Add(coyote);
+        coyote.Activated += (s, a) => ChangeModel("A_C_COYOTE");
+
+        NativeItem crow = new NativeItem("Crow", "");
+        uimenu.Add(crow);
+        crow.Activated += (s, a) => ChangeModel("A_C_CROW");
+
+        NativeItem deer = new NativeItem("Deer", "");
+        uimenu.Add(deer);
+        deer.Activated += (s, a) => ChangeModel("A_C_DEER");
+
+        NativeItem dolphin = new NativeItem("Dolphin", "");
+        uimenu.Add(dolphin);
+        dolphin.Activated += (s, a) => ChangeModel("A_C_DOLPHIN");
+
+        NativeItem fish = new NativeItem("Fish", "");
+        uimenu.Add(fish);
+        fish.Activated += (s, a) => ChangeModel("A_C_FISH");
+
+        NativeItem hammerShark = new NativeItem("Hammer Shark", "");
+        uimenu.Add(hammerShark);
+        hammerShark.Activated += (s, a) => ChangeModel("A_C_SHARKHAMMER");
+
+        NativeItem chickenHen = new NativeItem("Hen", "");
+        uimenu.Add(chickenHen);
+        chickenHen.Activated += (s, a) => ChangeModel("A_C_HEN");
+
+        NativeItem humbackWhale = new NativeItem("Humpback Whale", "");
+        uimenu.Add(humbackWhale);
+        humbackWhale.Activated += (s, a) => ChangeModel("A_C_HUMPBACK");
+
+        NativeItem shamuWhale = new NativeItem("Killer Whale", "");
+        uimenu.Add(shamuWhale);
+        shamuWhale.Activated += (s, a) => ChangeModel("A_C_KILLERWHALE");
+
+        NativeItem pigeon = new NativeItem("Pigeon", "");
+        uimenu.Add(pigeon);
+        pigeon.Activated += (s, a) => ChangeModel("A_C_PIGEON");
+
+        NativeItem pugDog = new NativeItem("Pug", "");
+        uimenu.Add(pugDog);
+        pugDog.Activated += (s, a) => ChangeModel("A_C_PUG");
     }
-    #endregion //
+    #endregion
 
     #region // Prop Weapons //
-    public void PropWeaponMenu(UIMenu menu)
+    public void PropWeaponMenu(NativeMenu menu)
     {
-        var props = this._menuPool.AddSubMenu(menu, "Prop Weapons");
-        for (int i = 0; i < 1; i++) ;
-        var newprops = new UIMenuItem("Give Props", "");
-        props.AddItem(newprops);
-        props.OnItemSelect += (sender, item, index) =>
+        NativeMenu props = new NativeMenu("Prop Weapons", "");
+        _objectPool.Add(props);
+        menu.AddSubMenu(props);
+
+        NativeItem newprops = new NativeItem("Give Props", "");
+        props.Add(newprops);
+        newprops.Activated += (sender, args) =>
         {
-            if (item == newprops)
-            {
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BAT"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CROWBAR"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BOTTLE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_DAGGER"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FLASHLIGHT"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_HAMMER"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_HATCHET"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_KNIFE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MACHETE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CANDYCANE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNOWBALL"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BALL"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_ACIDPACKAGE"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PETROLCAN"), 9999, true, true);
-                Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, true, true);
-            }
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BAT"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CROWBAR"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_GOLFCLUB"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BOTTLE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_DAGGER"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FLASHLIGHT"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_HAMMER"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_HATCHET"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_KNIFE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_MACHETE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SWITCHBLADE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_CANDYCANE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_SNOWBALL"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_BALL"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_ACIDPACKAGE"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_PETROLCAN"), 9999, true, true);
+            Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, true, true);
         };
     }
     #endregion
 
     #region // Credits //
-
-    public void _credits(UIMenu menu)
+    public void _credits(NativeMenu menu)
     {
-        UIMenu uimenu = this._menuPool.AddSubMenu(menu, "Credits Section");
-        for (int i = 0; i < 1; i++)
+        NativeMenu uimenu = new NativeMenu("Info Section", "");
+        _objectPool.Add(uimenu);
+        menu.AddSubMenu(uimenu);
+
+        NativeItem credits = new NativeItem("Info", "");
+        uimenu.Add(credits);
+        credits.Activated += (sender, args) =>
         {
-        }
-        UIMenuItem credits = new UIMenuItem("Credits", "");
-        uimenu.AddItem(credits);
-        uimenu.OnItemSelect += delegate (UIMenu sender, UIMenuItem item, int index)
-        {
-            bool flag = item == credits;
-            if (flag)
-            {
-                BigMessageThread.MessageInstance.ShowSimpleShard("CREDITS", "AbelGaming's NativeUI Menu Template");
-            }
+            RAGENativeUI.Elements.BigMessageThread bigMessage = new RAGENativeUI.Elements.BigMessageThread();
+            bigMessage.MessageInstance.ShowSimpleShard("Simple Ped Menu", "Mod by JonJonGames\n\nSpecial Thanks to:\n\n- Rage Plugin Hook Team\n- GTA5-Mods.com Community\n- NativeUI Developers\n- All Patreon Supporters\n\nEnjoy the mod! :-)", 5000);
         };
     }
     #endregion
@@ -2456,31 +1727,38 @@ public class SimplePedMenu : Script
     #region // Menu Setup //
     public SimplePedMenu()
     {
-        this._menuPool = new MenuPool();
-        UIMenu mainMenu = new UIMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.9");
-        this._menuPool.Add(mainMenu);
-        this.PlayerModelMenu(mainMenu);
-        this.VehicleMenu(mainMenu);
-        this.WeaponMenu(mainMenu);
-        this.AnimalMenu(mainMenu);
-        this.RadioStationMenu(mainMenu);
-        this.OptionsMenu(mainMenu);
-        this.MPAnimationsMenu(mainMenu);
-        this.PropWeaponMenu(mainMenu);
-        this._credits(mainMenu);
-        this._menuPool.RefreshIndex();
-        this.config = ScriptSettings.Load("//scripts//SimplePedMenu.ini");
-        this.OpenMenu = this.config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
-        base.Tick += delegate (object o, EventArgs e)
+        _objectPool = new ObjectPool();
+
+        _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.9");
+        _objectPool.Add(_mainMenu);
+
+        // Load config first so favorites can use it
+        config = ScriptSettings.Load("//scripts//SimplePedMenu.ini");
+        OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
+
+        LoadFavorites();
+
+        PlayerModelMenu(_mainMenu);
+        VehicleMenu(_mainMenu);
+        WeaponMenu(_mainMenu);
+        AnimalMenu(_mainMenu);
+        RadioStationMenu(_mainMenu);
+        OptionsMenu(_mainMenu);
+        MPAnimationsMenu(_mainMenu);
+        PropWeaponMenu(_mainMenu);
+        FavoritesMenu(_mainMenu);
+        _credits(_mainMenu);
+
+        Tick += (o, e) =>
         {
-            this._menuPool.ProcessMenus();
+            _objectPool.Process();
         };
-        base.KeyDown += delegate (object o, KeyEventArgs e)
+
+        KeyDown += (o, e) =>
         {
-            bool flag = e.KeyCode == this.OpenMenu && !this._menuPool.IsAnyMenuOpen();
-            if (flag)
+            if (e.KeyCode == OpenMenu && !_objectPool.AreAnyVisible)
             {
-                mainMenu.Visible = !mainMenu.Visible;
+                _mainMenu.Visible = !_mainMenu.Visible;
             }
         };
     }
