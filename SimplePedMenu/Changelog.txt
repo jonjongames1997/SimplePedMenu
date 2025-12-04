@@ -1,5 +1,16 @@
 ﻿Changelog:
 
+3.0: [Complete Menu Overhaul - LemonUI Upgrade]
+
+- Complete overhaul of the menu using LemonUI
+- Added new menu sections: Settings, Teleport, Time & Weather, Player, Vehicle Options, Vehicle Spawner, Weapon Options, Attachments, and Model Spawner
+- Improved performance and stability
+- Updated ReadMe with new instructions and features
+- Added CompatibleMods.json file with updated compatible mods list
+- Removed NativeUI references and dependencies
+- Removed old menu sections and options that are no longer relevant
+- Removed old options that are no longer relevant
+
 2.9:
 
 - Added 2 new peds into the ped model menu section
