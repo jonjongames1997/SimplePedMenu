@@ -70,7 +70,7 @@
     <None Include="CompatibleMods.json" />
     <None Include="packages.config" />
     <None Include="ReadMe.md" />
-    <None Include="SimplePedMenu.ini" />
+    <None Include="scripts\SimplePedMenu.ini" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Changelog.txt" />
