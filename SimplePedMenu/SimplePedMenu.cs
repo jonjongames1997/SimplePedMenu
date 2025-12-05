@@ -304,7 +304,7 @@ public class SimplePedMenu : Script
     #region // Ped Model Menu //
     public void PlayerModelMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Peds", "");
+        NativeMenu uimenu = new NativeMenu("Peds", "View Ped Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -734,13 +734,20 @@ public class SimplePedMenu : Script
         {
             Game.Player.ChangeModel("ig_wendy");
         };
+
+        NativeItem trevorPhilips = new NativeItem("Trevor Philips", "One of the main protagonists");
+        uimenu.Add(trevorPhilips);
+        trevorPhilips.Activated += (sender, args) =>
+        {
+            Game.Player.ChangeModel("player_two");
+        };
     }
     #endregion
 
     #region // Vehicle Menu //
     public void VehicleMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Civilian Vehicles", "");
+        NativeMenu uimenu = new NativeMenu("Civilian Vehicles", "View Civilian Vehicle Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -914,7 +921,7 @@ public class SimplePedMenu : Script
     #region // Animations Menu //
     public void MPAnimationsMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Animations", "");
+        NativeMenu uimenu = new NativeMenu("Animations", "View Animations Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -1308,7 +1315,7 @@ public class SimplePedMenu : Script
     #region // Weapon Menu //
     public void WeaponMenu(NativeMenu menu)
     {
-        NativeMenu weapons = new NativeMenu("Weapons", "");
+        NativeMenu weapons = new NativeMenu("Weapons", "View Weapon Menu");
         _objectPool.Add(weapons);
         menu.AddSubMenu(weapons);
 
@@ -1349,7 +1356,7 @@ public class SimplePedMenu : Script
     #region // Options Menu //
     public void OptionsMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Options", "");
+        NativeMenu uimenu = new NativeMenu("Options", "View Options Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -1440,7 +1447,7 @@ public class SimplePedMenu : Script
     #region //Radio Station Menu //
     public void RadioStationMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Radio Options", "");
+        NativeMenu uimenu = new NativeMenu("Radio Options", "View Radio Options Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -1562,7 +1569,7 @@ public class SimplePedMenu : Script
     #region // Animal Menu //
     public void AnimalMenu(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Animals", "");
+        NativeMenu uimenu = new NativeMenu("Animals", "View Animal Menu");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -1653,7 +1660,7 @@ public class SimplePedMenu : Script
     #region // Prop Weapons //
     public void PropWeaponMenu(NativeMenu menu)
     {
-        NativeMenu props = new NativeMenu("Prop Weapons", "");
+        NativeMenu props = new NativeMenu("Prop Weapons", "View Prop Weapons Menu");
         _objectPool.Add(props);
         menu.AddSubMenu(props);
 
@@ -1685,7 +1692,7 @@ public class SimplePedMenu : Script
     #region // Credits //
     public void credits(NativeMenu menu)
     {
-        NativeMenu uimenu = new NativeMenu("Info Section", "");
+        NativeMenu uimenu = new NativeMenu("Info Section", "View Info Section");
         _objectPool.Add(uimenu);
         menu.AddSubMenu(uimenu);
 
@@ -1693,7 +1700,7 @@ public class SimplePedMenu : Script
         uimenu.Add(credits);
         credits.Activated += (sender, args) =>
         {
-            BigMessageThread.MessageInstance.ShowSimpleShard("Simple Ped Menu", "Mod by JonJonGames - Version 3.0\n\nVisit the GTA5-Mods page for more info and updates!\n\nEnjoy!");
+            BigMessageThread.MessageInstance.ShowMissionPassedMessage("~o~Simple ~w~Ped ~g~Menu by Jon Jon Games", 5000);
         };
     }
     #endregion
@@ -1703,7 +1710,7 @@ public class SimplePedMenu : Script
     {
         _objectPool = new ObjectPool();
 
-        _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v3.0");
+        _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "Mod by Jon Jon Games v3.0");
         _objectPool.Add(_mainMenu);
 
         // Load config first so favorites can use it
