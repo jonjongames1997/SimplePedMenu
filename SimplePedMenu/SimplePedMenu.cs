@@ -1403,13 +1403,6 @@ public class SimplePedMenu : Script
             Game.Player.Character.IsInvincible = false;
         };
 
-        NativeItem autoSaveGame = new NativeItem("Auto Save Game", "");
-        uimenu.Add(autoSaveGame);
-        autoSaveGame.Activated += (sender, args) =>
-        {
-            Game.DoAutoSave();
-        };
-
         NativeItem tenGrand = new NativeItem("Give $10,000", "");
         uimenu.Add(tenGrand);
         tenGrand.Activated += (sender, args) =>
@@ -1440,24 +1433,6 @@ public class SimplePedMenu : Script
         {
             Game.RadioStation = RadioStation.RadioOff;
             BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
-        };
-
-        NativeItem thermalVision = new NativeItem("Enable Thermal Vision", "");
-        uimenu.Add(thermalVision);
-        thermalVision.Activated += (sender, args) =>
-        {
-            Game.IsThermalVisionActive = true;
-            RAGENativeUI.Elements.BigMessageThread bigMessageThread = new RAGENativeUI.Elements.BigMessageThread();
-            bigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Enabled");
-        };
-
-        NativeItem disableThermalVision = new NativeItem("Disable Thermal Vision", "");
-        uimenu.Add(disableThermalVision);
-        disableThermalVision.Activated += (sender, args) =>
-        {
-            Game.IsThermalVisionActive = false;
-            RAGENativeUI.Elements.BigMessageThread bigMessageThread = new RAGENativeUI.Elements.BigMessageThread();
-            bigMessageThread.MessageInstance.ShowSimpleShard("Thermal Vision", "Disabled");
         };
     }
     #endregion
@@ -1708,7 +1683,7 @@ public class SimplePedMenu : Script
     #endregion
 
     #region // Credits //
-    public void _credits(NativeMenu menu)
+    public void credits(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Info Section", "");
         _objectPool.Add(uimenu);
@@ -1729,7 +1704,7 @@ public class SimplePedMenu : Script
     {
         _objectPool = new ObjectPool();
 
-        _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v2.9");
+        _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "~b~Mod ~g~by~w~ ~r~JonJonGames ~y~v3.0");
         _objectPool.Add(_mainMenu);
 
         // Load config first so favorites can use it
@@ -1747,7 +1722,7 @@ public class SimplePedMenu : Script
         MPAnimationsMenu(_mainMenu);
         PropWeaponMenu(_mainMenu);
         FavoritesMenu(_mainMenu);
-        _credits(_mainMenu);
+        credits(_mainMenu);
 
         Tick += (o, e) =>
         {
