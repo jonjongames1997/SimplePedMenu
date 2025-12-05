@@ -1693,8 +1693,7 @@ public class SimplePedMenu : Script
         uimenu.Add(credits);
         credits.Activated += (sender, args) =>
         {
-            RAGENativeUI.Elements.BigMessageThread bigMessage = new RAGENativeUI.Elements.BigMessageThread();
-            bigMessage.MessageInstance.ShowSimpleShard("Simple Ped Menu", "Mod by JonJonGames\n\nSpecial Thanks to:\n\n- Rage Plugin Hook Team\n- GTA5-Mods.com Community\n- NativeUI Developers\n- All Patreon Supporters\n\nEnjoy the mod! :-)", 5000);
+            BigMessageThread.MessageInstance.ShowSimpleShard("Simple Ped Menu", "Mod by JonJonGames - Version 3.0\n\nVisit the GTA5-Mods page for more info and updates!\n\nEnjoy!");
         };
     }
     #endregion
