@@ -1689,77 +1689,6 @@ public class SimplePedMenu : Script
     }
     #endregion
 
-    #region // Cutscene Player //
-    // Cutscenes Menu - reads comma separated list from INI [Cutscenes] List=scene1,scene2
-    public void CutsceneMenu(NativeMenu menu)
-    {
-        NativeMenu cutMenu = new NativeMenu("Cutscenes", "Cutscene Menu");
-        _objectPool.Add(cutMenu);
-        menu.AddSubMenu(cutMenu);
-
-        string cutsceneCsv = config.GetValue("Cutscenes", "List", "");
-        if (string.IsNullOrWhiteSpace(cutsceneCsv))
-        {
-            cutMenu.Add(new NativeItem("No cutscenes configured.", "Edit //scripts//SimplePedMenu.ini and add a comma separated list under [Cutscenes]"));
-            return;
-        }
-
-        foreach (var part in cutsceneCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            string name = part.Trim();
-            if (string.IsNullOrWhiteSpace(name)) continue;
-
-            var item = new NativeItem(name, $"Play cutscene {name}");
-            cutMenu.Add(item);
-            item.Activated += (sender, args) =>
-            {
-                // Close menus before playing
-                _mainMenu.Visible = false;
-                PlayCutscene(name);
-            };
-        }
-    }
-
-    private void PlayCutscene(string cutsceneName)
-    {
-        if (string.IsNullOrWhiteSpace(cutsceneName)) return;
-
-        try
-        {
-            // Request cutscene
-            Function.Call(Hash.REQUEST_CUTSCENE, cutsceneName, 8);
-
-            int start = Game.GameTime;
-            const int timeout = 15000; // 15s
-
-            while (!Function.Call<bool>(Hash.HAS_CUTSCENE_LOADED) && Game.GameTime - start < timeout)
-            {
-                Wait(100);
-            }
-
-            if (!Function.Call<bool>(Hash.HAS_CUTSCENE_LOADED))
-            {
-                BigMessageThread.MessageInstance.ShowSimpleShard("Cutscene", "Failed to load cutscene.");
-                return;
-            }
-
-            // Start and wait for it to finish
-            Function.Call(Hash.START_CUTSCENE, 0);
-
-            while (Function.Call<bool>(Hash.IS_CUTSCENE_PLAYING))
-            {
-                Wait(100);
-            }
-
-            Function.Call(Hash.REMOVE_CUTSCENE);
-        }
-        catch (Exception ex)
-        {
-            BigMessageThread.MessageInstance.ShowSimpleShard("Cutscene", "Error playing cutscene.");
-        }
-    }
-    #endregion
-
     #region // Credits Menu //
     public void Credits(NativeMenu menu)
     {
@@ -1795,7 +1724,6 @@ public class SimplePedMenu : Script
         OptionsMenu(_mainMenu);
         MPAnimationsMenu(_mainMenu);
         PropWeaponMenu(_mainMenu);
-        CutsceneMenu(_mainMenu);
         FavoritesMenu(_mainMenu);
         Credits(_mainMenu);
 
