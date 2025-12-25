@@ -1,6 +1,6 @@
 ﻿Changelog:
 
-3.0: [Complete Menu Overhaul - LemonUI Upgrade]
+3.0: [Complete Menu Overhaul - LemonUI Upgrade] - [Added Localization, Squad, Loadouts, Cheats, Hotkeys]
 
 - Complete overhaul of the menu using LemonUI
 - Added new menu sections: Settings, Teleport, Time & Weather, Player, Vehicle Options, Vehicle Spawner, Weapon Options, Attachments, and Model Spawner
@@ -10,6 +10,14 @@
 - Removed NativeUI references and dependencies
 - Removed old menu sections and options that are no longer relevant
 - Removed old options that are no longer relevant
+- Added localization support: menu strings can be stored in `Locale.<lang>` sections in the INI. Missing keys are auto-populated with defaults to ease translation.
+- Expanded squad (AI companion) system: spawn companions, dismiss squad, orders (follow, guard, attack nearest), and save/load squad presets to INI.
+- Weapon loadouts manager: apply named loadouts saved in INI (example: `Loadouts:Loadout1`).
+- Infinite / toggle cheats: `InfiniteHealth`, `InfiniteAmmo`, `NoWanted` toggles (persisted in INI) and enforced each tick.
+- Hotkeys for favorites: numeric hotkeys (1-9 / numpad) to quickly spawn or switch to favorite peds/vehicles; can be enabled/disabled via INI.
+- Auto-update & migration of INI schema: missing sections/keys are created automatically with sane defaults so older configs remain compatible.
+- Default INI generation on first run: `scripts\SimplePedMenu.ini` is created with recommended defaults if missing.
+- Minor fixes and stability improvements related to menu wiring and feature integration.
 
 2.9:
 
