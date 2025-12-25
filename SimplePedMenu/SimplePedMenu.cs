@@ -117,7 +117,24 @@ public class SimplePedMenu : Script
     }
     //endregion
 
-    //region // New Feature Helpers //
+    // Simple prompt helper using ScriptHookVDotNet's on-screen keyboard
+    private string PromptForText(string prompt, string defaultValue, int maxLength)
+    {
+        try
+        {
+            // Use ScriptHookVDotNet's on-screen keyboard helper
+            // The first parameter is a WindowTitle value; use default to avoid requiring a specific title.
+            string input = Game.GetUserInput(default(GTA.WindowTitle), defaultValue ?? "", maxLength);
+            if (string.IsNullOrEmpty(input)) return null;
+            return input;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    #region //region // New Feature Helpers //
     private void EnsureIniSchema(ScriptSettings cfg)
     {
         bool changed = false;
@@ -176,7 +193,7 @@ public class SimplePedMenu : Script
 
         return key;
     }
-
+    #endregion
     //region // Companion Manager //
     private void SpawnCompanion(string modelName)
     {
@@ -339,6 +356,44 @@ public class SimplePedMenu : Script
                 // clear preset value
                 config.SetValue("SquadPresets", n, "");
                 config.Save();
+                BuildSquadPresetsMenu(menu);
+            };
+
+            var rename = new NativeItem($"Rename {n}", $"Rename preset {n}");
+            menu.Add(rename);
+            rename.Activated += (s, a) =>
+            {
+                string newName = PromptForText("Enter new preset name", n, 24);
+                if (string.IsNullOrWhiteSpace(newName))
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Rename cancelled or invalid name.");
+                    return;
+                }
+
+                if (newName.Contains(","))
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Preset name cannot contain commas.");
+                    return;
+                }
+
+                var list = names.ToList();
+                if (list.Contains(newName))
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "A preset with that name already exists.");
+                    return;
+                }
+
+                int idx = list.IndexOf(n);
+                if (idx < 0) return;
+
+                // move value to new key
+                string csvValue = config.GetValue<string>("SquadPresets", n, "");
+                config.SetValue("SquadPresets", n, "");
+                list[idx] = newName;
+                config.SetValue("SquadPresets", "PresetsList", string.Join(",", list));
+                config.SetValue("SquadPresets", newName, csvValue);
+                config.Save();
+                BigMessageThread.MessageInstance.ShowSimpleShard("Squad", $"Preset renamed to {newName}.");
                 BuildSquadPresetsMenu(menu);
             };
         }
@@ -2138,7 +2193,8 @@ public class SimplePedMenu : Script
                     "[Cheats]\r\r\n" +
                     "InfiniteHealth=false\r\n" +
                     "InfiniteAmmo=false\r\n" +
-                    "NoWanted=false\r\n";
+                    "NoWanted=false\r\n" +
+                    "Config version 2.1.\r\n";
 
                 File.WriteAllText(iniPath, defaultIni);
             }
