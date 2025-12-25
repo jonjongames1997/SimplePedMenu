@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using GTA;
+using GTA.Math;
 using GTA.Native;
 using GTA.UI;
 using LemonUI;
@@ -12,7 +14,7 @@ using static GTA.ScriptSettings;
 
 public class SimplePedMenu : Script
 {
-    #region // General Variables //
+    //region // General Variables //
     private Ped playerPed = Game.Player.Character;
     private Player player = Game.Player;
 
@@ -27,9 +29,16 @@ public class SimplePedMenu : Script
     private const string FavoritesPedsSection = "FavoritesPeds";
     private const string FavoritesVehiclesSection = "FavoritesVehicles";
     private const string FavoritesKey = "Models";
-    #endregion
+    // New features
+    private readonly List<Ped> _squad = new List<Ped>();
+    private const string SquadSection = "Squad";
+    private const string LoadoutsSection = "Loadouts";
+    private const string CheatsSection = "Cheats";
+    private string language = "en";
+    private bool hotkeysEnabled = true;
+    //endregion
 
-    #region // Favorites Helpers //
+    //region // Favorites Helpers //
     private void LoadFavorites()
     {
         // Read CSV lists of hashes from INI
@@ -106,9 +115,344 @@ public class SimplePedMenu : Script
 
         return $"Ped {HashToHexLabel(hash)}";
     }
-    #endregion
+    //endregion
 
-    #region // Favorites Menu //
+    //region // New Feature Helpers //
+    private void EnsureIniSchema(ScriptSettings cfg)
+    {
+        bool changed = false;
+        if (string.IsNullOrEmpty(cfg.GetValue<string>("Options", "Language", null)))
+        {
+            cfg.SetValue("Options", "Language", "en");
+            changed = true;
+        }
+
+        if (cfg.GetValue<string>(FavoritesPedsSection, "Hotkeys", null) == null)
+        {
+            cfg.SetValue(FavoritesPedsSection, "Hotkeys", "1=,2=,3=,4=,5=");
+            changed = true;
+        }
+
+        if (cfg.GetValue<string>(FavoritesVehiclesSection, "Hotkeys", null) == null)
+        {
+            cfg.SetValue(FavoritesVehiclesSection, "Hotkeys", "1=,2=,3=,4=,5=");
+            changed = true;
+        }
+
+        if (cfg.GetValue<string>(CheatsSection, "InfiniteHealth", null) == null)
+        {
+            cfg.SetValue(CheatsSection, "InfiniteHealth", "false");
+            cfg.SetValue(CheatsSection, "InfiniteAmmo", "false");
+            cfg.SetValue(CheatsSection, "NoWanted", "false");
+            changed = true;
+        }
+
+        if (changed)
+            cfg.Save();
+
+        language = cfg.GetValue<string>("Options", "Language", "en");
+        hotkeysEnabled = cfg.GetValue<bool>("Options", "HotkeysEnabled", true);
+    }
+
+    private string T(string key, string defaultValue = null)
+    {
+        // Simple localization: read from [Locale.<lang>] section if present
+        string localeSection = $"Locale.{language}";
+        var val = config.GetValue<string>(localeSection, key, null);
+        if (!string.IsNullOrEmpty(val))
+            return val;
+
+        // If missing, write default back to INI so translators can edit
+        if (defaultValue != null)
+        {
+            try
+            {
+                config.SetValue(localeSection, key, defaultValue);
+                config.Save();
+            }
+            catch { }
+            return defaultValue;
+        }
+
+        return key;
+    }
+
+    //region // Companion Manager //
+    private void SpawnCompanion(string modelName)
+    {
+        try
+        {
+            var model = new Model(modelName);
+            if (!model.IsInCdImage || !model.IsValid || !model.IsPed)
+            {
+                BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Invalid companion model.");
+                return;
+            }
+
+            Vector3 spawnPos = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 2f;
+            Ped ped = World.CreatePed(model, spawnPos);
+            if (ped != null && ped.Exists())
+            {
+                ped.Weapons.Give(WeaponHash.Pistol, 250, true, true);
+                ped.Armor = 100;
+                ped.RelationshipGroup = "COMPANIONS";
+                ped.KeepTaskWhenMarkedAsNoLongerNeeded = true;
+                ped.Task.FollowToOffsetFromEntity(Game.Player.Character, new Vector3(1f, 1f, 0f), 2f);
+                _squad.Add(ped);
+                BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Companion spawned.");
+            }
+        }
+        catch (Exception)
+        {
+            BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Failed to spawn companion.");
+        }
+    }
+
+    private void GiveSquadFollow()
+    {
+        for (int i = 0; i < _squad.Count; i++)
+        {
+            var ped = _squad[i];
+            if (ped == null || !ped.Exists()) continue;
+            Vector3 offset = new Vector3(1f + i, 0f, 0f);
+            ped.Task.FollowToOffsetFromEntity(Game.Player.Character, offset, 2f);
+        }
+        BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Squad ordered to follow.");
+    }
+
+    private void GiveSquadGuard()
+    {
+        foreach (var ped in _squad)
+        {
+            if (ped == null || !ped.Exists()) continue;
+            ped.Task.ClearAll();
+            ped.Task.StandStill(-1);
+            ped.BlockPermanentEvents = true;
+        }
+        BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Squad ordered to guard position.");
+    }
+
+    private void GiveSquadAttackNearest()
+    {
+        // find nearest ped to player
+        Ped nearest = World.GetClosestPed(Game.Player.Character.Position, 30f);
+        if (nearest == null || !nearest.Exists())
+        {
+            BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "No valid target nearby.");
+            return;
+        }
+
+        foreach (var ped in _squad)
+        {
+            if (ped == null || !ped.Exists()) continue;
+            try
+            {
+                ped.Task.CombatHatedTargetsAroundPed(1000f);
+            }
+            catch
+            {
+                // fallback: use native task
+                Function.Call(Hash.TASK_COMBAT_PED, ped.Handle, nearest.Handle, 0, 16);
+            }
+        }
+        BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Squad ordered to attack nearest.");
+    }
+
+    private void SaveCurrentSquadPreset()
+    {
+        if (_squad.Count == 0)
+        {
+            BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "No companions to save.");
+            return;
+        }
+
+        var list = new List<string>();
+        foreach (var ped in _squad)
+        {
+            if (ped != null && ped.Exists())
+            {
+                list.Add(ped.Model.Hash.ToString());
+            }
+        }
+        string csv = string.Join(",", list);
+
+        string listKey = config.GetValue<string>("SquadPresets", "PresetsList", "");
+        int nextIndex = 1;
+        var names = new List<string>();
+        if (!string.IsNullOrWhiteSpace(listKey))
+            names = listKey.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        string name;
+        do
+        {
+            name = "Preset" + nextIndex;
+            nextIndex++;
+        } while (names.Contains(name));
+
+        names.Add(name);
+        config.SetValue("SquadPresets", "PresetsList", string.Join(",", names));
+        config.SetValue("SquadPresets", name, csv);
+        config.Save();
+
+        BigMessageThread.MessageInstance.ShowSimpleShard("Squad", $"Saved preset {name}.");
+    }
+
+    private void BuildSquadPresetsMenu(NativeMenu menu)
+    {
+        menu.Clear();
+        string listKey = config.GetValue<string>("SquadPresets", "PresetsList", "");
+        if (string.IsNullOrWhiteSpace(listKey))
+        {
+            menu.Add(new NativeItem("No presets saved.", "Save current squad as a preset."));
+            return;
+        }
+
+        var names = listKey.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var n in names)
+        {
+            string csv = config.GetValue<string>("SquadPresets", n, "");
+            var item = new NativeItem($"Load {n}", $"Spawn companions from preset {n}");
+            menu.Add(item);
+            item.Activated += (s, a) =>
+            {
+                DismissSquad();
+                foreach (var part in csv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (int.TryParse(part.Trim(), out int h))
+                    {
+                        var model = new Model(h);
+                        if (model.IsValid && model.IsPed)
+                        {
+                            SpawnCompanion(model.ToString());
+                        }
+                    }
+                }
+            };
+
+            var del = new NativeItem($"Delete {n}", $"Delete preset {n}");
+            menu.Add(del);
+            del.Activated += (s, a) =>
+            {
+                var list = names.ToList();
+                list.Remove(n);
+                config.SetValue("SquadPresets", "PresetsList", string.Join(",", list));
+                // clear preset value
+                config.SetValue("SquadPresets", n, "");
+                config.Save();
+                BuildSquadPresetsMenu(menu);
+            };
+        }
+    }
+    //endregion
+
+    //region // Squad Handler //
+    private void DismissSquad()
+    {
+        foreach (var ped in _squad.ToList())
+        {
+            if (ped != null && ped.Exists())
+            {
+                ped.Delete();
+            }
+        }
+        _squad.Clear();
+        BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "All companions dismissed.");
+    }
+    //endregion
+
+    //region // Loadout Applier //
+    private void ApplyLoadout(string loadoutCsv)
+    {
+        // Format: WEAPON_NAME:ammo,WEAPON_NAME2:ammo2
+        var parts = loadoutCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var kv = part.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            if (kv.Length >= 1)
+            {
+                string w = kv[0].Trim();
+                int ammo = 9999;
+                if (kv.Length == 2) int.TryParse(kv[1].Trim(), out ammo);
+
+                try
+                {
+                    int hash = Function.Call<int>(Hash.GET_HASH_KEY, w);
+                    Game.Player.Character.Weapons.Give((WeaponHash)hash, ammo, false, true);
+                }
+                catch { }
+            }
+        }
+    }
+    //endregion
+
+    //region // Enforce Cheats //
+    private void EnforceCheats()
+    {
+        bool infHealth = config.GetValue<bool>(CheatsSection, "InfiniteHealth", false);
+        bool infAmmo = config.GetValue<bool>(CheatsSection, "InfiniteAmmo", false);
+        bool noWanted = config.GetValue<bool>(CheatsSection, "NoWanted", false);
+
+        if (infHealth)
+        {
+            Game.Player.Character.Health = Game.Player.Character.MaxHealth;
+            Game.Player.Character.Armor = 100;
+        }
+
+        if (infAmmo)
+        {
+            // Refill current weapon ammo and set clip count high
+            var weapon = Game.Player.Character.Weapons.Current;
+            if (weapon != null && weapon.Hash != 0)
+            {
+                weapon.Ammo = Math.Max(weapon.Ammo, 9999);
+            }
+        }
+
+        if (noWanted)
+        {
+            if (Game.Player.WantedLevel > 0)
+                Game.Player.WantedLevel = 0;
+        }
+    }
+    //endregion
+
+    //region // Hotkey Handler //
+    private void HandleHotkeys(Keys key)
+    {
+        if (!hotkeysEnabled) return;
+
+        // numeric keys  D1..D5 map to favorites indices 0..4
+        int idx = -1;
+        if (key >= Keys.D1 && key <= Keys.D9)
+            idx = key - Keys.D1; // 0-based
+        else if (key >= Keys.NumPad1 && key <= Keys.NumPad9)
+            idx = key - Keys.NumPad1;
+
+        if (idx >= 0)
+        {
+            if (idx < favoritePedModels.Count)
+            {
+                int hash = favoritePedModels[idx];
+                var model = new Model(hash);
+                if (model.IsValid && model.IsPed)
+                    Game.Player.ChangeModel(model);
+            }
+            else if (idx < favoriteVehicleModels.Count)
+            {
+                int hash = favoriteVehicleModels[idx];
+                var model = new Model(hash);
+                if (model.IsValid && model.IsVehicle)
+                {
+                    Vehicle v = World.CreateVehicle(model, Game.Player.Character.Position);
+                    if (v != null && v.Exists())
+                        Game.Player.Character.SetIntoVehicle(v, VehicleSeat.Driver);
+                }
+            }
+        }
+    }
+    //endregion
+
+    //region // Favorites Menu //
     public void FavoritesMenu(NativeMenu menu)
     {
         var favoritesMenu = new NativeMenu("Favorites", "Pinned peds & vehicles");
@@ -192,6 +536,10 @@ public class SimplePedMenu : Script
         // Build initial favorites lists
         RebuildFavoritePedsMenu(favPedsMenu);
         RebuildFavoriteVehiclesMenu(favVehMenu);
+
+        // Hotkeys info
+        var hotkeyInfo = new NativeItem("Hotkeys: Press 1-5 to use favorites", "Enable in INI under Options:HotkeysEnabled");
+        favoritesMenu.Add(hotkeyInfo);
     }
 
     private void RebuildFavoritePedsMenu(NativeMenu menu)
@@ -300,9 +648,9 @@ public class SimplePedMenu : Script
             );
         };
     }
-    #endregion
+    //endregion
 
-    #region // Ped Model Menu //
+    //region // Ped Model Menu //
     public void PlayerModelMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Peds", "View Ped Menu");
@@ -330,7 +678,7 @@ public class SimplePedMenu : Script
             Game.Player.ChangeModel("IG_MICHELLE");
         };
 
-        NativeItem tourist = new NativeItem("Female Tourist 1", "");
+        NativeItem tourist = new NativeItem("Female Tourist 01", "");
         uimenu.Add(tourist);
         tourist.Activated += (sender, args) =>
         {
@@ -743,9 +1091,9 @@ public class SimplePedMenu : Script
             Game.Player.ChangeModel("player_two");
         };
     }
-    #endregion
+    //endregion
 
-    #region // Vehicle Menu //
+    //region // Vehicle Menu //
     public void VehicleMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Civilian Vehicles", "View Civilian Vehicle Menu");
@@ -917,9 +1265,9 @@ public class SimplePedMenu : Script
         uimenu.Add(bulldozer);
         bulldozer.Activated += (sender, args) => SpawnAndWarp("bulldozer");
     }
-    #endregion
+    //endregion
 
-    #region // Animations Menu //
+    //region // Animations Menu //
     public void MPAnimationsMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Animations", "View Animations Menu");
@@ -1311,9 +1659,9 @@ public class SimplePedMenu : Script
             Game.Player.Character.Task.PlayAnimation("timetable@tracy@ig_5@idle_a", "idle_c");
         };
     }
-    #endregion
+    //endregion
 
-    #region // Weapon Menu //
+    //region // Weapon Menu //
     public void WeaponMenu(NativeMenu menu)
     {
         NativeMenu weapons = new NativeMenu("Weapons", "View Weapon Menu");
@@ -1352,9 +1700,9 @@ public class SimplePedMenu : Script
             Game.Player.Character.Weapons.Drop();
         };
     }
-    #endregion
+    //endregion
 
-    #region // Options Menu //
+    //region // Options Menu //
     public void OptionsMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Options", "View Options Menu");
@@ -1442,10 +1790,58 @@ public class SimplePedMenu : Script
             Game.RadioStation = RadioStation.RadioOff;
             BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
         };
-    }
-    #endregion
 
-    #region //Radio Station Menu //
+        // --- Squad Management ---
+        var squadMenu = new NativeMenu("Squad", "Spawn and manage companions");
+        _objectPool.Add(squadMenu);
+        uimenu.AddSubMenu(squadMenu);
+
+        var spawnComp = new NativeItem("Spawn Companion (Default)", "Spawns a default companion");
+        squadMenu.Add(spawnComp);
+        spawnComp.Activated += (s, a) => SpawnCompanion("a_m_m_skater_01");
+
+        var dismissSquad = new NativeItem("Dismiss Squad", "Remove all companions");
+        squadMenu.Add(dismissSquad);
+        dismissSquad.Activated += (s, a) => DismissSquad();
+
+        var followOrder = new NativeItem("Order: Follow", "Order squad to follow you");
+        squadMenu.Add(followOrder);
+        followOrder.Activated += (s, a) => GiveSquadFollow();
+
+        var guardOrder = new NativeItem("Order: Guard", "Order squad to guard position");
+        squadMenu.Add(guardOrder);
+        guardOrder.Activated += (s, a) => GiveSquadGuard();
+
+        var attackOrder = new NativeItem("Order: Attack Nearest", "Order squad to attack nearest enemy");
+        squadMenu.Add(attackOrder);
+        attackOrder.Activated += (s, a) => GiveSquadAttackNearest();
+
+        var savePreset = new NativeItem("Save Squad Preset", "Save the current squad as a preset");
+        squadMenu.Add(savePreset);
+        savePreset.Activated += (s, a) => SaveCurrentSquadPreset();
+
+        var presetsMenu = new NativeMenu("Squad Presets", "Load or delete saved presets");
+        _objectPool.Add(presetsMenu);
+        squadMenu.AddSubMenu(presetsMenu);
+        BuildSquadPresetsMenu(presetsMenu);
+
+        // --- Loadouts ---
+        var loadoutMenu = new NativeMenu("Loadouts", "Manage weapon loadouts");
+        _objectPool.Add(loadoutMenu);
+        uimenu.AddSubMenu(loadoutMenu);
+
+        var applyLoadout1 = new NativeItem("Apply Loadout 1", "Apply saved loadout 1");
+        loadoutMenu.Add(applyLoadout1);
+        applyLoadout1.Activated += (s, a) =>
+        {
+            string csv = config.GetValue(LoadoutsSection, "Loadout1", "WEAPON_COMBATPISTOL:9999");
+            ApplyLoadout(csv);
+            BigMessageThread.MessageInstance.ShowSimpleShard("Loadouts", "Loadout 1 applied");
+        };
+    }
+    //endregion
+
+    //region //Radio Station Menu //
     public void RadioStationMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Radio Options", "View Radio Options Menu");
@@ -1565,9 +1961,9 @@ public class SimplePedMenu : Script
         uimenu.Add(worldWideFM);
         worldWideFM.Activated += (s, a) => SetRadio(RadioStation.WorldWideFM);
     }
-    #endregion
+    //endregion
 
-    #region // Animal Menu //
+    //region // Animal Menu //
     public void AnimalMenu(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Animals", "View Animal Menu");
@@ -1656,9 +2052,9 @@ public class SimplePedMenu : Script
         uimenu.Add(pugDog);
         pugDog.Activated += (s, a) => ChangeModel("A_C_PUG");
     }
-    #endregion
+    //endregion
 
-    #region // Prop Weapons //
+    //region // Prop Weapons //
     public void PropWeaponMenu(NativeMenu menu)
     {
         NativeMenu props = new NativeMenu("Prop Weapons", "View Prop Weapons Menu");
@@ -1688,9 +2084,9 @@ public class SimplePedMenu : Script
             Game.Player.Character.Weapons.Give((WeaponHash)Function.Call<int>(Hash.GET_HASH_KEY, "WEAPON_FIREEXTINGUISHER"), 9999, true, true);
         };
     }
-    #endregion
+    //endregion
 
-    #region // Credits Menu //
+    //region // Credits Menu //
     public void Credits(NativeMenu menu)
     {
         NativeMenu uimenu = new NativeMenu("Credits", "View Credits");
@@ -1701,9 +2097,9 @@ public class SimplePedMenu : Script
         NativeItem credit2 = new NativeItem("GTA5-Mods Page", "https://www.gta5-mods.com/scripts/simple-ped-menu");
         uimenu.Add(credit2);
     }
-    #endregion
+    //endregion
 
-    #region // Menu Setup //
+    //region // Menu Setup //
     public SimplePedMenu()
     {
         _objectPool = new ObjectPool();
@@ -1725,11 +2121,24 @@ public class SimplePedMenu : Script
             {
                 string defaultIni =
                     "[Options]\r\n" +
-                    "OpenMenu=F9\r\n\r\n" +
+                    "OpenMenu=F9\r\n" +
+                    "Language=en\r\n" +
+                    "HotkeysEnabled=true\r\n\r\n" +
                     "[FavoritesPeds]\r\n" +
-                    "Models=\r\n\r\n" +
+                    "Models=\r\n" +
+                    "Hotkeys=1=,2=,3=,4=,5=\r\n\r\n" +
                     "[FavoritesVehicles]\r\n" +
-                    "Models=\r\n";
+                    "Models=\r\n" +
+                    "Hotkeys=1=,2=,3=,4=,5=\r\n\r\n" +
+                    "[Squad]\r\n" +
+                    "CompanionCount=0\r\n" +
+                    "CompanionModels=\r\n\r\n" +
+                    "[Loadouts]\r\n" +
+                    "Loadout1=WEAPON_COMBATPISTOL:9999\r\r\n" +
+                    "[Cheats]\r\r\n" +
+                    "InfiniteHealth=false\r\n" +
+                    "InfiniteAmmo=false\r\n" +
+                    "NoWanted=false\r\n";
 
                 File.WriteAllText(iniPath, defaultIni);
             }
@@ -1741,6 +2150,9 @@ public class SimplePedMenu : Script
         }
 
         config = ScriptSettings.Load(iniPath);
+        // Auto-migrate INI schema: ensure keys exist
+        EnsureIniSchema(config);
+
         OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
 
         LoadFavorites();
@@ -1759,15 +2171,21 @@ public class SimplePedMenu : Script
         Tick += (o, e) =>
         {
             _objectPool.Process();
+            EnforceCheats();
         };
 
         KeyDown += (o, e) =>
         {
+            // Handle OpenMenu toggle
             if (e.KeyCode == OpenMenu && !_objectPool.AreAnyVisible)
             {
                 _mainMenu.Visible = !_mainMenu.Visible;
+                return;
             }
+
+            // Hotkeys for favorites
+            HandleHotkeys(e.KeyCode);
         };
     }
-    #endregion
+    //endregion
 }
