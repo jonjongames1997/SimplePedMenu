@@ -18,6 +18,7 @@
 - Auto-update & migration of INI schema: missing sections/keys are created automatically with sane defaults so older configs remain compatible.
 - Default INI generation on first run: `scripts\SimplePedMenu.ini` is created with recommended defaults if missing.
 - Minor fixes and stability improvements related to menu wiring and feature integration.
+- Added ability to name/rename your presets and save them
 
 2.9:
 
