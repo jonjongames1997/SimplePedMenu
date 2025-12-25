@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.IO;
 using GTA;
 using GTA.Native;
 using GTA.UI;
@@ -1710,8 +1711,36 @@ public class SimplePedMenu : Script
         _mainMenu = new NativeMenu("~o~Simple ~w~Ped ~g~Menu", "Mod by Jon Jon Games v3.0");
         _objectPool.Add(_mainMenu);
 
-        // Load config first so favorites can use it
-        config = ScriptSettings.Load("//scripts//SimplePedMenu.ini");
+        // Ensure INI exists and load config so favorites can use it
+        string iniPath = Path.Combine("scripts", "SimplePedMenu.ini");
+        try
+        {
+            string iniDir = Path.GetDirectoryName(iniPath);
+            if (!string.IsNullOrEmpty(iniDir) && !Directory.Exists(iniDir))
+            {
+                Directory.CreateDirectory(iniDir);
+            }
+
+            if (!File.Exists(iniPath))
+            {
+                string defaultIni =
+                    "[Options]\r\n" +
+                    "OpenMenu=F9\r\n\r\n" +
+                    "[FavoritesPeds]\r\n" +
+                    "Models=\r\n\r\n" +
+                    "[FavoritesVehicles]\r\n" +
+                    "Models=\r\n";
+
+                File.WriteAllText(iniPath, defaultIni);
+            }
+        }
+        catch (Exception)
+        {
+            // If creating the file fails, fall back to loading default settings location used previously
+            iniPath = "//scripts//SimplePedMenu.ini";
+        }
+
+        config = ScriptSettings.Load(iniPath);
         OpenMenu = config.GetValue<Keys>("Options", "OpenMenu", Keys.F9);
 
         LoadFavorites();
