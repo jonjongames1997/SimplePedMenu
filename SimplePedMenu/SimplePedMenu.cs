@@ -35,7 +35,6 @@ public class SimplePedMenu : Script
     private const string LoadoutsSection = "Loadouts";
     private const string CheatsSection = "Cheats";
     private string language = "en";
-    private bool hotkeysEnabled = true;
     //endregion
 
     //region // Favorites Helpers //
@@ -117,22 +116,7 @@ public class SimplePedMenu : Script
     }
     //endregion
 
-    // Simple prompt helper using ScriptHookVDotNet's on-screen keyboard
-    private string PromptForText(string prompt, string defaultValue, int maxLength)
-    {
-        try
-        {
-            // Use ScriptHookVDotNet's on-screen keyboard helper
-            // The first parameter is a WindowTitle value; use default to avoid requiring a specific title.
-            string input = Game.GetUserInput(default(GTA.WindowTitle), defaultValue ?? "", maxLength);
-            if (string.IsNullOrEmpty(input)) return null;
-            return input;
-        }
-        catch
-        {
-            return null;
-        }
-    }
+    // (preset rename UI removed)
 
     #region //region // New Feature Helpers //
     private void EnsureIniSchema(ScriptSettings cfg)
@@ -168,7 +152,6 @@ public class SimplePedMenu : Script
             cfg.Save();
 
         language = cfg.GetValue<string>("Options", "Language", "en");
-        hotkeysEnabled = cfg.GetValue<bool>("Options", "HotkeysEnabled", true);
     }
 
     private string T(string key, string defaultValue = null)
@@ -359,43 +342,7 @@ public class SimplePedMenu : Script
                 BuildSquadPresetsMenu(menu);
             };
 
-            var rename = new NativeItem($"Rename {n}", $"Rename preset {n}");
-            menu.Add(rename);
-            rename.Activated += (s, a) =>
-            {
-                string newName = PromptForText("Enter new preset name", n, 24);
-                if (string.IsNullOrWhiteSpace(newName))
-                {
-                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Rename cancelled or invalid name.");
-                    return;
-                }
-
-                if (newName.Contains(","))
-                {
-                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Preset name cannot contain commas.");
-                    return;
-                }
-
-                var list = names.ToList();
-                if (list.Contains(newName))
-                {
-                    BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "A preset with that name already exists.");
-                    return;
-                }
-
-                int idx = list.IndexOf(n);
-                if (idx < 0) return;
-
-                // move value to new key
-                string csvValue = config.GetValue<string>("SquadPresets", n, "");
-                config.SetValue("SquadPresets", n, "");
-                list[idx] = newName;
-                config.SetValue("SquadPresets", "PresetsList", string.Join(",", list));
-                config.SetValue("SquadPresets", newName, csvValue);
-                config.Save();
-                BigMessageThread.MessageInstance.ShowSimpleShard("Squad", $"Preset renamed to {newName}.");
-                BuildSquadPresetsMenu(menu);
-            };
+            // Preset renaming removed
         }
     }
     //endregion
@@ -469,43 +416,6 @@ public class SimplePedMenu : Script
                 Game.Player.WantedLevel = 0;
         }
     }
-    //endregion
-
-    //region // Hotkey Handler //
-    private void HandleHotkeys(Keys key)
-    {
-        if (!hotkeysEnabled) return;
-
-        // numeric keys  D1..D5 map to favorites indices 0..4
-        int idx = -1;
-        if (key >= Keys.D1 && key <= Keys.D9)
-            idx = key - Keys.D1; // 0-based
-        else if (key >= Keys.NumPad1 && key <= Keys.NumPad9)
-            idx = key - Keys.NumPad1;
-
-        if (idx >= 0)
-        {
-            if (idx < favoritePedModels.Count)
-            {
-                int hash = favoritePedModels[idx];
-                var model = new Model(hash);
-                if (model.IsValid && model.IsPed)
-                    Game.Player.ChangeModel(model);
-            }
-            else if (idx < favoriteVehicleModels.Count)
-            {
-                int hash = favoriteVehicleModels[idx];
-                var model = new Model(hash);
-                if (model.IsValid && model.IsVehicle)
-                {
-                    Vehicle v = World.CreateVehicle(model, Game.Player.Character.Position);
-                    if (v != null && v.Exists())
-                        Game.Player.Character.SetIntoVehicle(v, VehicleSeat.Driver);
-                }
-            }
-        }
-    }
-    //endregion
 
     //region // Favorites Menu //
     public void FavoritesMenu(NativeMenu menu)
@@ -2194,6 +2104,9 @@ public class SimplePedMenu : Script
                     "InfiniteHealth=false\r\n" +
                     "InfiniteAmmo=false\r\n" +
                     "NoWanted=false\r\n" +
+                    "\r\n" +
+                    "\r\n" +
+                    "\r\n" +
                     "Config version 2.1.\r\n";
 
                 File.WriteAllText(iniPath, defaultIni);
@@ -2232,15 +2145,14 @@ public class SimplePedMenu : Script
 
         KeyDown += (o, e) =>
         {
-            // Handle OpenMenu toggle
-            if (e.KeyCode == OpenMenu && !_objectPool.AreAnyVisible)
+            // Always allow toggling the main menu with the configured key
+            if (e.KeyCode == OpenMenu)
             {
                 _mainMenu.Visible = !_mainMenu.Visible;
                 return;
             }
 
-            // Hotkeys for favorites
-            HandleHotkeys(e.KeyCode);
+        // Hotkeys removed: nothing else to handle here
         };
     }
     //endregion
