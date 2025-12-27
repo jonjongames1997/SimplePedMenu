@@ -138,6 +138,32 @@ public class SimplePedMenu : Script
             changed = true;
         }
 
+        // Ensure squad max companions option exists and is valid (0-50)
+        string maxCompStr = cfg.GetValue<string>(SquadSection, "MaxCompanions", null);
+        if (maxCompStr == null)
+        {
+            cfg.SetValue(SquadSection, "MaxCompanions", "5");
+            changed = true;
+        }
+        else
+        {
+            // Validate numeric range and clamp if necessary
+            if (int.TryParse(maxCompStr, out int maxVal))
+            {
+                int clamped = Math.Max(0, Math.Min(50, maxVal));
+                if (clamped != maxVal)
+                {
+                    cfg.SetValue(SquadSection, "MaxCompanions", clamped.ToString());
+                    changed = true;
+                }
+            }
+            else
+            {
+                cfg.SetValue(SquadSection, "MaxCompanions", "5");
+                changed = true;
+            }
+        }
+
         if (changed)
             cfg.Save();
 
@@ -146,8 +172,10 @@ public class SimplePedMenu : Script
 
     private string T(string key, string defaultValue = null)
     {
-        // Simple localization: read from [Locale.<lang>] section if present
-        string localeSection = $"Locale.{language}";
+        // Simple localization: read language from config each call so changes to the
+        // `[Options] Language` setting take effect without relying on the cached field.
+        string currentLang = config.GetValue<string>("Options", "Language", "en");
+        string localeSection = $"Locale.{currentLang}";
         var val = config.GetValue<string>(localeSection, key, null);
         if (!string.IsNullOrEmpty(val))
             return val;
@@ -170,6 +198,14 @@ public class SimplePedMenu : Script
     //region // Companion Manager //
     private void SpawnCompanion(string modelName)
     {
+        // Read configured max companions and enforce
+        int maxCompanions = GetMaxCompanions();
+        if (_squad.Count >= maxCompanions)
+        {
+            BigMessageThread.MessageInstance.ShowSimpleShard("Squad", $"Max companions reached ({maxCompanions}).");
+            return;
+        }
+
         try
         {
             var model = new Model(modelName);
@@ -304,6 +340,20 @@ public class SimplePedMenu : Script
         config.Save();
 
         BigMessageThread.MessageInstance.ShowSimpleShard("Squad", $"Saved preset {name}.");
+    }
+
+    private int GetMaxCompanions()
+    {
+        try
+        {
+            string s = config.GetValue<string>(SquadSection, "MaxCompanions", "5");
+            if (int.TryParse(s, out int v))
+            {
+                return Math.Max(0, Math.Min(50, v));
+            }
+        }
+        catch { }
+        return 5;
     }
 
     private void BuildSquadPresetsMenu(NativeMenu menu)
@@ -1763,6 +1813,37 @@ public class SimplePedMenu : Script
             BigMessageThread.MessageInstance.ShowSimpleShard("Music", "Stopped");
         };
 
+        // --- Language Selection ---
+        var languageMenu = new NativeMenu("Language", "Change localization language");
+        _objectPool.Add(languageMenu);
+        uimenu.AddSubMenu(languageMenu);
+
+        // Supported language list - add codes as desired
+        string[] supportedLangs = new[] { "en", "es", "fr", "de", "it", "pt", "ru" };
+        foreach (var langCode in supportedLangs)
+        {
+            var li = new NativeItem(langCode, $"Switch UI language to {langCode}");
+            languageMenu.Add(li);
+            li.Activated += (s, a) =>
+            {
+                try
+                {
+                    config.SetValue("Options", "Language", langCode);
+                    config.Save();
+                    language = langCode; // update cached field for any code using it
+
+                    // Rebuild menus so any menu text generated from config/localization updates
+                    RebuildMenus();
+
+                    BigMessageThread.MessageInstance.ShowSimpleShard("Language", $"Language set to {langCode}");
+                }
+                catch
+                {
+                    BigMessageThread.MessageInstance.ShowSimpleShard("Language", "Failed to set language.");
+                }
+            };
+        }
+
         // --- Squad Management ---
         var squadMenu = new NativeMenu("Squad", "Spawn and manage companions");
         _objectPool.Add(squadMenu);
@@ -2100,6 +2181,7 @@ public class SimplePedMenu : Script
                     "[FavoritesVehicles]\r\n" +
                     "Models=\r\n\r\n" +
                     "[Squad]\r\n" +
+                    "MaxCompanions=5\r\n" +
                     "CompanionCount=0\r\n" +
                     "CompanionModels=\r\n\r\n" +
                     "[Loadouts]\r\n" +
@@ -2133,11 +2215,8 @@ public class SimplePedMenu : Script
         WeaponMenu(_mainMenu);
         AnimalMenu(_mainMenu);
         RadioStationMenu(_mainMenu);
-        OptionsMenu(_mainMenu);
-        MPAnimationsMenu(_mainMenu);
-        PropWeaponMenu(_mainMenu);
-        FavoritesMenu(_mainMenu);
-        Credits(_mainMenu);
+        // Build menus through RebuildMenus so we can refresh them later
+        RebuildMenus();
 
         Tick += (o, e) =>
         {
@@ -2156,6 +2235,28 @@ public class SimplePedMenu : Script
 
         // Hotkeys removed: nothing else to handle here
         };
+    }
+
+    private void RebuildMenus()
+    {
+        // Clear existing menus and rebuild all submenus so localization changes apply
+        try
+        {
+            _mainMenu.Clear();
+
+            // Recreate primary submenus
+            PlayerModelMenu(_mainMenu);
+            VehicleMenu(_mainMenu);
+            WeaponMenu(_mainMenu);
+            AnimalMenu(_mainMenu);
+            RadioStationMenu(_mainMenu);
+            OptionsMenu(_mainMenu);
+            MPAnimationsMenu(_mainMenu);
+            PropWeaponMenu(_mainMenu);
+            FavoritesMenu(_mainMenu);
+            Credits(_mainMenu);
+        }
+        catch { }
     }
     //endregion
 }
