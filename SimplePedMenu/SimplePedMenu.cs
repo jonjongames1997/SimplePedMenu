@@ -128,17 +128,7 @@ public class SimplePedMenu : Script
             changed = true;
         }
 
-        if (cfg.GetValue<string>(FavoritesPedsSection, "Hotkeys", null) == null)
-        {
-            cfg.SetValue(FavoritesPedsSection, "Hotkeys", "1=,2=,3=,4=,5=");
-            changed = true;
-        }
-
-        if (cfg.GetValue<string>(FavoritesVehiclesSection, "Hotkeys", null) == null)
-        {
-            cfg.SetValue(FavoritesVehiclesSection, "Hotkeys", "1=,2=,3=,4=,5=");
-            changed = true;
-        }
+        // Favorites Hotkeys entries removed from INI schema
 
         if (cfg.GetValue<string>(CheatsSection, "InfiniteHealth", null) == null)
         {
@@ -234,9 +224,19 @@ public class SimplePedMenu : Script
 
     private void GiveSquadAttackNearest()
     {
-        // find nearest ped to player
-        Ped nearest = World.GetClosestPed(Game.Player.Character.Position, 30f);
-        if (nearest == null || !nearest.Exists())
+        // Find nearest hostile ped that is not the player or one of our companions
+        float searchRadius = 50f;
+        var playerPos = Game.Player.Character.Position;
+
+        var nearest = World.GetAllPeds()
+            .Where(p => p != null && p.Exists() && !p.IsDead)
+            .Where(p => p.Handle != Game.Player.Character.Handle)
+            .Where(p => !_squad.Any(s => s != null && s.Exists() && s.Handle == p.Handle))
+            .Where(p => p.IsHuman)
+            .OrderBy(p => p.Position.DistanceTo(playerPos))
+            .FirstOrDefault(p => p.Position.DistanceTo(playerPos) <= searchRadius);
+
+        if (nearest == null)
         {
             BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "No valid target nearby.");
             return;
@@ -247,12 +247,21 @@ public class SimplePedMenu : Script
             if (ped == null || !ped.Exists()) continue;
             try
             {
-                ped.Task.CombatHatedTargetsAroundPed(1000f);
+                // Clear any guard/follow state
+                ped.Task.ClearAll();
+                ped.BlockPermanentEvents = false;
+
+                // Try high-level task first
+                ped.Task.Combat(nearest);
             }
             catch
             {
                 // fallback: use native task
-                Function.Call(Hash.TASK_COMBAT_PED, ped.Handle, nearest.Handle, 0, 16);
+                try
+                {
+                    Function.Call(Hash.TASK_COMBAT_PED, ped.Handle, nearest.Handle, 0, 16);
+                }
+                catch { }
             }
         }
         BigMessageThread.MessageInstance.ShowSimpleShard("Squad", "Squad ordered to attack nearest.");
@@ -502,9 +511,7 @@ public class SimplePedMenu : Script
         RebuildFavoritePedsMenu(favPedsMenu);
         RebuildFavoriteVehiclesMenu(favVehMenu);
 
-        // Hotkeys info
-        var hotkeyInfo = new NativeItem("Hotkeys: Press 1-5 to use favorites", "Enable in INI under Options:HotkeysEnabled");
-        favoritesMenu.Add(hotkeyInfo);
+        // Hotkeys removed
     }
 
     private void RebuildFavoritePedsMenu(NativeMenu menu)
@@ -2087,25 +2094,20 @@ public class SimplePedMenu : Script
                 string defaultIni =
                     "[Options]\r\n" +
                     "OpenMenu=F9\r\n" +
-                    "Language=en\r\n" +
-                    "HotkeysEnabled=true\r\n\r\n" +
+                    "Language=en\r\n\r\n" +
                     "[FavoritesPeds]\r\n" +
-                    "Models=\r\n" +
-                    "Hotkeys=1=,2=,3=,4=,5=\r\n\r\n" +
+                    "Models=\r\n\r\n" +
                     "[FavoritesVehicles]\r\n" +
-                    "Models=\r\n" +
-                    "Hotkeys=1=,2=,3=,4=,5=\r\n\r\n" +
+                    "Models=\r\n\r\n" +
                     "[Squad]\r\n" +
                     "CompanionCount=0\r\n" +
                     "CompanionModels=\r\n\r\n" +
                     "[Loadouts]\r\n" +
-                    "Loadout1=WEAPON_COMBATPISTOL:9999\r\r\n" +
-                    "[Cheats]\r\r\n" +
+                    "Loadout1=WEAPON_COMBATPISTOL:9999\r\n" +
+                    "[Cheats]\r\n" +
                     "InfiniteHealth=false\r\n" +
                     "InfiniteAmmo=false\r\n" +
                     "NoWanted=false\r\n" +
-                    "\r\n" +
-                    "\r\n" +
                     "\r\n" +
                     "Config version 2.1.\r\n";
 
