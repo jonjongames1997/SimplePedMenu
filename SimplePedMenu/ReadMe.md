@@ -1,66 +1,33 @@
-<img src="https://img.shields.io/badge/Status-Active-blue" />
+# Simple Ped Menu
 
-# Simple Ped Menu for GTA V Singleplayer
+Simple Ped Menu is a GTA V ScriptHookVDotNet script that provides a quick in-game menu to spawn and manage ped companions, favorite peds/vehicles, weapons, animations and other utilities.
 
-Simple Ped Menu is a ped menu where you can change into any ped in the game besides Michael, Franklin, and Trevor.
+Key features
+- Spawn and manage a squad of companion peds (follow, guard, attack nearest, dismiss)
+- Save and load squad presets
+- Favorite peds and vehicles for quick access
+- Weapon and prop weapon shortcuts
+- Animations, animals, radio station and other utility menus
+- Configurable options via `scripts/SimplePedMenu.ini`, including a safe `MaxCompanions` limit
 
-# Features
-* Change your ped model easily
-* Spawn into a vehicle
-* Equip a weapon
-* Change Radio Stations
-* and more!
+Requirements
+- ScriptHookV
+- ScriptHookVDotNet
+- LemonUI.SHVDN3 (Included)
 
-# Requirements
+Installation
 
-* NativeUI (Latest)
-* ScriptHookVDotNet3 (Nightly version recommended)
+- Drag and Drop "scripts" folder into main GTA Directory
 
-# Install
-Drag and drop "scripts" folder into Main GTA Directory
+DELETE These Files if exists "SimplePedMenu.dll", "SimplePedMenu.ini", and "SimplePedMenu.pdb" as these new files will generate a new ini file
+on launch and it'll migrate your settings on next launch
 
-# How To Use
+Configuration
+- The script reads settings from `scripts/SimplePedMenu.ini`. If the file does not exist, a default one is created on first run.
 
-1) Go in game 
+- Open menu key can be changed in the `[Options]` section (`OpenMenu`, default `F9`).
 
-2) Hit F9 (by default) to bring up the menu then you should have a section for peds, vehicles, weapons, and more.
+Usage notes
+- If you try to spawn more companions than `MaxCompanions`, the script will show a message and prevent the spawn to avoid instability or crashes.
+- You can manage squad behavior using the Squad submenu in the Options menu.
 
-3) Select what you want and enjoy!
-
-# Radio Options Use
-
-* You must be in a vehicle with Music Audio turned on in Game Settings or have Mobile Radio option turned on to use this feature.
-* 2 Radio Stations will not work (Blaine County Radio & West Coast Talk Show) when crossing the county line. RockstarGames hardcoded this. You just got to deal with it.
-
-# Mod Compatibility
-Hot Coffee by K-po Games - ✅
-
-(Bug Fix) Karen Daniels / Michelle No Jiggle Breast / Boobs / No Neck Bug by world company - ✅
-
-Dildo bicycle by Chauklet - ✅
-
-My Ped Collection 2022 Part 1 by Nivinha - ✅
-
-My Ped Collection 2022 by Nivinha - ✅
-
-Strippers by Nivinha - ✅
-
-My Ig-Janet with special skills and physics by Nivinha - ✅
-
-Los Santos RED - ❌
-
-RDE - ❌
-
-IG_Agatha Baker Special Physics - ✅
-
-# Support
-
-If you want to suggest, report bugs, or need help with this menu, join my personal Discord: https://discord.com/N9KgZx4KUn 
-
-# Legend
-
-| ❌ - Not Compatible
-
-| ✅ - Compatible
-
-| ⚙️ - Working with other devs on compatibility
